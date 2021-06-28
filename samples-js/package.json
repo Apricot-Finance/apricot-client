@@ -1,0 +1,16 @@
+{
+  "name": "apricot-sample",
+  "version": "1.0.0",
+  "description": "",
+  "module": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Apricot",
+  "license": "ISC",
+  "dependencies": {
+    "@apricot-lend/apricot": "0.1.12",
+    "@solana/spl-token": "^0.1.4",
+    "@solana/web3.js": "^1.14.0"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "@apricot-lend/apricot",
+  "version": "0.1.12",
+  "description": "JS client library for Apricot on Solana",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Apricot-Finance/apricot-client.git"
+  },
+  "keywords": [
+    "Apricot",
+    "Solana"
+  ],
+  "author": "apricot-lend",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Apricot-Finance/apricot-client/issues"
+  },
+  "homepage": "https://github.com/Apricot-Finance/apricot-client#readme",
+  "dependencies": {
+    "@solana/spl-token": "^0.1.4",
+    "@solana/web3.js": "^1.14.0",
+    "big-integer": "1.6.48"
+  },
+  "main": "lib/apricot.js",
+  "module": "src/apricot.js",
+  "files": [
+    "/lib"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.14.5",
+    "@babel/core": "^7.14.5",
+    "@babel/preset-env": "^7.14.7"
+  }
+}
