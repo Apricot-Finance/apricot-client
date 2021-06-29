@@ -7,7 +7,6 @@ edition = "2018"
 license = "MIT"
 keywords = ["apricot", "defi", "solana"]
 homepage = "https://apricot.one"
-documentation = ""
 repository = "https://github.com/Apricot-Finance/apricot-client"
 
 

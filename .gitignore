@@ -1,3 +1,6 @@
 *.swp
 */node_modules
 */package-lock.json
+*.lock
+*/target/
+*/.idea
