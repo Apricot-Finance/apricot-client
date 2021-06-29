@@ -3,16 +3,13 @@ use solana_program::{
     entrypoint,
     entrypoint::ProgramResult,
     program,
-    msg,
-    program_error::ProgramError,
     pubkey::Pubkey,
 };
+use apricot_client::instructions;
 
 #[cfg(not(feature = "no-entrypoint"))]
 entrypoint!(process_instruction);
 
-pub mod consts;
-pub mod instructions;
 
 pub fn process_instruction( _program_id: &Pubkey, accounts: &[AccountInfo], _data: &[u8])
     -> ProgramResult {
