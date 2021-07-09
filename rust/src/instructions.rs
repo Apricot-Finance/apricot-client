@@ -1,6 +1,7 @@
 use solana_program::{
     instruction::{AccountMeta, Instruction},
     pubkey::Pubkey,
+    system_program,
 };
 use spl_token;
 
@@ -9,6 +10,13 @@ use crate::consts;
 #[repr(packed)]
 pub struct UpdateUserAssetConfigParam {
     pub use_as_collateral: u8,
+    pub pool_id: u8,
+}
+
+#[repr(packed)]
+pub struct AddUserAndDepositParam {
+    pub page_id: u16,
+    pub amount: u64,
     pub pool_id: u8,
 }
 
@@ -71,6 +79,12 @@ pub struct MarginSwapParam {
     pub buy_pool_id: u8,
 }
 
+
+pub struct UserPagesStats {
+    pub num_free_slots: [u16; 5000],
+}
+
+
 #[inline(always)]
 pub fn mut_cast<T>(data: &mut [u8] ) -> &mut T {
     assert!(data.len() >= std::mem::size_of::<T>());
@@ -128,6 +142,80 @@ pub fn deposit_full(
             AccountMeta::new(*asset_pool, false),
             AccountMeta::new(*asset_pool_spl, false),
             AccountMeta::new(*pool_summaries, false),
+            AccountMeta::new_readonly(*token_program, false),
+        ],
+        data: buffer,
+    }
+}
+
+pub fn add_user_and_deposit(
+    user_wallet: &Pubkey,       // user wallet account, needs to be signer
+    user_spl: &Pubkey,          // user's SPL token account
+    amount: u64,
+    pool_id: u8,
+    page_id: u16,
+) -> Instruction {
+    add_user_and_deposit_full(
+        user_wallet,
+        user_spl,
+        &consts::get_user_pages_stats_k(),
+        &consts::get_users_page_k(page_id as usize),
+        &consts::get_user_info_k(user_wallet),
+        &consts::get_asset_pool_k(pool_id),
+        &consts::get_asset_pool_spl_k(&spl_token::ID, pool_id),
+        &consts::get_pool_summaries_k(),
+        &consts::get_price_summaries_k(),
+        &system_program::ID,
+        &spl_token::ID,
+        &consts::program::ID,
+
+        amount,
+        pool_id,
+        page_id,
+    )
+}
+
+pub fn add_user_and_deposit_full(
+    user_wallet: &Pubkey,       // user wallet account, needs to be signer
+    user_spl: &Pubkey,          // user's SPL token account
+    user_pages_stats: &Pubkey,  // consts::get_user_pages_stats_k()
+    users_page: &Pubkey,        // consts::get_users_page_k(page_id)
+    user_info: &Pubkey,         // consts::get_user_info_k(user_wallet_key)
+    asset_pool: &Pubkey,        // consts::get_asset_pool_k(pool_id)
+    asset_pool_spl: &Pubkey,    // consts::get_asset_pool_spl_k(token_program, pool_id)
+    pool_summaries: &Pubkey,    // consts::get_pool_summaries_k()
+    price_summaries: &Pubkey,   // consts::get_pool_summaries_k()
+    system_program: &Pubkey,
+    token_program: &Pubkey,
+    program_id: &Pubkey,        // consts::program::ID
+
+    amount: u64,
+    pool_id: u8,
+    page_id: u16,
+
+) -> Instruction {
+    let data_size = 1 + std::mem::size_of::<AddUserAndDepositParam>();
+    let mut buffer = vec![0; data_size];
+
+    buffer[0] = consts::CMD_ADD_USER_AND_DEPOSIT;
+    let mut param = mut_cast::<AddUserAndDepositParam>(&mut buffer[1..]);
+    param.amount = amount;
+    param.pool_id = pool_id;
+    param.page_id = page_id;
+
+    Instruction{
+        program_id: *program_id,
+        accounts: vec![
+            AccountMeta::new_readonly(*user_wallet, true),
+            AccountMeta::new(*user_spl, false),
+            AccountMeta::new(*user_pages_stats, false),
+            AccountMeta::new(*users_page, false),
+            AccountMeta::new(*user_info, false),
+            AccountMeta::new(*asset_pool, false),
+            AccountMeta::new(*asset_pool_spl, false),
+            AccountMeta::new(*pool_summaries, false),
+            AccountMeta::new(*price_summaries, false),
+            AccountMeta::new_readonly(*system_program, false),
             AccountMeta::new_readonly(*token_program, false),
         ],
         data: buffer,

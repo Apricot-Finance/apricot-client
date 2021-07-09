@@ -3,31 +3,28 @@ use solana_program::pubkey::Pubkey;
 pub mod program {
     use solana_program::declare_id;
     // program_id
-    declare_id!("HidHf4DzeZj6F7BL37WP6YnTuhh4c4DTsdSTmiFaDtSf");
+    declare_id!("H3RDrUZk8Cuk5ghJgeMrs69uuEHVcJA6YBtuPDrH5Za6");
 }
 
 pub mod base_pda {
     use solana_program::declare_id;
-    declare_id!("JBSGCV1hPY3CTfpqDQqB4TzwnL9Mjv9ahrSGkpvnxSiM");
-    pub const BUMP:u8 = 255;
+    declare_id!("Hzbxtx742an6iX8bkMBTV9ZRsd5y9ZjxpqMW7AwqpoXc");
 }
 
 pub mod price_pda {
     use solana_program::declare_id;
-    declare_id!("BPLk2Nd5B9pggzD6i6upRqPFptLBCjQSwfKHjjLjFYNp");
-    pub const BUMP:u8 = 254;
+    declare_id!("BkDxvcLWGM5nfDphgbRwvYs8geDxAcaF4AJbHurSuVuv");
 }
 
 pub mod pool_summaries {
     use solana_program::declare_id;
-    declare_id!("vmw4aLng87nsu7adSGvjzsdrN8BixFnSwtfttXx7N6T");
+    declare_id!("CM34zdq9xiCwbLJdNF3NjMUaXhAZgqEZwASYb7jz9rjs");
 }
 
 pub mod price_summaries {
     use solana_program::declare_id;
-    declare_id!("G1cmF3D5PAEAjnwdMFbcGQbnBmWNH7t4hv8cpmfHzS2V");
+    declare_id!("7wdiyrTZizdA2HJEnzPjU8eoEEdcGtT2WPC83gJkLyCR");
 }
-
 
 // commands
 pub const CMD_ADD_USER_AND_DEPOSIT: u8 = 0x10;

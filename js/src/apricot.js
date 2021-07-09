@@ -3,7 +3,7 @@ import * as T from '@solana/spl-token';
 import bigInt from "big-integer"
 
 
-export const programPubkeyStr = "HidHf4DzeZj6F7BL37WP6YnTuhh4c4DTsdSTmiFaDtSf";
+export const programPubkeyStr = "H3RDrUZk8Cuk5ghJgeMrs69uuEHVcJA6YBtuPDrH5Za6";
 export const serumPubkeyStr = "9NaBPcFZpHWj6p5sSbLSPEt85j5xev84Bq3HvhTNWq4c";
 export const programPubkey = new S.PublicKey(programPubkeyStr);
 export const serumPubkey = new S.PublicKey(serumPubkeyStr);
@@ -286,7 +286,7 @@ export class Parser {
 
     static parseAssetPool(data) {
         // assetPoolData is an UInt8Array of length 120
-        const widths =  [32, 32, 1, 16,  8, 16,  8,  8, 32, 32, 32, 8, 2, 8, 8, 8, 8, 8, 8, 8];
+        const widths =  [32, 32, 1, 16,  8, 16,  8,  16, 8, 8, 8, 32, 32, 32, 8, 2, 8, 8, 8, 8, 8, 8, 8, 8];
         let [offsets, ends] = Parser.getOffsets(widths);
         return {
             coin_name         : Parser.parseString(data.slice(offsets[0], ends[0])),
@@ -300,22 +300,27 @@ export class Parser {
             borrow_amount     : Parser.parseBigInt128(data.buffer, offsets[5]) / bigInt(consts.AMOUNT_MULTIPLIER),
             borrow_index      : Parser.parseFloat64  (data.buffer, offsets[6]),
 
-            last_update_time  : Parser.parseBigUint64(data.buffer, offsets[7]),
+            fee_amount        : Parser.parseBigInt128(data.buffer, offsets[7]) / bigInt(consts.AMOUNT_MULTIPLIER),
+            fee_withdrawn_amt : Parser.parseBigUint64(data.buffer, offsets[8]),
+            fee_rate          : Parser.parseFloat64(data.buffer, offsets[9]),
 
-            spl_key           : new S.PublicKey(data.slice(offsets[8], ends[8])),
-            price_key         : new S.PublicKey(data.slice(offsets[9], ends[9])),
-            pyth_price_key    : new S.PublicKey(data.slice(offsets[10], ends[10])),
+            last_update_time  : Parser.parseBigUint64(data.buffer, offsets[10]),
 
-            serum_next_cl_id  : Parser.parseBigUint64(data.buffer, offsets[11]),
-            ltv_1000x         : Parser.parseUint16(data.buffer, offsets[12]),
-            mint_decimal_mult : Parser.parseBigUint64(data.buffer, offsets[13]),
+            spl_key           : new S.PublicKey(data.slice(offsets[11], ends[11])),
+            price_key         : new S.PublicKey(data.slice(offsets[12], ends[12])),
+            pyth_price_key    : new S.PublicKey(data.slice(offsets[13], ends[13])),
 
-            base_rate         : Parser.parseFloat64(data.buffer, offsets[14]),
-            multiplier1       : Parser.parseFloat64(data.buffer, offsets[15]),
-            multiplier2       : Parser.parseFloat64(data.buffer, offsets[16]),
-            kink              : Parser.parseFloat64(data.buffer, offsets[17]),
-            borrow_rate       : Parser.parseFloat64(data.buffer, offsets[18]),
-            deposit_rate      : Parser.parseFloat64(data.buffer, offsets[19]),
+            serum_next_cl_id  : Parser.parseBigUint64(data.buffer, offsets[14]),
+            ltv_1000x         : Parser.parseUint16(data.buffer, offsets[15]),
+            mint_decimal_mult : Parser.parseBigUint64(data.buffer, offsets[16]),
+
+            base_rate         : Parser.parseFloat64(data.buffer, offsets[17]),
+            multiplier1       : Parser.parseFloat64(data.buffer, offsets[18]),
+            multiplier2       : Parser.parseFloat64(data.buffer, offsets[19]),
+            kink              : Parser.parseFloat64(data.buffer, offsets[20]),
+            borrow_rate       : Parser.parseFloat64(data.buffer, offsets[21]),
+            deposit_rate      : Parser.parseFloat64(data.buffer, offsets[22]),
+            reserve_factor    : Parser.parseFloat64(data.buffer, offsets[23]),
         };
     }
 
@@ -408,6 +413,7 @@ export class TxMaker {
         const assetPoolKey = await consts.get_asset_pool_key(base_pda, mint_key_str);
         const assetPoolSplKey = await consts.get_asset_pool_spl_key(base_pda, mint_key_str);
         const poolSummariesKey = await consts.get_pool_summaries_key(base_pda);
+        const priceSummariesKey = await consts.get_price_summaries_key(base_pda);
         let buffer = new ArrayBuffer(10);
         let view = new DataView(buffer);
         view.setUint16(0, page_id, true);
@@ -426,6 +432,7 @@ export class TxMaker {
                 {pubkey: assetPoolKey,              isSigner: false, isWritable: true},     // AssetPool
                 {pubkey: assetPoolSplKey,           isSigner: false, isWritable: true},     // AssetPool's spl account
                 {pubkey: poolSummariesKey,          isSigner: false, isWritable: true},     // PoolSummaries
+                {pubkey: priceSummariesKey,         isSigner: false, isWritable: false},    // PriceSummaries
                 {pubkey: S.SystemProgram.programId, isSigner: false, isWritable: false},    // system program account
                 {pubkey: T.TOKEN_PROGRAM_ID,        isSigner: false, isWritable: false},    // spl-token program account
             ],

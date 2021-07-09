@@ -1,6 +1,6 @@
 {
   "name": "@apricot-lend/apricot",
-  "version": "0.1.12",
+  "version": "0.10.0",
   "description": "JS client library for Apricot on Solana",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
