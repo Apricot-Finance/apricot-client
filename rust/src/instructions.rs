@@ -79,12 +79,6 @@ pub struct MarginSwapParam {
     pub buy_pool_id: u8,
 }
 
-
-pub struct UserPagesStats {
-    pub num_free_slots: [u16; 5000],
-}
-
-
 #[inline(always)]
 pub fn mut_cast<T>(data: &mut [u8] ) -> &mut T {
     assert!(data.len() >= std::mem::size_of::<T>());

@@ -43,7 +43,7 @@ pub fn process_instruction( _program_id: &Pubkey, accounts: &[AccountInfo], _dat
     let token_program_a = next_account_info(account_iter)?;
     let apricot_program_a = next_account_info(account_iter)?;
 
-    let deposit_ix = instructions::deposit(
+    let deposit_ix = instructions::deposit_full(
         user_wallet_a.key,
         user_spl_0_a.key,
         user_info_a.key,
@@ -70,7 +70,7 @@ pub fn process_instruction( _program_id: &Pubkey, accounts: &[AccountInfo], _dat
         apricot_program_a.clone(),
     ])?;
 
-    let borrow_ix = instructions::borrow(
+    let borrow_ix = instructions::borrow_full(
         user_wallet_a.key,
         user_spl_1_a.key,
         user_info_a.key,

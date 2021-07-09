@@ -1,6 +1,6 @@
 [package]
 name = "apricot-client"
-version = "0.10.0"
+version = "0.10.1"
 description = "Apricot client"
 authors = ["yhou@apricot.one"]
 edition = "2018"
@@ -11,7 +11,8 @@ repository = "https://github.com/Apricot-Finance/apricot-client"
 
 
 [dependencies]
-solana-program = "=1.7.1"
+solana-program = "^1.7.1"
+itertools = "^0.9.0"
 spl-token = { version = "3.1.0", features = [ "no-entrypoint" ] }
 
 [lib]
