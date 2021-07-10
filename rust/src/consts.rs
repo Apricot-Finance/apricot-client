@@ -167,3 +167,29 @@ pub fn get_user_info_k(user_wallet_key: &Pubkey) -> Pubkey {
     Pubkey::create_with_seed(user_wallet_key, USER_INFO_SEED, &program::ID).unwrap()
 }
 
+
+pub mod btc {
+    use solana_program::declare_id;
+    declare_id!("7MtysQGohtvxjV53ffV3BumvNaF7DHMC47QwPsDUE98f");
+    pub const POOL_ID:u8 = 0;
+}
+pub mod eth {
+    use solana_program::declare_id;
+    declare_id!("DQ6Vw2iFQ3jWYsT52TtUXkrBQfkuAu2rtCcWZZ5BtktY");
+    pub const POOL_ID:u8 = 1;
+}
+pub mod usdt {
+    use solana_program::declare_id;
+    declare_id!("GjJFUSzbjZZMXySmJ8jwYmYcZhosN4PAcBKDTnSpHd3s");
+    pub const POOL_ID:u8 = 2;
+}
+pub mod usdc {
+    use solana_program::declare_id;
+    declare_id!("BwNiXVdAYt5g5tGSn6Apadk72SEqzmEd3Tv2W5pgvWFM");
+    pub const POOL_ID:u8 = 3;
+}
+pub mod sol {
+    use solana_program::declare_id;
+    declare_id!("4jSAADAjfidWvkpRVBk4Q5LMiZT2UNyw8A3D3oKwBC2u");
+    pub const POOL_ID:u8 = 4;
+}
