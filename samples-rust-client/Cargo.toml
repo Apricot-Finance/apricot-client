@@ -1,0 +1,12 @@
+[package]
+name = "samples-rust-client"
+version = "0.1.0"
+authors = ["Yaniv <yhou@apricot.one>"]
+edition = "2018"
+
+[dependencies]
+solana-sdk = "1.6.16"
+solana-client = "1.6.16"
+apricot-client = "0.10.3"
+spl-token = { version = "3.1.0", features = [ "no-entrypoint" ] }
+spl-associated-token-account = "^1.0.2"
