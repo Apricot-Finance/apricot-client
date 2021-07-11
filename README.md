@@ -5,10 +5,14 @@ possible.
 Consider these snippets for integrating with Apricot at client-side:
 
 
+Javascript:
+
 ```javascript
 await wrapper.deposit(user_account, user_spl, mints.fake_btc, deposit_amount);
 ```
 
+
+Rust:
 
 ```rust
 let ix = instructions::deposit(user_wallet, &user_spl, deposit_amount, btc_pool_id);
