@@ -11,7 +11,8 @@ pub const NUM_PAGES:usize = 5000;
 pub struct UserPagesStats {
     pub num_free_slots: [u16; NUM_PAGES],
 }
-pub fn cast<T>(data: &[u8] ) -> &T {
+
+pub fn cast<T>(data: &[u8]) -> &T {
     assert!(data.len() >= std::mem::size_of::<T>());
     return unsafe{std::mem::transmute(data.as_ptr())};
 }
