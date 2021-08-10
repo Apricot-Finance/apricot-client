@@ -3,7 +3,7 @@ import * as T from '@solana/spl-token';
 import bigInt from "big-integer"
 
 
-export const programPubkeyStr = "H3RDrUZk8Cuk5ghJgeMrs69uuEHVcJA6YBtuPDrH5Za6";
+export const programPubkeyStr = "FML6f5PFxReLBN2J9jHfj8CoWyTfvrxT1uqnmrE6gRS1";
 export const serumPubkeyStr = "9NaBPcFZpHWj6p5sSbLSPEt85j5xev84Bq3HvhTNWq4c";
 export const programPubkey = new S.PublicKey(programPubkeyStr);
 export const serumPubkey = new S.PublicKey(serumPubkeyStr);
@@ -14,6 +14,7 @@ export const mints = {
     fake_usdt: "GjJFUSzbjZZMXySmJ8jwYmYcZhosN4PAcBKDTnSpHd3s",
     fake_usdc: "BwNiXVdAYt5g5tGSn6Apadk72SEqzmEd3Tv2W5pgvWFM",
     fake_sol : "4jSAADAjfidWvkpRVBk4Q5LMiZT2UNyw8A3D3oKwBC2u",
+    fake_usdt_usdc : "ACZH5bd7XYquUbrdmMy7PvaRvnhrLLKjRCytVr7TFtmk",
 };
 
 const mint_key_str_to_pool_id = {};
@@ -23,6 +24,9 @@ mint_key_str_to_pool_id[mints.fake_eth] = 1;
 mint_key_str_to_pool_id[mints.fake_usdt] = 2;
 mint_key_str_to_pool_id[mints.fake_usdc] = 3;
 mint_key_str_to_pool_id[mints.fake_sol] = 4;
+mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 6;
+
+static devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
 
 export class consts{
     static get_base_pda() {
@@ -34,8 +38,9 @@ export class consts{
     static get_pool_list_key(base_pda) {
         return S.PublicKey.createWithSeed(base_pda, "PoolList", programPubkey);
     }
-    static get_pool_summaries_key(base_pda) {
-        return S.PublicKey.createWithSeed(base_pda, "PoolSummaries", programPubkey);
+    static POOL_SUMMARIES_SEED = "PoolSummaries";
+    static get_pool_summaries_key() {
+        return S.PublicKey.createWithSeed(devAccountKey, consts.POOL_SUMMARIES_SEED, programPubkey);
     }
     static get_price_summaries_key(base_pda) {
         return S.PublicKey.createWithSeed(base_pda, "PriceSummaries", programPubkey);
@@ -102,13 +107,6 @@ export class consts{
         }
     }
 
-    static CMD_INIT_POOL_LIST = 0x00;
-    static CMD_ADD_USERS_PAGE = 0x01;
-    static CMD_ADD_POOL = 0x02;
-    static CMD_UPDATE_PRICE = 0x03;
-    static CMD_UPDATE_PYTH_KEY = 0x04;
-    static CMD_UPDATE_POOL_RATE = 0x05;
-
     static CMD_ADD_USER_AND_DEPOSIT = 0x10;
     static CMD_DEPOSIT = 0x11;
     static CMD_WITHDRAW = 0x12;
@@ -120,6 +118,10 @@ export class consts{
     static CMD_MARGIN_SWAP = 0x18;
     static CMD_UPDATE_USER_ASSET_CONFIG = 0x19;
     static CMD_WITHDRAW_AND_REMOVE_USER = 0x1a;
+    static CMD_TOKEN_DEPOSIT = 0x1b;
+    static CMD_TOKEN_WITHDRAW = 0x1c;
+    static CMD_LP_CREATE = 0x1d;
+    static CMD_LP_REDEEM = 0x1e;
 
     static AMOUNT_MULTIPLIER = 16777216;
     static INVALID_PAGE = 65535;
@@ -335,6 +337,17 @@ export class Parser {
         let view = new DataView(data.buffer);
         for(let offset = 0; offset < data.length; offset+=2) {
             result.push(view.getUint16(offset, true));
+        }
+        return result;
+    }
+
+    static parseUsersPage(data) {
+        let result = [];
+        let count = data.length / 32;
+        for(let i = 0; i < count; i++) {
+            const offset = i * 32;
+            const end = offset + 32;
+            result[i] = new S.PublicKey(new Uint8Array(data.slice(offset, end)));
         }
         return result;
     }
@@ -798,6 +811,130 @@ export class TxMaker {
             serum_buy_keys,
         );
     }
+
+    static async margin_lp_create(
+        wallet_account,
+        left_mint_str,
+        left_amount,
+        right_mint_str,
+        right_amount,
+        lp_mint_str,
+        min_lp_amount,
+        target_swap,
+        swap_account_keys
+    ) {
+        const [base_pda, _0] = await consts.get_base_pda();
+        const user_wallet_key = wallet_account.publicKey;
+        const userInfoKey = await consts.get_user_info_key(user_wallet_key);
+        const leftAssetPoolKey = await consts.get_asset_pool_key(base_pda, left_mint_str);
+        const leftAssetPoolSplKey = await consts.get_asset_pool_spl_key(base_pda, left_mint_str);
+        const rightAssetPoolKey = await consts.get_asset_pool_key(base_pda, right_mint_str);
+        const rightAssetPoolSplKey = await consts.get_asset_pool_spl_key(base_pda, right_mint_str);
+        const lpAssetPoolKey = await consts.get_asset_pool_key(base_pda, lp_mint_str);
+        const lpAssetPoolSplKey = await consts.get_asset_pool_spl_key(base_pda, lp_mint_str);
+        const poolSummariesKey = await consts.get_pool_summaries_key(base_pda);
+        const priceSummariesKey = await consts.get_price_summaries_key(base_pda);
+
+        let keys = [
+            {pubkey: user_wallet_key,       isSigner: true,     isWritable: false},
+            {pubkey: userInfoKey,           isSigner: false,    isWritable: true},
+            {pubkey: base_pda,              isSigner: false,    isWritable: false},
+            {pubkey: leftAssetPoolKey,      isSigner: false,    isWritable: true},
+            {pubkey: leftAssetPoolSplKey,   isSigner: false,    isWritable: true},
+            {pubkey: rightAssetPoolKey,     isSigner: false,    isWritable: true},
+            {pubkey: rightAssetPoolSplKey,  isSigner: false,    isWritable: true},
+            {pubkey: lpAssetPoolKey,        isSigner: false,    isWritable: true},
+            {pubkey: lpAssetPoolSplKey,     isSigner: false,    isWritable: true},
+            {pubkey: poolSummariesKey,      isSigner: false,    isWritable: true},
+            {pubkey: priceSummariesKey,     isSigner: false,    isWritable: false},
+            {pubkey: T.TOKEN_PROGRAM_ID,    isSigner: false,    isWritable: false},
+        ].concat(swap_account_keys);
+
+        let buffer = new ArrayBuffer(28);
+        Parser.setBigUint64(buffer, 0, left_amount);
+        Parser.setBigUint64(buffer, 8, right_amount);
+        Parser.setBigUint64(buffer, 16, min_lp_amount);
+        let leftPoolId = Parser.getPoolIdArray(left_mint_str);
+        Parser.setUint8(buffer, 24, leftPoolId);
+        let rightPoolId = Parser.getPoolIdArray(right_mint_str);
+        Parser.setUint8(buffer, 25, rightPoolId);
+        let lpPoolId = Parser.getPoolIdArray(lp_mint_str);
+        Parser.setUint8(buffer, 26, lpPoolId);
+        Parser.setUint8(buffer, 27, target_swap);
+        const payload = Array.from(new Uint8Array(buffer));
+
+        let data = [consts.CMD_LP_CREATE].concat(payload);
+
+        let inst = new S.TransactionInstruction({
+            programId: programPubkey,
+            keys: keys,
+            data: data
+        });
+
+        return new S.Transaction().add(inst);
+    }
+
+    static async margin_lp_redeem(
+        wallet_account,
+        left_mint_str,
+        min_left_amount,
+        right_mint_str,
+        min_right_amount,
+        lp_mint_str,
+        lp_amount,
+        target_swap,
+        swap_account_keys
+    ) {
+        const [base_pda, _0] = await consts.get_base_pda();
+        const user_wallet_key = wallet_account.publicKey;
+        const userInfoKey = await consts.get_user_info_key(user_wallet_key);
+        const leftAssetPoolKey = await consts.get_asset_pool_key(base_pda, left_mint_str);
+        const leftAssetPoolSplKey = await consts.get_asset_pool_spl_key(base_pda, left_mint_str);
+        const rightAssetPoolKey = await consts.get_asset_pool_key(base_pda, right_mint_str);
+        const rightAssetPoolSplKey = await consts.get_asset_pool_spl_key(base_pda, right_mint_str);
+        const lpAssetPoolKey = await consts.get_asset_pool_key(base_pda, lp_mint_str);
+        const lpAssetPoolSplKey = await consts.get_asset_pool_spl_key(base_pda, lp_mint_str);
+        const poolSummariesKey = await consts.get_pool_summaries_key(base_pda);
+        const priceSummariesKey = await consts.get_price_summaries_key(base_pda);
+
+        let keys = [
+            {pubkey: user_wallet_key,       isSigner: true,     isWritable: true},
+            {pubkey: userInfoKey,           isSigner: false,    isWritable: true},
+            {pubkey: base_pda,              isSigner: false,    isWritable: false},
+            {pubkey: leftAssetPoolKey,      isSigner: false,    isWritable: true},
+            {pubkey: leftAssetPoolSplKey,   isSigner: false,    isWritable: true},
+            {pubkey: rightAssetPoolKey,     isSigner: false,    isWritable: true},
+            {pubkey: rightAssetPoolSplKey,  isSigner: false,    isWritable: true},
+            {pubkey: lpAssetPoolKey,        isSigner: false,    isWritable: true},
+            {pubkey: lpAssetPoolSplKey,     isSigner: false,    isWritable: true},
+            {pubkey: poolSummariesKey,      isSigner: false,    isWritable: true},
+            {pubkey: priceSummariesKey,     isSigner: false,    isWritable: false},
+            {pubkey: T.TOKEN_PROGRAM_ID,    isSigner: false,    isWritable: false},
+        ].concat(swap_account_keys);
+
+        let buffer = new ArrayBuffer(28);
+        Parser.setBigUint64(buffer, 0, min_left_amount);
+        Parser.setBigUint64(buffer, 8, min_right_amount);
+        Parser.setBigUint64(buffer, 16, lp_amount);
+        let leftPoolId = Parser.getPoolIdArray(left_mint_str);
+        Parser.setUint8(buffer, 24, leftPoolId);
+        let rightPoolId = Parser.getPoolIdArray(right_mint_str);
+        Parser.setUint8(buffer, 25, rightPoolId);
+        let lpPoolId = Parser.getPoolIdArray(lp_mint_str);
+        Parser.setUint8(buffer, 26, lpPoolId);
+        Parser.setUint8(buffer, 27, target_swap);
+        const payload = Array.from(new Uint8Array(buffer));
+
+        let data = [consts.CMD_LP_REDEEM].concat(payload);
+
+        let inst = new S.TransactionInstruction({
+            programId: programPubkey,
+            keys: keys,
+            data: data,
+        });
+
+        return new S.Transaction().add(inst);
+    }
 }
 
 export class ConnWrapper {
@@ -870,6 +1007,7 @@ export class ConnWrapper {
         return this.connection.sendTransaction(tx, [liquidator_wallet_account]);
     }
     async self_liquidate(
+        funder_account,
         liquidated_wallet_key,
         need_to_sell,
         need_to_buy,
@@ -893,7 +1031,7 @@ export class ConnWrapper {
             serum_collateral_keys,
             serum_borrowed_keys,
         );
-        return this.connection.sendTransaction(tx, [devAccount]);
+        return this.connection.sendTransaction(tx, [funder_account]);
     }
     async margin_swap(
         user_wallet_account,
@@ -921,6 +1059,57 @@ export class ConnWrapper {
             serum_borrowed_keys,
         );
         return this.connection.sendTransaction(tx, [user_wallet_account]);
+    }
+
+    async margin_lp_create(
+        wallet_account,
+        left_mint_str,
+        left_amount,
+        right_mint_str,
+        right_amount,
+        lp_mint_str,
+        min_lp_amount,
+        target_swap,
+        swap_account_keys
+    ) {
+        const tx = await TxMaker.margin_lp_create(
+            wallet_account,
+            left_mint_str,
+            left_amount,
+            right_mint_str,
+            right_amount,
+            lp_mint_str,
+            min_lp_amount,
+            target_swap,
+            swap_account_keys
+        );
+
+        return this.connection.sendTransaction(tx, [wallet_account]);
+    }
+
+    async margin_lp_redeem(
+        wallet_account,
+        left_mint_str,
+        min_left_amount,
+        right_mint_str,
+        min_right_amount,
+        lp_mint_str,
+        lp_amount,
+        target_swap,
+        swap_account_keys
+    ) {
+        const tx = await TxMaker.margin_lp_redeem(
+            wallet_account,
+            left_mint_str,
+            min_left_amount,
+            right_mint_str,
+            min_right_amount,
+            lp_mint_str,
+            lp_amount,
+            target_swap,
+            swap_account_keys);
+
+        return this.connection.sendTransaction(tx, [wallet_account]);
     }
 
     async getParsedPoolList() {
