@@ -288,41 +288,56 @@ export class Parser {
 
     static parseAssetPool(data) {
         // assetPoolData is an UInt8Array of length 120
-        const widths =  [32, 32, 1, 16,  8, 16,  8,  16, 8, 8, 8, 32, 32, 32, 8, 2, 8, 8, 8, 8, 8, 8, 8, 8];
+        const widths =  [32, 32, 8, 1, 16,  8, 16,  8,  8, 16, 8, 8, 8, 32, 32, 32, 32, 8, 2, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
         let [offsets, ends] = Parser.getOffsets(widths);
         return {
             coin_name         : Parser.parseString(data.slice(offsets[0], ends[0])),
 
             mint_key          : new S.PublicKey(data.slice(offsets[1], ends[1])),
-            pool_id           : data[offsets[2]],
+            mint_decimal_mult : Parser.parseBigUint64(data.buffer, offsets[2]),
+            pool_id           : data[offsets[3]],
 
-            deposit_amount    : Parser.parseBigInt128(data.buffer, offsets[3]) / bigInt(consts.AMOUNT_MULTIPLIER),
-            deposit_index     : Parser.parseFloat64  (data.buffer, offsets[4]),
+            deposit_amount    : Parser.parseBigInt128(data.buffer, offsets[4]) / bigInt(consts.AMOUNT_MULTIPLIER),
+            deposit_index     : Parser.parseFloat64  (data.buffer, offsets[5]),
 
-            borrow_amount     : Parser.parseBigInt128(data.buffer, offsets[5]) / bigInt(consts.AMOUNT_MULTIPLIER),
-            borrow_index      : Parser.parseFloat64  (data.buffer, offsets[6]),
+            borrow_amount     : Parser.parseBigInt128(data.buffer, offsets[6]) / bigInt(consts.AMOUNT_MULTIPLIER),
+            borrow_index      : Parser.parseFloat64  (data.buffer, offsets[7]),
 
-            fee_amount        : Parser.parseBigInt128(data.buffer, offsets[7]) / bigInt(consts.AMOUNT_MULTIPLIER),
-            fee_withdrawn_amt : Parser.parseBigUint64(data.buffer, offsets[8]),
-            fee_rate          : Parser.parseFloat64(data.buffer, offsets[9]),
+            reserve_factor    : Parser.parseFloat64(data.buffer, offsets[8]),
+            fee_amount        : Parser.parseBigInt128(data.buffer, offsets[9]) / bigInt(consts.AMOUNT_MULTIPLIER),
+            fee_withdrawn_amt : Parser.parseBigUint64(data.buffer, offsets[10]),
+            fee_rate          : Parser.parseFloat64(data.buffer, offsets[11]),
 
-            last_update_time  : Parser.parseBigUint64(data.buffer, offsets[10]),
+            last_update_time  : Parser.parseBigUint64(data.buffer, offsets[12]),
 
-            spl_key           : new S.PublicKey(data.slice(offsets[11], ends[11])),
-            price_key         : new S.PublicKey(data.slice(offsets[12], ends[12])),
-            pyth_price_key    : new S.PublicKey(data.slice(offsets[13], ends[13])),
+            spl_key           : new S.PublicKey(data.slice(offsets[13], ends[13])),
+            atoken_mint_key   : new S.PublicKey(data.slice(offsets[14], ends[14])),
+            price_key         : new S.PublicKey(data.slice(offsets[15], ends[15])),
+            pyth_price_key    : new S.PublicKey(data.slice(offsets[16], ends[16])),
 
-            serum_next_cl_id  : Parser.parseBigUint64(data.buffer, offsets[14]),
-            ltv_1000x         : Parser.parseUint16(data.buffer, offsets[15]),
-            mint_decimal_mult : Parser.parseBigUint64(data.buffer, offsets[16]),
+            serum_next_cl_id  : Parser.parseBigUint64(data.buffer, offsets[17]),
+            ltv_1000x         : Parser.parseUint16(data.buffer, offsets[18]),
 
-            base_rate         : Parser.parseFloat64(data.buffer, offsets[17]),
-            multiplier1       : Parser.parseFloat64(data.buffer, offsets[18]),
-            multiplier2       : Parser.parseFloat64(data.buffer, offsets[19]),
-            kink              : Parser.parseFloat64(data.buffer, offsets[20]),
-            borrow_rate       : Parser.parseFloat64(data.buffer, offsets[21]),
-            deposit_rate      : Parser.parseFloat64(data.buffer, offsets[22]),
-            reserve_factor    : Parser.parseFloat64(data.buffer, offsets[23]),
+            base_rate         : Parser.parseFloat64(data.buffer, offsets[19]),
+            multiplier1       : Parser.parseFloat64(data.buffer, offsets[20]),
+            multiplier2       : Parser.parseFloat64(data.buffer, offsets[21]),
+            kink              : Parser.parseFloat64(data.buffer, offsets[22]),
+            borrow_rate       : Parser.parseFloat64(data.buffer, offsets[23]),
+            deposit_rate      : Parser.parseFloat64(data.buffer, offsets[24]),
+
+            reward_multiplier       : Parser.parseFloat64(data.buffer, offsets[25]),
+            reward_deposit_intra    : Parser.parseFloat64(data.buffer, offsets[26]),
+            reward_deposit_share    : Parser.parseFloat64(data.buffer, offsets[27]),
+            reward_borrow_share     : Parser.parseFloat64(data.buffer, offsets[28]),
+
+            reward_per_year         : Parser.parseFloat64(data.buffer, offsets[29]),
+            reward_per_year_deposit : Parser.parseFloat64(data.buffer, offsets[30]),
+            reward_per_year_borrow  : Parser.parseFloat64(data.buffer, offsets[31]),
+            reward_per_year_per_d   : Parser.parseFloat64(data.buffer, offsets[32]),
+            reward_per_year_per_b   : Parser.parseFloat64(data.buffer, offsets[33]),
+
+            reward_deposit_index    : Parser.parseFloat64(data.buffer, offsets[34]),
+            reward_borrow_index     : Parser.parseFloat64(data.buffer, offsets[35]),
         };
     }
 
@@ -364,7 +379,7 @@ export class Parser {
             user_asset_info                     : [],
         }
         const uai_base = ends[4];
-        const uai_size = 1 + 1 + 16 + 8 + 16 + 8;
+        const uai_size = 1 + 1 + 16 + 8 + 8 + 8 + 16 + 8 + 8 + 8;
         for(let i = 0; i < result.num_assets; i++) {
             let uai_offset = uai_base + i * uai_size;
             result.user_asset_info.push(Parser.parseUserAssetInfo(data, uai_offset));
@@ -373,15 +388,20 @@ export class Parser {
     }
 
     static parseUserAssetInfo(data, offset) {
-        const widths =  [1, 1, 16, 8, 16, 8];
+        const widths =  [1, 1, 16, 8, 8, 8, 16, 8, 8, 8];
         let [offsets, ends] = Parser.getOffsets(widths);
         return {
-            pool_id             : data[offset + offsets[0]],
-            use_as_collateral   : data[offset + offsets[1]],
-            deposit_amount      : Parser.parseBigInt128(data.buffer, offset + offsets[2]) / bigInt(consts.AMOUNT_MULTIPLIER),
-            deposit_index       : Parser.parseFloat64(data.buffer, offset + offsets[3]),
-            borrow_amount       : Parser.parseBigInt128(data.buffer, offset + offsets[4]) / bigInt(consts.AMOUNT_MULTIPLIER),
-            borrow_index        : Parser.parseFloat64(data.buffer, offset + offsets[5]),
+            pool_id                 : data[offset + offsets[0]],
+            use_as_collateral       : data[offset + offsets[1]],
+            deposit_amount          : Parser.parseBigInt128(data.buffer, offset + offsets[2]) / bigInt(consts.AMOUNT_MULTIPLIER),
+            deposit_index           : Parser.parseFloat64(data.buffer, offset + offsets[3]),
+            reward_deposit_amount   : Parser.parseFloat64(data.buffer, offset + offsets[4]),
+            reward_deposit_index    : Parser.parseFloat64(data.buffer, offset + offsets[5]),
+
+            borrow_amount           : Parser.parseBigInt128(data.buffer, offset + offsets[6]) / bigInt(consts.AMOUNT_MULTIPLIER),
+            borrow_index            : Parser.parseFloat64(data.buffer, offset + offsets[7]),
+            reward_borrow_amount    : Parser.parseFloat64(data.buffer, offset + offsets[8]),
+            reward_borrow_index     : Parser.parseFloat64(data.buffer, offset + offsets[0]),
         }
     }
 
