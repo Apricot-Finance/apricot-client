@@ -26,6 +26,16 @@ mint_key_str_to_pool_id[mints.fake_usdc] = 3;
 mint_key_str_to_pool_id[mints.fake_sol] = 4;
 mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 6;
 
+export const pool_id_to_decimal_multiplier = {
+    0: 1e9,
+    1: 1e9,
+    2: 1e9,
+    3: 1e9,
+    4: 1e9,
+    5: 1e9,
+    6: 1e9,
+};
+
 const devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
 
 export class consts{

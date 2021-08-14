@@ -5,7 +5,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ConnWrapper = exports.TxMaker = exports.Parser = exports.Errors = exports.consts = exports.mints = exports.serumPubkey = exports.programPubkey = exports.serumPubkeyStr = exports.programPubkeyStr = void 0;
+exports.ConnWrapper = exports.TxMaker = exports.Parser = exports.Errors = exports.consts = exports.pool_id_to_decimal_multiplier = exports.mints = exports.serumPubkey = exports.programPubkey = exports.serumPubkeyStr = exports.programPubkeyStr = void 0;
 
 var S = _interopRequireWildcard(require("@solana/web3.js"));
 
@@ -75,6 +75,16 @@ mint_key_str_to_pool_id[mints.fake_usdt] = 2;
 mint_key_str_to_pool_id[mints.fake_usdc] = 3;
 mint_key_str_to_pool_id[mints.fake_sol] = 4;
 mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 6;
+var pool_id_to_decimal_multiplier = {
+  0: 1e9,
+  1: 1e9,
+  2: 1e9,
+  3: 1e9,
+  4: 1e9,
+  5: 1e9,
+  6: 1e9
+};
+exports.pool_id_to_decimal_multiplier = pool_id_to_decimal_multiplier;
 var devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
 
 var consts = /*#__PURE__*/function () {
