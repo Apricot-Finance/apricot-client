@@ -26,7 +26,7 @@ mint_key_str_to_pool_id[mints.fake_usdc] = 3;
 mint_key_str_to_pool_id[mints.fake_sol] = 4;
 mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 6;
 
-static devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
+const devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
 
 export class consts{
     static get_base_pda() {

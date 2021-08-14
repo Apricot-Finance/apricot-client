@@ -51,7 +51,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var programPubkeyStr = "HidHf4DzeZj6F7BL37WP6YnTuhh4c4DTsdSTmiFaDtSf";
+var programPubkeyStr = "FML6f5PFxReLBN2J9jHfj8CoWyTfvrxT1uqnmrE6gRS1";
 exports.programPubkeyStr = programPubkeyStr;
 var serumPubkeyStr = "9NaBPcFZpHWj6p5sSbLSPEt85j5xev84Bq3HvhTNWq4c";
 exports.serumPubkeyStr = serumPubkeyStr;
@@ -64,7 +64,8 @@ var mints = {
   fake_eth: "DQ6Vw2iFQ3jWYsT52TtUXkrBQfkuAu2rtCcWZZ5BtktY",
   fake_usdt: "GjJFUSzbjZZMXySmJ8jwYmYcZhosN4PAcBKDTnSpHd3s",
   fake_usdc: "BwNiXVdAYt5g5tGSn6Apadk72SEqzmEd3Tv2W5pgvWFM",
-  fake_sol: "4jSAADAjfidWvkpRVBk4Q5LMiZT2UNyw8A3D3oKwBC2u"
+  fake_sol: "4jSAADAjfidWvkpRVBk4Q5LMiZT2UNyw8A3D3oKwBC2u",
+  fake_usdt_usdc: "ACZH5bd7XYquUbrdmMy7PvaRvnhrLLKjRCytVr7TFtmk"
 };
 exports.mints = mints;
 var mint_key_str_to_pool_id = {};
@@ -73,6 +74,8 @@ mint_key_str_to_pool_id[mints.fake_eth] = 1;
 mint_key_str_to_pool_id[mints.fake_usdt] = 2;
 mint_key_str_to_pool_id[mints.fake_usdc] = 3;
 mint_key_str_to_pool_id[mints.fake_sol] = 4;
+mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 6;
+var devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
 
 var consts = /*#__PURE__*/function () {
   function consts() {
@@ -96,8 +99,8 @@ var consts = /*#__PURE__*/function () {
     }
   }, {
     key: "get_pool_summaries_key",
-    value: function get_pool_summaries_key(base_pda) {
-      return S.PublicKey.createWithSeed(base_pda, "PoolSummaries", programPubkey);
+    value: function get_pool_summaries_key() {
+      return S.PublicKey.createWithSeed(devAccountKey, consts.POOL_SUMMARIES_SEED, programPubkey);
     }
   }, {
     key: "get_price_summaries_key",
@@ -223,17 +226,7 @@ var consts = /*#__PURE__*/function () {
 
 exports.consts = consts;
 
-_defineProperty(consts, "CMD_INIT_POOL_LIST", 0x00);
-
-_defineProperty(consts, "CMD_ADD_USERS_PAGE", 0x01);
-
-_defineProperty(consts, "CMD_ADD_POOL", 0x02);
-
-_defineProperty(consts, "CMD_UPDATE_PRICE", 0x03);
-
-_defineProperty(consts, "CMD_UPDATE_PYTH_KEY", 0x04);
-
-_defineProperty(consts, "CMD_UPDATE_POOL_RATE", 0x05);
+_defineProperty(consts, "POOL_SUMMARIES_SEED", "PoolSummaries");
 
 _defineProperty(consts, "CMD_ADD_USER_AND_DEPOSIT", 0x10);
 
@@ -256,6 +249,14 @@ _defineProperty(consts, "CMD_MARGIN_SWAP", 0x18);
 _defineProperty(consts, "CMD_UPDATE_USER_ASSET_CONFIG", 0x19);
 
 _defineProperty(consts, "CMD_WITHDRAW_AND_REMOVE_USER", 0x1a);
+
+_defineProperty(consts, "CMD_TOKEN_DEPOSIT", 0x1b);
+
+_defineProperty(consts, "CMD_TOKEN_WITHDRAW", 0x1c);
+
+_defineProperty(consts, "CMD_LP_CREATE", 0x1d);
+
+_defineProperty(consts, "CMD_LP_REDEEM", 0x1e);
 
 _defineProperty(consts, "AMOUNT_MULTIPLIER", 16777216);
 
@@ -542,7 +543,7 @@ var Parser = /*#__PURE__*/function () {
     key: "parseAssetPool",
     value: function parseAssetPool(data) {
       // assetPoolData is an UInt8Array of length 120
-      var widths = [32, 32, 1, 16, 8, 16, 8, 8, 32, 32, 32, 8, 2, 8, 8, 8, 8, 8, 8, 8];
+      var widths = [32, 32, 1, 16, 8, 16, 8, 16, 8, 8, 8, 32, 32, 32, 8, 2, 8, 8, 8, 8, 8, 8, 8, 8];
 
       var _Parser$getOffsets = Parser.getOffsets(widths),
           _Parser$getOffsets2 = _slicedToArray(_Parser$getOffsets, 2),
@@ -557,19 +558,23 @@ var Parser = /*#__PURE__*/function () {
         deposit_index: Parser.parseFloat64(data.buffer, offsets[4]),
         borrow_amount: Parser.parseBigInt128(data.buffer, offsets[5]) / (0, _bigInteger["default"])(consts.AMOUNT_MULTIPLIER),
         borrow_index: Parser.parseFloat64(data.buffer, offsets[6]),
-        last_update_time: Parser.parseBigUint64(data.buffer, offsets[7]),
-        spl_key: new S.PublicKey(data.slice(offsets[8], ends[8])),
-        price_key: new S.PublicKey(data.slice(offsets[9], ends[9])),
-        pyth_price_key: new S.PublicKey(data.slice(offsets[10], ends[10])),
-        serum_next_cl_id: Parser.parseBigUint64(data.buffer, offsets[11]),
-        ltv_1000x: Parser.parseUint16(data.buffer, offsets[12]),
-        mint_decimal_mult: Parser.parseBigUint64(data.buffer, offsets[13]),
-        base_rate: Parser.parseFloat64(data.buffer, offsets[14]),
-        multiplier1: Parser.parseFloat64(data.buffer, offsets[15]),
-        multiplier2: Parser.parseFloat64(data.buffer, offsets[16]),
-        kink: Parser.parseFloat64(data.buffer, offsets[17]),
-        borrow_rate: Parser.parseFloat64(data.buffer, offsets[18]),
-        deposit_rate: Parser.parseFloat64(data.buffer, offsets[19])
+        fee_amount: Parser.parseBigInt128(data.buffer, offsets[7]) / (0, _bigInteger["default"])(consts.AMOUNT_MULTIPLIER),
+        fee_withdrawn_amt: Parser.parseBigUint64(data.buffer, offsets[8]),
+        fee_rate: Parser.parseFloat64(data.buffer, offsets[9]),
+        last_update_time: Parser.parseBigUint64(data.buffer, offsets[10]),
+        spl_key: new S.PublicKey(data.slice(offsets[11], ends[11])),
+        price_key: new S.PublicKey(data.slice(offsets[12], ends[12])),
+        pyth_price_key: new S.PublicKey(data.slice(offsets[13], ends[13])),
+        serum_next_cl_id: Parser.parseBigUint64(data.buffer, offsets[14]),
+        ltv_1000x: Parser.parseUint16(data.buffer, offsets[15]),
+        mint_decimal_mult: Parser.parseBigUint64(data.buffer, offsets[16]),
+        base_rate: Parser.parseFloat64(data.buffer, offsets[17]),
+        multiplier1: Parser.parseFloat64(data.buffer, offsets[18]),
+        multiplier2: Parser.parseFloat64(data.buffer, offsets[19]),
+        kink: Parser.parseFloat64(data.buffer, offsets[20]),
+        borrow_rate: Parser.parseFloat64(data.buffer, offsets[21]),
+        deposit_rate: Parser.parseFloat64(data.buffer, offsets[22]),
+        reserve_factor: Parser.parseFloat64(data.buffer, offsets[23])
       };
     }
   }, {
@@ -587,6 +592,20 @@ var Parser = /*#__PURE__*/function () {
 
       for (var offset = 0; offset < data.length; offset += 2) {
         result.push(view.getUint16(offset, true));
+      }
+
+      return result;
+    }
+  }, {
+    key: "parseUsersPage",
+    value: function parseUsersPage(data) {
+      var result = [];
+      var count = data.length / 32;
+
+      for (var i = 0; i < count; i++) {
+        var offset = i * 32;
+        var end = offset + 32;
+        result[i] = new S.PublicKey(new Uint8Array(data.slice(offset, end)));
       }
 
       return result;
@@ -704,7 +723,7 @@ var TxMaker = /*#__PURE__*/function () {
     key: "add_user_and_deposit",
     value: function () {
       var _add_user_and_deposit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(page_id, wallet_account, user_spl_key, mint_key_str, amount) {
-        var _yield$consts$get_bas, _yield$consts$get_bas2, base_pda, _0, user_wallet_key, userPagesStatsKey, usersPageKey, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, buffer, view, payload, poolIdArray, inst;
+        var _yield$consts$get_bas, _yield$consts$get_bas2, base_pda, _0, user_wallet_key, userPagesStatsKey, usersPageKey, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, priceSummariesKey, buffer, view, payload, poolIdArray, inst;
 
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
@@ -749,6 +768,11 @@ var TxMaker = /*#__PURE__*/function () {
 
               case 24:
                 poolSummariesKey = _context3.sent;
+                _context3.next = 27;
+                return consts.get_price_summaries_key(base_pda);
+
+              case 27:
+                priceSummariesKey = _context3.sent;
                 buffer = new ArrayBuffer(10);
                 view = new DataView(buffer);
                 view.setUint16(0, page_id, true);
@@ -798,6 +822,11 @@ var TxMaker = /*#__PURE__*/function () {
                     isWritable: true
                   }, // PoolSummaries
                   {
+                    pubkey: priceSummariesKey,
+                    isSigner: false,
+                    isWritable: false
+                  }, // PriceSummaries
+                  {
                     pubkey: S.SystemProgram.programId,
                     isSigner: false,
                     isWritable: false
@@ -813,7 +842,7 @@ var TxMaker = /*#__PURE__*/function () {
 
                 return _context3.abrupt("return", new S.Transaction().add(inst));
 
-              case 33:
+              case 36:
               case "end":
                 return _context3.stop();
             }
@@ -1744,6 +1773,300 @@ var TxMaker = /*#__PURE__*/function () {
 
       return margin_swap;
     }()
+  }, {
+    key: "margin_lp_create",
+    value: function () {
+      var _margin_lp_create = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13(wallet_account, left_mint_str, left_amount, right_mint_str, right_amount, lp_mint_str, min_lp_amount, target_swap, swap_account_keys) {
+        var _yield$consts$get_bas17, _yield$consts$get_bas18, base_pda, _0, user_wallet_key, userInfoKey, leftAssetPoolKey, leftAssetPoolSplKey, rightAssetPoolKey, rightAssetPoolSplKey, lpAssetPoolKey, lpAssetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, leftPoolId, rightPoolId, lpPoolId, payload, data, inst;
+
+        return regeneratorRuntime.wrap(function _callee13$(_context13) {
+          while (1) {
+            switch (_context13.prev = _context13.next) {
+              case 0:
+                _context13.next = 2;
+                return consts.get_base_pda();
+
+              case 2:
+                _yield$consts$get_bas17 = _context13.sent;
+                _yield$consts$get_bas18 = _slicedToArray(_yield$consts$get_bas17, 2);
+                base_pda = _yield$consts$get_bas18[0];
+                _0 = _yield$consts$get_bas18[1];
+                user_wallet_key = wallet_account.publicKey;
+                _context13.next = 9;
+                return consts.get_user_info_key(user_wallet_key);
+
+              case 9:
+                userInfoKey = _context13.sent;
+                _context13.next = 12;
+                return consts.get_asset_pool_key(base_pda, left_mint_str);
+
+              case 12:
+                leftAssetPoolKey = _context13.sent;
+                _context13.next = 15;
+                return consts.get_asset_pool_spl_key(base_pda, left_mint_str);
+
+              case 15:
+                leftAssetPoolSplKey = _context13.sent;
+                _context13.next = 18;
+                return consts.get_asset_pool_key(base_pda, right_mint_str);
+
+              case 18:
+                rightAssetPoolKey = _context13.sent;
+                _context13.next = 21;
+                return consts.get_asset_pool_spl_key(base_pda, right_mint_str);
+
+              case 21:
+                rightAssetPoolSplKey = _context13.sent;
+                _context13.next = 24;
+                return consts.get_asset_pool_key(base_pda, lp_mint_str);
+
+              case 24:
+                lpAssetPoolKey = _context13.sent;
+                _context13.next = 27;
+                return consts.get_asset_pool_spl_key(base_pda, lp_mint_str);
+
+              case 27:
+                lpAssetPoolSplKey = _context13.sent;
+                _context13.next = 30;
+                return consts.get_pool_summaries_key(base_pda);
+
+              case 30:
+                poolSummariesKey = _context13.sent;
+                _context13.next = 33;
+                return consts.get_price_summaries_key(base_pda);
+
+              case 33:
+                priceSummariesKey = _context13.sent;
+                keys = [{
+                  pubkey: user_wallet_key,
+                  isSigner: true,
+                  isWritable: false
+                }, {
+                  pubkey: userInfoKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: base_pda,
+                  isSigner: false,
+                  isWritable: false
+                }, {
+                  pubkey: leftAssetPoolKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: leftAssetPoolSplKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: rightAssetPoolKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: rightAssetPoolSplKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: lpAssetPoolKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: lpAssetPoolSplKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: poolSummariesKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: priceSummariesKey,
+                  isSigner: false,
+                  isWritable: false
+                }, {
+                  pubkey: T.TOKEN_PROGRAM_ID,
+                  isSigner: false,
+                  isWritable: false
+                }].concat(swap_account_keys);
+                buffer = new ArrayBuffer(28);
+                Parser.setBigUint64(buffer, 0, left_amount);
+                Parser.setBigUint64(buffer, 8, right_amount);
+                Parser.setBigUint64(buffer, 16, min_lp_amount);
+                leftPoolId = Parser.getPoolIdArray(left_mint_str);
+                Parser.setUint8(buffer, 24, leftPoolId);
+                rightPoolId = Parser.getPoolIdArray(right_mint_str);
+                Parser.setUint8(buffer, 25, rightPoolId);
+                lpPoolId = Parser.getPoolIdArray(lp_mint_str);
+                Parser.setUint8(buffer, 26, lpPoolId);
+                Parser.setUint8(buffer, 27, target_swap);
+                payload = Array.from(new Uint8Array(buffer));
+                data = [consts.CMD_LP_CREATE].concat(payload);
+                inst = new S.TransactionInstruction({
+                  programId: programPubkey,
+                  keys: keys,
+                  data: data
+                });
+                return _context13.abrupt("return", new S.Transaction().add(inst));
+
+              case 50:
+              case "end":
+                return _context13.stop();
+            }
+          }
+        }, _callee13);
+      }));
+
+      function margin_lp_create(_x74, _x75, _x76, _x77, _x78, _x79, _x80, _x81, _x82) {
+        return _margin_lp_create.apply(this, arguments);
+      }
+
+      return margin_lp_create;
+    }()
+  }, {
+    key: "margin_lp_redeem",
+    value: function () {
+      var _margin_lp_redeem = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14(wallet_account, left_mint_str, min_left_amount, right_mint_str, min_right_amount, lp_mint_str, lp_amount, target_swap, swap_account_keys) {
+        var _yield$consts$get_bas19, _yield$consts$get_bas20, base_pda, _0, user_wallet_key, userInfoKey, leftAssetPoolKey, leftAssetPoolSplKey, rightAssetPoolKey, rightAssetPoolSplKey, lpAssetPoolKey, lpAssetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, leftPoolId, rightPoolId, lpPoolId, payload, data, inst;
+
+        return regeneratorRuntime.wrap(function _callee14$(_context14) {
+          while (1) {
+            switch (_context14.prev = _context14.next) {
+              case 0:
+                _context14.next = 2;
+                return consts.get_base_pda();
+
+              case 2:
+                _yield$consts$get_bas19 = _context14.sent;
+                _yield$consts$get_bas20 = _slicedToArray(_yield$consts$get_bas19, 2);
+                base_pda = _yield$consts$get_bas20[0];
+                _0 = _yield$consts$get_bas20[1];
+                user_wallet_key = wallet_account.publicKey;
+                _context14.next = 9;
+                return consts.get_user_info_key(user_wallet_key);
+
+              case 9:
+                userInfoKey = _context14.sent;
+                _context14.next = 12;
+                return consts.get_asset_pool_key(base_pda, left_mint_str);
+
+              case 12:
+                leftAssetPoolKey = _context14.sent;
+                _context14.next = 15;
+                return consts.get_asset_pool_spl_key(base_pda, left_mint_str);
+
+              case 15:
+                leftAssetPoolSplKey = _context14.sent;
+                _context14.next = 18;
+                return consts.get_asset_pool_key(base_pda, right_mint_str);
+
+              case 18:
+                rightAssetPoolKey = _context14.sent;
+                _context14.next = 21;
+                return consts.get_asset_pool_spl_key(base_pda, right_mint_str);
+
+              case 21:
+                rightAssetPoolSplKey = _context14.sent;
+                _context14.next = 24;
+                return consts.get_asset_pool_key(base_pda, lp_mint_str);
+
+              case 24:
+                lpAssetPoolKey = _context14.sent;
+                _context14.next = 27;
+                return consts.get_asset_pool_spl_key(base_pda, lp_mint_str);
+
+              case 27:
+                lpAssetPoolSplKey = _context14.sent;
+                _context14.next = 30;
+                return consts.get_pool_summaries_key(base_pda);
+
+              case 30:
+                poolSummariesKey = _context14.sent;
+                _context14.next = 33;
+                return consts.get_price_summaries_key(base_pda);
+
+              case 33:
+                priceSummariesKey = _context14.sent;
+                keys = [{
+                  pubkey: user_wallet_key,
+                  isSigner: true,
+                  isWritable: true
+                }, {
+                  pubkey: userInfoKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: base_pda,
+                  isSigner: false,
+                  isWritable: false
+                }, {
+                  pubkey: leftAssetPoolKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: leftAssetPoolSplKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: rightAssetPoolKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: rightAssetPoolSplKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: lpAssetPoolKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: lpAssetPoolSplKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: poolSummariesKey,
+                  isSigner: false,
+                  isWritable: true
+                }, {
+                  pubkey: priceSummariesKey,
+                  isSigner: false,
+                  isWritable: false
+                }, {
+                  pubkey: T.TOKEN_PROGRAM_ID,
+                  isSigner: false,
+                  isWritable: false
+                }].concat(swap_account_keys);
+                buffer = new ArrayBuffer(28);
+                Parser.setBigUint64(buffer, 0, min_left_amount);
+                Parser.setBigUint64(buffer, 8, min_right_amount);
+                Parser.setBigUint64(buffer, 16, lp_amount);
+                leftPoolId = Parser.getPoolIdArray(left_mint_str);
+                Parser.setUint8(buffer, 24, leftPoolId);
+                rightPoolId = Parser.getPoolIdArray(right_mint_str);
+                Parser.setUint8(buffer, 25, rightPoolId);
+                lpPoolId = Parser.getPoolIdArray(lp_mint_str);
+                Parser.setUint8(buffer, 26, lpPoolId);
+                Parser.setUint8(buffer, 27, target_swap);
+                payload = Array.from(new Uint8Array(buffer));
+                data = [consts.CMD_LP_REDEEM].concat(payload);
+                inst = new S.TransactionInstruction({
+                  programId: programPubkey,
+                  keys: keys,
+                  data: data
+                });
+                return _context14.abrupt("return", new S.Transaction().add(inst));
+
+              case 50:
+              case "end":
+                return _context14.stop();
+            }
+          }
+        }, _callee14);
+      }));
+
+      function margin_lp_redeem(_x83, _x84, _x85, _x86, _x87, _x88, _x89, _x90, _x91) {
+        return _margin_lp_redeem.apply(this, arguments);
+      }
+
+      return margin_lp_redeem;
+    }()
   }]);
 
   return TxMaker;
@@ -1761,85 +2084,18 @@ var ConnWrapper = /*#__PURE__*/function () {
   _createClass(ConnWrapper, [{
     key: "update_user_config",
     value: function () {
-      var _update_user_config2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13(user_wallet_account, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target) {
-        var tx;
-        return regeneratorRuntime.wrap(function _callee13$(_context13) {
-          while (1) {
-            switch (_context13.prev = _context13.next) {
-              case 0:
-                _context13.next = 2;
-                return TxMaker.update_user_config(user_wallet_account, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target);
-
-              case 2:
-                tx = _context13.sent;
-                return _context13.abrupt("return", this.connection.sendTransaction(tx, [user_wallet_account]));
-
-              case 4:
-              case "end":
-                return _context13.stop();
-            }
-          }
-        }, _callee13, this);
-      }));
-
-      function update_user_config(_x74, _x75, _x76, _x77) {
-        return _update_user_config2.apply(this, arguments);
-      }
-
-      return update_user_config;
-    }()
-  }, {
-    key: "add_user_and_deposit",
-    value: function () {
-      var _add_user_and_deposit2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14(wallet_account, user_spl_key, mint_key_str, amount) {
-        var num_free_slots, max_num_free, max_page_id, tx;
-        return regeneratorRuntime.wrap(function _callee14$(_context14) {
-          while (1) {
-            switch (_context14.prev = _context14.next) {
-              case 0:
-                _context14.next = 2;
-                return this.getParsedUserPagesStats();
-
-              case 2:
-                num_free_slots = _context14.sent;
-                max_num_free = Math.max.apply(Math, _toConsumableArray(num_free_slots));
-                max_page_id = num_free_slots.indexOf(max_num_free);
-                _context14.next = 7;
-                return TxMaker.add_user_and_deposit(max_page_id, wallet_account, user_spl_key, mint_key_str, amount);
-
-              case 7:
-                tx = _context14.sent;
-                return _context14.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
-
-              case 9:
-              case "end":
-                return _context14.stop();
-            }
-          }
-        }, _callee14, this);
-      }));
-
-      function add_user_and_deposit(_x78, _x79, _x80, _x81) {
-        return _add_user_and_deposit2.apply(this, arguments);
-      }
-
-      return add_user_and_deposit;
-    }()
-  }, {
-    key: "deposit",
-    value: function () {
-      var _deposit2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(wallet_account, user_spl_key, mint_key_str, amount) {
+      var _update_user_config2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(user_wallet_account, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target) {
         var tx;
         return regeneratorRuntime.wrap(function _callee15$(_context15) {
           while (1) {
             switch (_context15.prev = _context15.next) {
               case 0:
                 _context15.next = 2;
-                return TxMaker.deposit(wallet_account, user_spl_key, mint_key_str, amount);
+                return TxMaker.update_user_config(user_wallet_account, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target);
 
               case 2:
                 tx = _context15.sent;
-                return _context15.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
+                return _context15.abrupt("return", this.connection.sendTransaction(tx, [user_wallet_account]));
 
               case 4:
               case "end":
@@ -1849,34 +2105,36 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee15, this);
       }));
 
-      function deposit(_x82, _x83, _x84, _x85) {
-        return _deposit2.apply(this, arguments);
+      function update_user_config(_x92, _x93, _x94, _x95) {
+        return _update_user_config2.apply(this, arguments);
       }
 
-      return deposit;
+      return update_user_config;
     }()
   }, {
-    key: "withdraw_and_remove_user",
+    key: "add_user_and_deposit",
     value: function () {
-      var _withdraw_and_remove_user2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount) {
-        var user_info, tx;
+      var _add_user_and_deposit2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16(wallet_account, user_spl_key, mint_key_str, amount) {
+        var num_free_slots, max_num_free, max_page_id, tx;
         return regeneratorRuntime.wrap(function _callee16$(_context16) {
           while (1) {
             switch (_context16.prev = _context16.next) {
               case 0:
                 _context16.next = 2;
-                return this.getParsedUserInfo(wallet_account.publicKey);
+                return this.getParsedUserPagesStats();
 
               case 2:
-                user_info = _context16.sent;
-                _context16.next = 5;
-                return TxMaker.withdraw_and_remove_user(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount, user_info);
+                num_free_slots = _context16.sent;
+                max_num_free = Math.max.apply(Math, _toConsumableArray(num_free_slots));
+                max_page_id = num_free_slots.indexOf(max_num_free);
+                _context16.next = 7;
+                return TxMaker.add_user_and_deposit(max_page_id, wallet_account, user_spl_key, mint_key_str, amount);
 
-              case 5:
+              case 7:
                 tx = _context16.sent;
                 return _context16.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
 
-              case 7:
+              case 9:
               case "end":
                 return _context16.stop();
             }
@@ -1884,23 +2142,23 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee16, this);
       }));
 
-      function withdraw_and_remove_user(_x86, _x87, _x88, _x89, _x90) {
-        return _withdraw_and_remove_user2.apply(this, arguments);
+      function add_user_and_deposit(_x96, _x97, _x98, _x99) {
+        return _add_user_and_deposit2.apply(this, arguments);
       }
 
-      return withdraw_and_remove_user;
+      return add_user_and_deposit;
     }()
   }, {
-    key: "withdraw",
+    key: "deposit",
     value: function () {
-      var _withdraw2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount) {
+      var _deposit2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17(wallet_account, user_spl_key, mint_key_str, amount) {
         var tx;
         return regeneratorRuntime.wrap(function _callee17$(_context17) {
           while (1) {
             switch (_context17.prev = _context17.next) {
               case 0:
                 _context17.next = 2;
-                return TxMaker.withdraw(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount);
+                return TxMaker.deposit(wallet_account, user_spl_key, mint_key_str, amount);
 
               case 2:
                 tx = _context17.sent;
@@ -1914,29 +2172,34 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee17, this);
       }));
 
-      function withdraw(_x91, _x92, _x93, _x94, _x95) {
-        return _withdraw2.apply(this, arguments);
+      function deposit(_x100, _x101, _x102, _x103) {
+        return _deposit2.apply(this, arguments);
       }
 
-      return withdraw;
+      return deposit;
     }()
   }, {
-    key: "borrow",
+    key: "withdraw_and_remove_user",
     value: function () {
-      var _borrow2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee18(wallet_account, user_spl_key, mint_key_str, amount) {
-        var tx;
+      var _withdraw_and_remove_user2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee18(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount) {
+        var user_info, tx;
         return regeneratorRuntime.wrap(function _callee18$(_context18) {
           while (1) {
             switch (_context18.prev = _context18.next) {
               case 0:
                 _context18.next = 2;
-                return TxMaker.borrow(wallet_account, user_spl_key, mint_key_str, amount);
+                return this.getParsedUserInfo(wallet_account.publicKey);
 
               case 2:
+                user_info = _context18.sent;
+                _context18.next = 5;
+                return TxMaker.withdraw_and_remove_user(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount, user_info);
+
+              case 5:
                 tx = _context18.sent;
                 return _context18.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
 
-              case 4:
+              case 7:
               case "end":
                 return _context18.stop();
             }
@@ -1944,23 +2207,23 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee18, this);
       }));
 
-      function borrow(_x96, _x97, _x98, _x99) {
-        return _borrow2.apply(this, arguments);
+      function withdraw_and_remove_user(_x104, _x105, _x106, _x107, _x108) {
+        return _withdraw_and_remove_user2.apply(this, arguments);
       }
 
-      return borrow;
+      return withdraw_and_remove_user;
     }()
   }, {
-    key: "repay",
+    key: "withdraw",
     value: function () {
-      var _repay2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(wallet_account, user_spl_key, mint_key_str, repay_all, amount) {
+      var _withdraw2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount) {
         var tx;
         return regeneratorRuntime.wrap(function _callee19$(_context19) {
           while (1) {
             switch (_context19.prev = _context19.next) {
               case 0:
                 _context19.next = 2;
-                return TxMaker.repay(wallet_account, user_spl_key, mint_key_str, repay_all, amount);
+                return TxMaker.withdraw(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount);
 
               case 2:
                 tx = _context19.sent;
@@ -1974,31 +2237,27 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee19, this);
       }));
 
-      function repay(_x100, _x101, _x102, _x103, _x104) {
-        return _repay2.apply(this, arguments);
+      function withdraw(_x109, _x110, _x111, _x112, _x113) {
+        return _withdraw2.apply(this, arguments);
       }
 
-      return repay;
+      return withdraw;
     }()
   }, {
-    key: "extern_liquidate",
+    key: "borrow",
     value: function () {
-      var _extern_liquidate2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(liquidator_wallet_account, liquidated_wallet_key, liquidator_collateral_spl, // PublicKey
-      liquidator_borrowed_spl, // PublicKey
-      collateral_mint_str, borrowed_mint_str, min_collateral_amount, repaid_borrow_amount) {
+      var _borrow2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(wallet_account, user_spl_key, mint_key_str, amount) {
         var tx;
         return regeneratorRuntime.wrap(function _callee20$(_context20) {
           while (1) {
             switch (_context20.prev = _context20.next) {
               case 0:
                 _context20.next = 2;
-                return TxMaker.extern_liquidate(liquidator_wallet_account, liquidated_wallet_key, liquidator_collateral_spl, // PublicKey
-                liquidator_borrowed_spl, // PublicKey
-                collateral_mint_str, borrowed_mint_str, min_collateral_amount, repaid_borrow_amount);
+                return TxMaker.borrow(wallet_account, user_spl_key, mint_key_str, amount);
 
               case 2:
                 tx = _context20.sent;
-                return _context20.abrupt("return", this.connection.sendTransaction(tx, [liquidator_wallet_account]));
+                return _context20.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
 
               case 4:
               case "end":
@@ -2008,27 +2267,27 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee20, this);
       }));
 
-      function extern_liquidate(_x105, _x106, _x107, _x108, _x109, _x110, _x111, _x112) {
-        return _extern_liquidate2.apply(this, arguments);
+      function borrow(_x114, _x115, _x116, _x117) {
+        return _borrow2.apply(this, arguments);
       }
 
-      return extern_liquidate;
+      return borrow;
     }()
   }, {
-    key: "self_liquidate",
+    key: "repay",
     value: function () {
-      var _self_liquidate2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21(liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
+      var _repay2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21(wallet_account, user_spl_key, mint_key_str, repay_all, amount) {
         var tx;
         return regeneratorRuntime.wrap(function _callee21$(_context21) {
           while (1) {
             switch (_context21.prev = _context21.next) {
               case 0:
                 _context21.next = 2;
-                return TxMaker.self_liquidate(liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys);
+                return TxMaker.repay(wallet_account, user_spl_key, mint_key_str, repay_all, amount);
 
               case 2:
                 tx = _context21.sent;
-                return _context21.abrupt("return", this.connection.sendTransaction(tx, [devAccount]));
+                return _context21.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
 
               case 4:
               case "end":
@@ -2038,27 +2297,31 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee21, this);
       }));
 
-      function self_liquidate(_x113, _x114, _x115, _x116, _x117, _x118, _x119, _x120, _x121, _x122) {
-        return _self_liquidate2.apply(this, arguments);
+      function repay(_x118, _x119, _x120, _x121, _x122) {
+        return _repay2.apply(this, arguments);
       }
 
-      return self_liquidate;
+      return repay;
     }()
   }, {
-    key: "margin_swap",
+    key: "extern_liquidate",
     value: function () {
-      var _margin_swap2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22(user_wallet_account, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
+      var _extern_liquidate2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22(liquidator_wallet_account, liquidated_wallet_key, liquidator_collateral_spl, // PublicKey
+      liquidator_borrowed_spl, // PublicKey
+      collateral_mint_str, borrowed_mint_str, min_collateral_amount, repaid_borrow_amount) {
         var tx;
         return regeneratorRuntime.wrap(function _callee22$(_context22) {
           while (1) {
             switch (_context22.prev = _context22.next) {
               case 0:
                 _context22.next = 2;
-                return TxMaker.margin_swap(user_wallet_account.publicKey, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys);
+                return TxMaker.extern_liquidate(liquidator_wallet_account, liquidated_wallet_key, liquidator_collateral_spl, // PublicKey
+                liquidator_borrowed_spl, // PublicKey
+                collateral_mint_str, borrowed_mint_str, min_collateral_amount, repaid_borrow_amount);
 
               case 2:
                 tx = _context22.sent;
-                return _context22.abrupt("return", this.connection.sendTransaction(tx, [user_wallet_account]));
+                return _context22.abrupt("return", this.connection.sendTransaction(tx, [liquidator_wallet_account]));
 
               case 4:
               case "end":
@@ -2068,48 +2331,168 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee22, this);
       }));
 
-      function margin_swap(_x123, _x124, _x125, _x126, _x127, _x128, _x129, _x130, _x131, _x132) {
+      function extern_liquidate(_x123, _x124, _x125, _x126, _x127, _x128, _x129, _x130) {
+        return _extern_liquidate2.apply(this, arguments);
+      }
+
+      return extern_liquidate;
+    }()
+  }, {
+    key: "self_liquidate",
+    value: function () {
+      var _self_liquidate2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee23(funder_account, liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
+        var tx;
+        return regeneratorRuntime.wrap(function _callee23$(_context23) {
+          while (1) {
+            switch (_context23.prev = _context23.next) {
+              case 0:
+                _context23.next = 2;
+                return TxMaker.self_liquidate(liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys);
+
+              case 2:
+                tx = _context23.sent;
+                return _context23.abrupt("return", this.connection.sendTransaction(tx, [funder_account]));
+
+              case 4:
+              case "end":
+                return _context23.stop();
+            }
+          }
+        }, _callee23, this);
+      }));
+
+      function self_liquidate(_x131, _x132, _x133, _x134, _x135, _x136, _x137, _x138, _x139, _x140, _x141) {
+        return _self_liquidate2.apply(this, arguments);
+      }
+
+      return self_liquidate;
+    }()
+  }, {
+    key: "margin_swap",
+    value: function () {
+      var _margin_swap2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee24(user_wallet_account, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
+        var tx;
+        return regeneratorRuntime.wrap(function _callee24$(_context24) {
+          while (1) {
+            switch (_context24.prev = _context24.next) {
+              case 0:
+                _context24.next = 2;
+                return TxMaker.margin_swap(user_wallet_account.publicKey, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys);
+
+              case 2:
+                tx = _context24.sent;
+                return _context24.abrupt("return", this.connection.sendTransaction(tx, [user_wallet_account]));
+
+              case 4:
+              case "end":
+                return _context24.stop();
+            }
+          }
+        }, _callee24, this);
+      }));
+
+      function margin_swap(_x142, _x143, _x144, _x145, _x146, _x147, _x148, _x149, _x150, _x151) {
         return _margin_swap2.apply(this, arguments);
       }
 
       return margin_swap;
     }()
   }, {
+    key: "margin_lp_create",
+    value: function () {
+      var _margin_lp_create2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee25(wallet_account, left_mint_str, left_amount, right_mint_str, right_amount, lp_mint_str, min_lp_amount, target_swap, swap_account_keys) {
+        var tx;
+        return regeneratorRuntime.wrap(function _callee25$(_context25) {
+          while (1) {
+            switch (_context25.prev = _context25.next) {
+              case 0:
+                _context25.next = 2;
+                return TxMaker.margin_lp_create(wallet_account, left_mint_str, left_amount, right_mint_str, right_amount, lp_mint_str, min_lp_amount, target_swap, swap_account_keys);
+
+              case 2:
+                tx = _context25.sent;
+                return _context25.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
+
+              case 4:
+              case "end":
+                return _context25.stop();
+            }
+          }
+        }, _callee25, this);
+      }));
+
+      function margin_lp_create(_x152, _x153, _x154, _x155, _x156, _x157, _x158, _x159, _x160) {
+        return _margin_lp_create2.apply(this, arguments);
+      }
+
+      return margin_lp_create;
+    }()
+  }, {
+    key: "margin_lp_redeem",
+    value: function () {
+      var _margin_lp_redeem2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee26(wallet_account, left_mint_str, min_left_amount, right_mint_str, min_right_amount, lp_mint_str, lp_amount, target_swap, swap_account_keys) {
+        var tx;
+        return regeneratorRuntime.wrap(function _callee26$(_context26) {
+          while (1) {
+            switch (_context26.prev = _context26.next) {
+              case 0:
+                _context26.next = 2;
+                return TxMaker.margin_lp_redeem(wallet_account, left_mint_str, min_left_amount, right_mint_str, min_right_amount, lp_mint_str, lp_amount, target_swap, swap_account_keys);
+
+              case 2:
+                tx = _context26.sent;
+                return _context26.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
+
+              case 4:
+              case "end":
+                return _context26.stop();
+            }
+          }
+        }, _callee26, this);
+      }));
+
+      function margin_lp_redeem(_x161, _x162, _x163, _x164, _x165, _x166, _x167, _x168, _x169) {
+        return _margin_lp_redeem2.apply(this, arguments);
+      }
+
+      return margin_lp_redeem;
+    }()
+  }, {
     key: "getParsedPoolList",
     value: function () {
-      var _getParsedPoolList = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee23() {
-        var _yield$consts$get_bas17, _yield$consts$get_bas18, base_pda, bump, pool_list_pubkey, response;
+      var _getParsedPoolList = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee27() {
+        var _yield$consts$get_bas21, _yield$consts$get_bas22, base_pda, bump, pool_list_pubkey, response;
 
-        return regeneratorRuntime.wrap(function _callee23$(_context23) {
+        return regeneratorRuntime.wrap(function _callee27$(_context27) {
           while (1) {
-            switch (_context23.prev = _context23.next) {
+            switch (_context27.prev = _context27.next) {
               case 0:
-                _context23.next = 2;
+                _context27.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas17 = _context23.sent;
-                _yield$consts$get_bas18 = _slicedToArray(_yield$consts$get_bas17, 2);
-                base_pda = _yield$consts$get_bas18[0];
-                bump = _yield$consts$get_bas18[1];
-                _context23.next = 8;
+                _yield$consts$get_bas21 = _context27.sent;
+                _yield$consts$get_bas22 = _slicedToArray(_yield$consts$get_bas21, 2);
+                base_pda = _yield$consts$get_bas22[0];
+                bump = _yield$consts$get_bas22[1];
+                _context27.next = 8;
                 return consts.get_pool_list_key(base_pda);
 
               case 8:
-                pool_list_pubkey = _context23.sent;
-                _context23.next = 11;
+                pool_list_pubkey = _context27.sent;
+                _context27.next = 11;
                 return this.connection.getParsedAccountInfo(pool_list_pubkey);
 
               case 11:
-                response = _context23.sent;
-                return _context23.abrupt("return", Parser.parsePoolList(new Uint8Array(response.value.data)));
+                response = _context27.sent;
+                return _context27.abrupt("return", Parser.parsePoolList(new Uint8Array(response.value.data)));
 
               case 13:
               case "end":
-                return _context23.stop();
+                return _context27.stop();
             }
           }
-        }, _callee23, this);
+        }, _callee27, this);
       }));
 
       function getParsedPoolList() {
@@ -2121,39 +2504,39 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "getParsedUserPagesStats",
     value: function () {
-      var _getParsedUserPagesStats = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee24() {
-        var _yield$consts$get_bas19, _yield$consts$get_bas20, base_pda, _, statsAccountKey, response;
+      var _getParsedUserPagesStats = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee28() {
+        var _yield$consts$get_bas23, _yield$consts$get_bas24, base_pda, _, statsAccountKey, response;
 
-        return regeneratorRuntime.wrap(function _callee24$(_context24) {
+        return regeneratorRuntime.wrap(function _callee28$(_context28) {
           while (1) {
-            switch (_context24.prev = _context24.next) {
+            switch (_context28.prev = _context28.next) {
               case 0:
-                _context24.next = 2;
+                _context28.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas19 = _context24.sent;
-                _yield$consts$get_bas20 = _slicedToArray(_yield$consts$get_bas19, 2);
-                base_pda = _yield$consts$get_bas20[0];
-                _ = _yield$consts$get_bas20[1];
-                _context24.next = 8;
+                _yield$consts$get_bas23 = _context28.sent;
+                _yield$consts$get_bas24 = _slicedToArray(_yield$consts$get_bas23, 2);
+                base_pda = _yield$consts$get_bas24[0];
+                _ = _yield$consts$get_bas24[1];
+                _context28.next = 8;
                 return consts.get_user_pages_stats_key(base_pda);
 
               case 8:
-                statsAccountKey = _context24.sent;
-                _context24.next = 11;
+                statsAccountKey = _context28.sent;
+                _context28.next = 11;
                 return this.connection.getParsedAccountInfo(statsAccountKey);
 
               case 11:
-                response = _context24.sent;
-                return _context24.abrupt("return", Parser.parseUserPagesStats(new Uint8Array(response.value.data)));
+                response = _context28.sent;
+                return _context28.abrupt("return", Parser.parseUserPagesStats(new Uint8Array(response.value.data)));
 
               case 13:
               case "end":
-                return _context24.stop();
+                return _context28.stop();
             }
           }
-        }, _callee24, this);
+        }, _callee28, this);
       }));
 
       function getParsedUserPagesStats() {
@@ -2165,42 +2548,42 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "getParsedAssetPool",
     value: function () {
-      var _getParsedAssetPool = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee25(mint_key_str) {
-        var _yield$consts$get_bas21, _yield$consts$get_bas22, base_pda, _, poolAccountKey, response;
+      var _getParsedAssetPool = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee29(mint_key_str) {
+        var _yield$consts$get_bas25, _yield$consts$get_bas26, base_pda, _, poolAccountKey, response;
 
-        return regeneratorRuntime.wrap(function _callee25$(_context25) {
+        return regeneratorRuntime.wrap(function _callee29$(_context29) {
           while (1) {
-            switch (_context25.prev = _context25.next) {
+            switch (_context29.prev = _context29.next) {
               case 0:
-                _context25.next = 2;
+                _context29.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas21 = _context25.sent;
-                _yield$consts$get_bas22 = _slicedToArray(_yield$consts$get_bas21, 2);
-                base_pda = _yield$consts$get_bas22[0];
-                _ = _yield$consts$get_bas22[1];
-                _context25.next = 8;
+                _yield$consts$get_bas25 = _context29.sent;
+                _yield$consts$get_bas26 = _slicedToArray(_yield$consts$get_bas25, 2);
+                base_pda = _yield$consts$get_bas26[0];
+                _ = _yield$consts$get_bas26[1];
+                _context29.next = 8;
                 return consts.get_asset_pool_key(base_pda, mint_key_str);
 
               case 8:
-                poolAccountKey = _context25.sent;
-                _context25.next = 11;
+                poolAccountKey = _context29.sent;
+                _context29.next = 11;
                 return this.connection.getParsedAccountInfo(poolAccountKey);
 
               case 11:
-                response = _context25.sent;
-                return _context25.abrupt("return", Parser.parseAssetPool(new Uint8Array(response.value.data)));
+                response = _context29.sent;
+                return _context29.abrupt("return", Parser.parseAssetPool(new Uint8Array(response.value.data)));
 
               case 13:
               case "end":
-                return _context25.stop();
+                return _context29.stop();
             }
           }
-        }, _callee25, this);
+        }, _callee29, this);
       }));
 
-      function getParsedAssetPool(_x133) {
+      function getParsedAssetPool(_x170) {
         return _getParsedAssetPool.apply(this, arguments);
       }
 
@@ -2209,42 +2592,42 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "getParsedAssetPrice",
     value: function () {
-      var _getParsedAssetPrice = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee26(mint_key_str) {
+      var _getParsedAssetPrice = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee30(mint_key_str) {
         var _yield$consts$get_pri, _yield$consts$get_pri2, price_pda, _, assetPriceKey, response;
 
-        return regeneratorRuntime.wrap(function _callee26$(_context26) {
+        return regeneratorRuntime.wrap(function _callee30$(_context30) {
           while (1) {
-            switch (_context26.prev = _context26.next) {
+            switch (_context30.prev = _context30.next) {
               case 0:
-                _context26.next = 2;
+                _context30.next = 2;
                 return consts.get_price_pda();
 
               case 2:
-                _yield$consts$get_pri = _context26.sent;
+                _yield$consts$get_pri = _context30.sent;
                 _yield$consts$get_pri2 = _slicedToArray(_yield$consts$get_pri, 2);
                 price_pda = _yield$consts$get_pri2[0];
                 _ = _yield$consts$get_pri2[1];
-                _context26.next = 8;
+                _context30.next = 8;
                 return consts.get_asset_price_key(price_pda, mint_key_str);
 
               case 8:
-                assetPriceKey = _context26.sent;
-                _context26.next = 11;
+                assetPriceKey = _context30.sent;
+                _context30.next = 11;
                 return this.connection.getParsedAccountInfo(assetPriceKey);
 
               case 11:
-                response = _context26.sent;
-                return _context26.abrupt("return", Parser.parseAssetPrice(new Uint8Array(response.value.data)));
+                response = _context30.sent;
+                return _context30.abrupt("return", Parser.parseAssetPrice(new Uint8Array(response.value.data)));
 
               case 13:
               case "end":
-                return _context26.stop();
+                return _context30.stop();
             }
           }
-        }, _callee26, this);
+        }, _callee30, this);
       }));
 
-      function getParsedAssetPrice(_x134) {
+      function getParsedAssetPrice(_x171) {
         return _getParsedAssetPrice.apply(this, arguments);
       }
 
@@ -2253,33 +2636,33 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "getParsedUserInfo",
     value: function () {
-      var _getParsedUserInfo = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee27(wallet_key) {
+      var _getParsedUserInfo = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee31(wallet_key) {
         var userInfoKey, response;
-        return regeneratorRuntime.wrap(function _callee27$(_context27) {
+        return regeneratorRuntime.wrap(function _callee31$(_context31) {
           while (1) {
-            switch (_context27.prev = _context27.next) {
+            switch (_context31.prev = _context31.next) {
               case 0:
-                _context27.next = 2;
+                _context31.next = 2;
                 return consts.get_user_info_key(wallet_key);
 
               case 2:
-                userInfoKey = _context27.sent;
-                _context27.next = 5;
+                userInfoKey = _context31.sent;
+                _context31.next = 5;
                 return this.connection.getParsedAccountInfo(userInfoKey);
 
               case 5:
-                response = _context27.sent;
-                return _context27.abrupt("return", Parser.parseUserInfo(new Uint8Array(response.value.data)));
+                response = _context31.sent;
+                return _context31.abrupt("return", Parser.parseUserInfo(new Uint8Array(response.value.data)));
 
               case 7:
               case "end":
-                return _context27.stop();
+                return _context31.stop();
             }
           }
-        }, _callee27, this);
+        }, _callee31, this);
       }));
 
-      function getParsedUserInfo(_x135) {
+      function getParsedUserInfo(_x172) {
         return _getParsedUserInfo.apply(this, arguments);
       }
 
@@ -2288,43 +2671,43 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "isUserActive",
     value: function () {
-      var _isUserActive = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee28(wallet_key) {
+      var _isUserActive = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee32(wallet_key) {
         var userInfoKey, response, user_info;
-        return regeneratorRuntime.wrap(function _callee28$(_context28) {
+        return regeneratorRuntime.wrap(function _callee32$(_context32) {
           while (1) {
-            switch (_context28.prev = _context28.next) {
+            switch (_context32.prev = _context32.next) {
               case 0:
-                _context28.next = 2;
+                _context32.next = 2;
                 return consts.get_user_info_key(wallet_key);
 
               case 2:
-                userInfoKey = _context28.sent;
-                _context28.next = 5;
+                userInfoKey = _context32.sent;
+                _context32.next = 5;
                 return this.connection.getParsedAccountInfo(userInfoKey);
 
               case 5:
-                response = _context28.sent;
+                response = _context32.sent;
 
                 if (!(response.value === null)) {
-                  _context28.next = 8;
+                  _context32.next = 8;
                   break;
                 }
 
-                return _context28.abrupt("return", false);
+                return _context32.abrupt("return", false);
 
               case 8:
                 user_info = Parser.parseUserInfo(new Uint8Array(response.value.data));
-                return _context28.abrupt("return", user_info.page_id !== consts.INVALID_PAGE);
+                return _context32.abrupt("return", user_info.page_id !== consts.INVALID_PAGE);
 
               case 10:
               case "end":
-                return _context28.stop();
+                return _context32.stop();
             }
           }
-        }, _callee28, this);
+        }, _callee32, this);
       }));
 
-      function isUserActive(_x136) {
+      function isUserActive(_x173) {
         return _isUserActive.apply(this, arguments);
       }
 
