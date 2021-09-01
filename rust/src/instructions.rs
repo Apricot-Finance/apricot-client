@@ -56,29 +56,6 @@ pub struct ExternLiquidateParam {
     pub borrowed_pool_id: u8,
 }
 
-#[repr(packed)]
-pub struct SelfLiquidateParam {
-    pub need_to_sell: u8,
-    pub need_to_buy: u8,
-    pub sell_collateral_amount: u64,
-    pub buy_borrowed_amount: u64,
-    pub collateral_pool_id: u8,
-    pub borrowed_pool_id: u8,
-}
-
-#[repr(packed)]
-pub struct MarginSwapParam {
-    // about need_to_sell and need_to_buy
-    // if we are swapping USDT/C to another asset, a single BID order will do so no need to sell
-    // if we are swapping some asset to USDT/C, a single ASK order will do so no need to buy
-    pub need_to_sell: u8,
-    pub need_to_buy: u8,
-    pub sell_amount: u64,
-    pub min_buy_amount: u64,
-    pub sell_pool_id: u8,
-    pub buy_pool_id: u8,
-}
-
 #[inline(always)]
 pub fn mut_cast<T>(data: &mut [u8] ) -> &mut T {
     assert!(data.len() >= std::mem::size_of::<T>());
@@ -402,6 +379,30 @@ pub fn repay_full(
             AccountMeta::new(*asset_pool_spl, false),
             AccountMeta::new(*pool_summaries, false),
             AccountMeta::new_readonly(*token_program, false),
+        ],
+        data: buffer,
+    }
+}
+
+pub fn refresh_user(
+    user_wallet: &Pubkey,       // user wallet account
+) -> Instruction {
+
+    let data_size = 1 + 0; // no param
+    let mut buffer = vec![0; data_size];
+
+    let program_id = consts::program::ID;
+    let user_info = consts::get_user_info_k(user_wallet);
+    let pool_summaries = consts::get_pool_summaries_k();
+
+    buffer[0] = consts::CMD_REFRESH_USER;
+
+    Instruction{
+        program_id: program_id,
+        accounts: vec![
+            AccountMeta::new_readonly(*user_wallet, false),
+            AccountMeta::new(user_info, false),
+            AccountMeta::new_readonly(pool_summaries, false),
         ],
         data: buffer,
     }

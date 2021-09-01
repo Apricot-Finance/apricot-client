@@ -3,37 +3,41 @@ use solana_program::pubkey::Pubkey;
 pub mod program {
     use solana_program::declare_id;
     // program_id
-    declare_id!("H3RDrUZk8Cuk5ghJgeMrs69uuEHVcJA6YBtuPDrH5Za6");
+    declare_id!("2XaNvhxnLjym7SY2y55fLVWAtnzRNpSzByVs61y4ANM5");
 }
 
 pub mod base_pda {
     use solana_program::declare_id;
-    declare_id!("Hzbxtx742an6iX8bkMBTV9ZRsd5y9ZjxpqMW7AwqpoXc");
+    declare_id!("8usC6S3KLu9T2cEAAZDRTx9MMyFZbW3xHfnD8szid5gc");
+    pub const BUMP:u8 = 254;
 }
 
 pub mod price_pda {
     use solana_program::declare_id;
-    declare_id!("BkDxvcLWGM5nfDphgbRwvYs8geDxAcaF4AJbHurSuVuv");
+    declare_id!("66Qe7c5rP3tw51xv1GcvPBFcVGBBBk4bmmXPKFKkFy3");
+    pub const BUMP:u8 = 255;
 }
 
 pub mod pool_summaries {
     use solana_program::declare_id;
-    declare_id!("CM34zdq9xiCwbLJdNF3NjMUaXhAZgqEZwASYb7jz9rjs");
+    declare_id!("AJFDA9BqCkY1TtLWasnGUxXFGhk69bdTNHPHmzeVKmjp");
 }
 
 pub mod price_summaries {
     use solana_program::declare_id;
-    declare_id!("7wdiyrTZizdA2HJEnzPjU8eoEEdcGtT2WPC83gJkLyCR");
+    declare_id!("2TW9BQrLnUUJ5C4Xr7iJT9P2asb6ZNEdQspzZwJoMYG7");
 }
 
 // commands
+
+pub const CMD_REFRESH_USER: u8 = 0x0a;
+
 pub const CMD_ADD_USER_AND_DEPOSIT: u8 = 0x10;
 pub const CMD_DEPOSIT: u8 = 0x11;
 pub const CMD_WITHDRAW: u8 = 0x12;
 pub const CMD_BORROW: u8 = 0x13;
 pub const CMD_REPAY: u8 = 0x14;
 pub const CMD_EXTERN_LIQUIDATE: u8 = 0x15;
-pub const CMD_SELF_LIQUIDATE: u8 = 0x16;
 pub const CMD_UPDATE_USER_CONFIG: u8 = 0x17;
 pub const CMD_MARGIN_SWAP: u8 = 0x18;
 pub const CMD_UPDATE_USER_ASSET_CONFIG: u8 = 0x19;
@@ -60,6 +64,9 @@ pub const ERR_INCORRECT_POOL_LIST:u32 = 0x100f;
 pub const ERR_INCORRECT_POOL_SUMMARIES:u32 = 0x1010;
 pub const ERR_INCORRECT_PRICE_SUMMARIES:u32 = 0x1011;
 pub const ERR_INCORRECT_PRICE_PDA:u32 = 0x1012;
+pub const ERR_INCORRECT_TOKEN_PROGRAM:u32 = 0x1013;
+pub const ERR_INCORRECT_ASSET_POOL_ATOKEN_MINT:u32 = 0x1014;
+pub const ERR_INCORRECT_INSTRUCTIONS_SYSVAR:u32 = 0x1015;
 
 // errors about data
 pub const ERR_MISSING_PAGE_ID:u32 = 0x2000;
@@ -93,15 +100,22 @@ pub const ERR_LIQUIDATOR_ASKED_TOO_MUCH_COLLATERAL:u32 = 0x4008;
 pub const ERR_ACCOUNT_NOT_ENOUGH_DEBT_FOR_LIQUIDATION:u32 = 0x4009;
 pub const ERR_ACCOUNT_NOT_ENOUGH_COLLATERAL_FOR_LIQUIDATION:u32 = 0x400a;
 pub const ERR_EXCEEDS_LIQUIDATION_LIMIT:u32 = 0x400b;
-pub const ERR_SELF_LIQUIDATION_THRESHOLD_TOO_SMALL:u32 = 0x400c;
-pub const ERR_POST_SELF_LIQUIDATION_TARGET_TOO_SMALL:u32 = 0x400d;
-pub const ERR_POST_EXTERN_LIQUIDATION_TARGET_TOO_SMALL:u32 = 0x400e;
-pub const ERR_SELF_LIQUIDATION_NOT_REACHED:u32 = 0x400f;
-pub const ERR_SELF_LIQUIDATION_TARGET_EXCEEDED:u32 = 0x4010;
-pub const ERR_SELF_LIQUIDATION_HIGH_SLIPPAGE:u32 = 0x4011;
+pub const ERR_SELF_DELEVERAGE_FACTOR_TOO_LARGE:u32 = 0x400c;
+pub const ERR_POST_DELEVERAGE_FACTOR_TOO_LARGE:u32 = 0x400d;
+pub const ERR_DEPRECATED_XXXXXXXXXXXXXX:u32 = 0x400e;
+pub const ERR_SELF_DELEVERAGE_FACTOR_NOT_REACHED:u32 = 0x400f;
+pub const ERR_SELF_DELEVERAGE_TARGET_EXCEEDED:u32 = 0x4010;
+pub const ERR_SELF_DELEVERAGE_HIGH_SLIPPAGE:u32 = 0x4011;
 pub const ERR_MAX_NUM_ASSETS_REACHED:u32 = 0x4012;
 pub const ERR_SWAP_BOUGHT_LESS_THAN_MIN:u32 = 0x4013;
 pub const ERR_ASSET_NOT_USED_AS_COLLATERAL:u32 = 0x4014;
+pub const ERR_INSUFFICIENT_WALLET_BALANCE:u32 = 0x4015;
+pub const ERR_SWAP_LP_GOT_LESS_THAN_MIN:u32 = 0x4016;
+pub const ERR_ASSIST_ALREADY_EXECUTED:u32 = 0x4017;
+pub const ERR_ASSIST_NOT_ENABLED:u32 = 0x4018;
+pub const ERR_ASSIST_CHECK_MUST_BE_FIRST:u32 = 0x4019;
+pub const ERR_ASSIST_ACTION_NOT_ALLOWED:u32 = 0x4020;
+pub const ERR_ASSIST_INCONSISTENT_ACTION:u32 = 0x4021;
 
 
 pub const USER_INFO_SEED: &'static str = "UserInfo";

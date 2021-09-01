@@ -26,7 +26,9 @@ pub fn is_user_active(data:&[u8]) -> bool {
 
 pub fn get_best_page_id(data:&[u8]) -> u16 {
     let user_pages_stats = cast::<UserPagesStats>(data);
-    let max_page_id = unsafe{user_pages_stats.num_free_slots.iter().position_max().unwrap()};
-    assert!(max_page_id < NUM_PAGES);
-    return max_page_id as u16;
+    #[allow(unaligned_references)] {
+        let max_page_id = user_pages_stats.num_free_slots.iter().position_max().unwrap();
+        assert!(max_page_id < NUM_PAGES);
+        return max_page_id as u16;
+    }
 }
