@@ -35,32 +35,49 @@ fn main() {
     - existing user: use deposit()
      */
 
-    if is_user_active(&conn, user_wallet) {
-        ix = instructions::deposit(user_wallet, &user_spl, deposit_amount, btc_pool_id);
-        println!("Making deposit");
-    }
-    else {
-        let page_id = get_best_page_id(&conn);
-        ix = instructions::add_user_and_deposit( user_wallet, &user_spl, deposit_amount, btc_pool_id, page_id);
-        println!("Creating new user and making deposit");
-    }
+    {
+        if is_user_active(&conn, user_wallet) {
+            ix = instructions::deposit(user_wallet, &user_spl, deposit_amount, btc_pool_id);
+            println!("Making deposit");
+        }
+        else {
+            let page_id = get_best_page_id(&conn);
+            ix = instructions::add_user_and_deposit( user_wallet, &user_spl, deposit_amount, btc_pool_id, page_id);
+            println!("Creating new user and making deposit");
+        }
 
-    let blockhash = conn.get_recent_blockhash().unwrap();
-    let tx = Transaction::new_signed_with_payer(
-        &[ix], Some(user_wallet), &[&user_wallet_keypair], blockhash.0);
+        let blockhash = conn.get_recent_blockhash().unwrap();
+        let tx = Transaction::new_signed_with_payer(
+            &[ix], Some(user_wallet), &[&user_wallet_keypair], blockhash.0);
 
-    let result = conn.send_and_confirm_transaction_with_spinner(&tx).unwrap();
-    println!("Deposit done: {}", result);
+        let result = conn.send_and_confirm_transaction_with_spinner(&tx).unwrap();
+        println!("Deposit done: {}", result);
+    }
 
     // withdraw is straightforward
-    let withdraw_ix = instructions::withdraw(
-        user_wallet, &user_spl, false, withdraw_amount, btc_pool_id);
+    {
+        let withdraw_ix = instructions::withdraw(
+            user_wallet, &user_spl, false, withdraw_amount, btc_pool_id);
 
-    let blockhash = conn.get_recent_blockhash().unwrap();
-    let withdraw_tx = Transaction::new_signed_with_payer(
-        &[withdraw_ix], Some(user_wallet), &[&user_wallet_keypair], blockhash.0);
-    let result = conn.send_and_confirm_transaction_with_spinner(&withdraw_tx).unwrap();
-    println!("Withdraw done: {}", result);
+        let blockhash = conn.get_recent_blockhash().unwrap();
+        let withdraw_tx = Transaction::new_signed_with_payer(
+            &[withdraw_ix], Some(user_wallet), &[&user_wallet_keypair], blockhash.0);
+        let result = conn.send_and_confirm_transaction_with_spinner(&withdraw_tx).unwrap();
+        println!("Withdraw done: {}", result);
+    }
+
+    // refresh user (well totally unnecessary at this point since we just finished a withdrawal,
+    // which already updated user's interests etc across all assets
+    // putting it here just for demo
+    {
+        let refresh_ix = instructions::refresh_user(user_wallet);
+
+        let blockhash = conn.get_recent_blockhash().unwrap();
+        let refresh_tx = Transaction::new_signed_with_payer(
+            &[refresh_ix], Some(user_wallet), &[&user_wallet_keypair], blockhash.0);
+        let result = conn.send_and_confirm_transaction_with_spinner(&refresh_tx).unwrap();
+        println!("Refresh done: {}", result);
+    }
 
 }
 
