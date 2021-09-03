@@ -14,7 +14,7 @@ export const mints = {
     fake_usdt: "GjJFUSzbjZZMXySmJ8jwYmYcZhosN4PAcBKDTnSpHd3s",
     fake_usdc: "BwNiXVdAYt5g5tGSn6Apadk72SEqzmEd3Tv2W5pgvWFM",
     fake_sol : "4jSAADAjfidWvkpRVBk4Q5LMiZT2UNyw8A3D3oKwBC2u",
-    fake_usdt_usdc : "ACZH5bd7XYquUbrdmMy7PvaRvnhrLLKjRCytVr7TFtmk",
+    fake_usdt_usdc : "9R9MtiUGKwp3V8atf636X3nJc6KbCsJNGCFJcdPLeTu7",
 };
 
 const mint_key_str_to_pool_id = {};
@@ -24,7 +24,7 @@ mint_key_str_to_pool_id[mints.fake_eth] = 1;
 mint_key_str_to_pool_id[mints.fake_usdt] = 2;
 mint_key_str_to_pool_id[mints.fake_usdc] = 3;
 mint_key_str_to_pool_id[mints.fake_sol] = 4;
-mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 6;
+mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 5;
 
 export const pool_id_to_decimal_multiplier = {
     0: 1e9,
@@ -33,7 +33,6 @@ export const pool_id_to_decimal_multiplier = {
     3: 1e9,
     4: 1e9,
     5: 1e9,
-    6: 1e9,
 };
 
 const devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
@@ -116,6 +115,8 @@ export class consts{
             }
         }
     }
+
+    static CMD_REFRESH_USER = 0x0a;
 
     static CMD_ADD_USER_AND_DEPOSIT = 0x10;
     static CMD_DEPOSIT = 0x11;
@@ -297,8 +298,19 @@ export class Parser {
     }
 
     static parseAssetPool(data) {
-        // assetPoolData is an UInt8Array of length 120
-        const widths =  [32, 32, 8, 1, 16,  8, 16,  8,  8, 16, 8, 8, 8, 32, 32, 32, 32, 8, 2, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
+        const widths =  [
+            32, 
+            32, 8, 1, 
+            16,  8, 
+            16,  8,  
+            8, 16, 8, 8, 
+            8, 
+            32, 32, 32, 32, 
+            8, 8, 8, 1,
+            8, 8, 8, 8, 8, 8, 
+            8, 8, 8, 8, 
+            8, 8, 8, 8, 8, 
+            8, 8];
         let [offsets, ends] = Parser.getOffsets(widths);
         return {
             coin_name         : Parser.parseString(data.slice(offsets[0], ends[0])),
@@ -326,30 +338,33 @@ export class Parser {
             pyth_price_key    : new S.PublicKey(data.slice(offsets[16], ends[16])),
 
             serum_next_cl_id  : Parser.parseBigUint64(data.buffer, offsets[17]),
-            ltv_1000x         : Parser.parseUint16(data.buffer, offsets[18]),
+            ltv               : Parser.parseFloat64(data.buffer, offsets[18]),
+            safe_factor       : Parser.parseFloat64(data.buffer, offsets[19]),
+            flags             : data[offsets[20]],
 
-            base_rate         : Parser.parseFloat64(data.buffer, offsets[19]),
-            multiplier1       : Parser.parseFloat64(data.buffer, offsets[20]),
-            multiplier2       : Parser.parseFloat64(data.buffer, offsets[21]),
-            kink              : Parser.parseFloat64(data.buffer, offsets[22]),
-            borrow_rate       : Parser.parseFloat64(data.buffer, offsets[23]),
-            deposit_rate      : Parser.parseFloat64(data.buffer, offsets[24]),
+            base_rate         : Parser.parseFloat64(data.buffer, offsets[21]),
+            multiplier1       : Parser.parseFloat64(data.buffer, offsets[22]),
+            multiplier2       : Parser.parseFloat64(data.buffer, offsets[23]),
+            kink              : Parser.parseFloat64(data.buffer, offsets[24]),
+            borrow_rate       : Parser.parseFloat64(data.buffer, offsets[25]),
+            deposit_rate      : Parser.parseFloat64(data.buffer, offsets[26]),
 
-            reward_multiplier       : Parser.parseFloat64(data.buffer, offsets[25]),
-            reward_deposit_intra    : Parser.parseFloat64(data.buffer, offsets[26]),
-            reward_deposit_share    : Parser.parseFloat64(data.buffer, offsets[27]),
-            reward_borrow_share     : Parser.parseFloat64(data.buffer, offsets[28]),
+            reward_multiplier       : Parser.parseFloat64(data.buffer, offsets[27]),
+            reward_deposit_intra    : Parser.parseFloat64(data.buffer, offsets[28]),
+            reward_deposit_share    : Parser.parseFloat64(data.buffer, offsets[29]),
+            reward_borrow_share     : Parser.parseFloat64(data.buffer, offsets[30]),
 
-            reward_per_year         : Parser.parseFloat64(data.buffer, offsets[29]),
-            reward_per_year_deposit : Parser.parseFloat64(data.buffer, offsets[30]),
-            reward_per_year_borrow  : Parser.parseFloat64(data.buffer, offsets[31]),
-            reward_per_year_per_d   : Parser.parseFloat64(data.buffer, offsets[32]),
-            reward_per_year_per_b   : Parser.parseFloat64(data.buffer, offsets[33]),
+            reward_per_year         : Parser.parseFloat64(data.buffer, offsets[31]),
+            reward_per_year_deposit : Parser.parseFloat64(data.buffer, offsets[32]),
+            reward_per_year_borrow  : Parser.parseFloat64(data.buffer, offsets[33]),
+            reward_per_year_per_d   : Parser.parseFloat64(data.buffer, offsets[34]),
+            reward_per_year_per_b   : Parser.parseFloat64(data.buffer, offsets[35]),
 
-            reward_deposit_index    : Parser.parseFloat64(data.buffer, offsets[34]),
-            reward_borrow_index     : Parser.parseFloat64(data.buffer, offsets[35]),
+            reward_deposit_index    : Parser.parseFloat64(data.buffer, offsets[36]),
+            reward_borrow_index     : Parser.parseFloat64(data.buffer, offsets[37]),
         };
     }
+
 
     static parseAssetPrice(data) {
         return {
@@ -378,18 +393,15 @@ export class Parser {
     }
 
     static parseUserInfo(data) {
-        const widths =  [2, 1, 1, 1, 1];
+        const widths =  [2, 1];
         let [offsets, ends] = Parser.getOffsets(widths);
         let result = {
             page_id    : new DataView(data.buffer.slice(offsets[0], ends[0])).getUint16(0, true),
-            self_liquidation_threshold          : data[offsets[1]],
-            post_self_liquidation_ratio_target  : data[offsets[2]],
-            post_extern_liquidation_ratio_target: data[offsets[3]],
-            num_assets                          : data[offsets[4]],
-            user_asset_info                     : [],
+            num_assets              : data[offsets[1]],
+            user_asset_info         : [],
         }
-        const uai_base = ends[4];
-        const uai_size = 1 + 1 + 16 + 8 + 8 + 8 + 16 + 8 + 8 + 8;
+        const uai_base = ends[1];
+        const uai_size = 1 + 1 + 16 + 8 + 8 + 8 + 8 + 16 + 8 + 8 + 8 + 8;
         for(let i = 0; i < result.num_assets; i++) {
             let uai_offset = uai_base + i * uai_size;
             result.user_asset_info.push(Parser.parseUserAssetInfo(data, uai_offset));
@@ -398,20 +410,26 @@ export class Parser {
     }
 
     static parseUserAssetInfo(data, offset) {
-        const widths =  [1, 1, 16, 8, 8, 8, 16, 8, 8, 8];
+        const widths =  [
+            1, 1, 
+            16, 8, 8, 8, 8, 
+            16, 8, 8, 8, 8];
         let [offsets, ends] = Parser.getOffsets(widths);
         return {
             pool_id                 : data[offset + offsets[0]],
             use_as_collateral       : data[offset + offsets[1]],
-            deposit_amount          : Parser.parseBigInt128(data.buffer, offset + offsets[2]) / bigInt(consts.AMOUNT_MULTIPLIER),
-            deposit_index           : Parser.parseFloat64(data.buffer, offset + offsets[3]),
-            reward_deposit_amount   : Parser.parseFloat64(data.buffer, offset + offsets[4]),
-            reward_deposit_index    : Parser.parseFloat64(data.buffer, offset + offsets[5]),
 
-            borrow_amount           : Parser.parseBigInt128(data.buffer, offset + offsets[6]) / bigInt(consts.AMOUNT_MULTIPLIER),
-            borrow_index            : Parser.parseFloat64(data.buffer, offset + offsets[7]),
-            reward_borrow_amount    : Parser.parseFloat64(data.buffer, offset + offsets[8]),
-            reward_borrow_index     : Parser.parseFloat64(data.buffer, offset + offsets[0]),
+            deposit_amount          : Parser.parseBigInt128(data.buffer, offset + offsets[2]) / bigInt(consts.AMOUNT_MULTIPLIER),
+            deposit_interests       : Parser.parseBigUint64(data.buffer, offset + offsets[3]),
+            deposit_index           : Parser.parseFloat64(data.buffer, offset + offsets[4]),
+            reward_deposit_amount   : Parser.parseFloat64(data.buffer, offset + offsets[5]),
+            reward_deposit_index    : Parser.parseFloat64(data.buffer, offset + offsets[6]),
+
+            borrow_amount           : Parser.parseBigInt128(data.buffer, offset + offsets[7]) / bigInt(consts.AMOUNT_MULTIPLIER),
+            borrow_interests        : Parser.parseBigUint64(data.buffer, offset + offsets[8]),
+            borrow_index            : Parser.parseFloat64(data.buffer, offset + offsets[9]),
+            reward_borrow_amount    : Parser.parseFloat64(data.buffer, offset + offsets[10]),
+            reward_borrow_index     : Parser.parseFloat64(data.buffer, offset + offsets[11]),
         }
     }
 
@@ -421,6 +439,22 @@ export class Parser {
 }
 
 export class TxMaker {
+
+    static async refresh_user(user_wallet_key) {
+        const [base_pda, _1] = await consts.get_base_pda();
+        const userInfoKey = await consts.get_user_info_key(user_wallet_key);
+        const poolSummariesKey = await consts.get_pool_summaries_key(base_pda);
+        const inst = new S.TransactionInstruction({
+            programId: programPubkey,
+            keys: [
+                {pubkey: user_wallet_key,           isSigner: false, isWritable: false},    // wallet
+                {pubkey: userInfoKey,               isSigner: false, isWritable: true},     // UserInfo
+                {pubkey: poolSummariesKey,          isSigner: false, isWritable: false},    // PoolSummaries
+            ],
+            data: [consts.CMD_REFRESH_USER]
+        });
+        return new S.Transaction().add(inst);
+    }
 
     static async update_user_config(
         user_wallet_account,
@@ -970,6 +1004,10 @@ export class TxMaker {
 export class ConnWrapper {
     constructor(connection) {
         this.connection = connection;
+    }
+    async refresh_user(payer_account, user_wallet_key) {
+        const tx = await TxMaker.refresh_user( user_wallet_key );
+        return this.connection.sendTransaction(tx, [payer_account]);
     }
     async update_user_config(
         user_wallet_account,

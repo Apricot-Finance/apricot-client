@@ -65,7 +65,7 @@ var mints = {
   fake_usdt: "GjJFUSzbjZZMXySmJ8jwYmYcZhosN4PAcBKDTnSpHd3s",
   fake_usdc: "BwNiXVdAYt5g5tGSn6Apadk72SEqzmEd3Tv2W5pgvWFM",
   fake_sol: "4jSAADAjfidWvkpRVBk4Q5LMiZT2UNyw8A3D3oKwBC2u",
-  fake_usdt_usdc: "ACZH5bd7XYquUbrdmMy7PvaRvnhrLLKjRCytVr7TFtmk"
+  fake_usdt_usdc: "9R9MtiUGKwp3V8atf636X3nJc6KbCsJNGCFJcdPLeTu7"
 };
 exports.mints = mints;
 var mint_key_str_to_pool_id = {};
@@ -74,15 +74,14 @@ mint_key_str_to_pool_id[mints.fake_eth] = 1;
 mint_key_str_to_pool_id[mints.fake_usdt] = 2;
 mint_key_str_to_pool_id[mints.fake_usdc] = 3;
 mint_key_str_to_pool_id[mints.fake_sol] = 4;
-mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 6;
+mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 5;
 var pool_id_to_decimal_multiplier = {
   0: 1e9,
   1: 1e9,
   2: 1e9,
   3: 1e9,
   4: 1e9,
-  5: 1e9,
-  6: 1e9
+  5: 1e9
 };
 exports.pool_id_to_decimal_multiplier = pool_id_to_decimal_multiplier;
 var devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
@@ -237,6 +236,8 @@ var consts = /*#__PURE__*/function () {
 exports.consts = consts;
 
 _defineProperty(consts, "POOL_SUMMARIES_SEED", "PoolSummaries");
+
+_defineProperty(consts, "CMD_REFRESH_USER", 0x0a);
 
 _defineProperty(consts, "CMD_ADD_USER_AND_DEPOSIT", 0x10);
 
@@ -552,8 +553,7 @@ var Parser = /*#__PURE__*/function () {
   }, {
     key: "parseAssetPool",
     value: function parseAssetPool(data) {
-      // assetPoolData is an UInt8Array of length 120
-      var widths = [32, 32, 8, 1, 16, 8, 16, 8, 8, 16, 8, 8, 8, 32, 32, 32, 32, 8, 2, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
+      var widths = [32, 32, 8, 1, 16, 8, 16, 8, 8, 16, 8, 8, 8, 32, 32, 32, 32, 8, 8, 8, 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
 
       var _Parser$getOffsets = Parser.getOffsets(widths),
           _Parser$getOffsets2 = _slicedToArray(_Parser$getOffsets, 2),
@@ -579,24 +579,26 @@ var Parser = /*#__PURE__*/function () {
         price_key: new S.PublicKey(data.slice(offsets[15], ends[15])),
         pyth_price_key: new S.PublicKey(data.slice(offsets[16], ends[16])),
         serum_next_cl_id: Parser.parseBigUint64(data.buffer, offsets[17]),
-        ltv_1000x: Parser.parseUint16(data.buffer, offsets[18]),
-        base_rate: Parser.parseFloat64(data.buffer, offsets[19]),
-        multiplier1: Parser.parseFloat64(data.buffer, offsets[20]),
-        multiplier2: Parser.parseFloat64(data.buffer, offsets[21]),
-        kink: Parser.parseFloat64(data.buffer, offsets[22]),
-        borrow_rate: Parser.parseFloat64(data.buffer, offsets[23]),
-        deposit_rate: Parser.parseFloat64(data.buffer, offsets[24]),
-        reward_multiplier: Parser.parseFloat64(data.buffer, offsets[25]),
-        reward_deposit_intra: Parser.parseFloat64(data.buffer, offsets[26]),
-        reward_deposit_share: Parser.parseFloat64(data.buffer, offsets[27]),
-        reward_borrow_share: Parser.parseFloat64(data.buffer, offsets[28]),
-        reward_per_year: Parser.parseFloat64(data.buffer, offsets[29]),
-        reward_per_year_deposit: Parser.parseFloat64(data.buffer, offsets[30]),
-        reward_per_year_borrow: Parser.parseFloat64(data.buffer, offsets[31]),
-        reward_per_year_per_d: Parser.parseFloat64(data.buffer, offsets[32]),
-        reward_per_year_per_b: Parser.parseFloat64(data.buffer, offsets[33]),
-        reward_deposit_index: Parser.parseFloat64(data.buffer, offsets[34]),
-        reward_borrow_index: Parser.parseFloat64(data.buffer, offsets[35])
+        ltv: Parser.parseFloat64(data.buffer, offsets[18]),
+        safe_factor: Parser.parseFloat64(data.buffer, offsets[19]),
+        flags: data[offsets[20]],
+        base_rate: Parser.parseFloat64(data.buffer, offsets[21]),
+        multiplier1: Parser.parseFloat64(data.buffer, offsets[22]),
+        multiplier2: Parser.parseFloat64(data.buffer, offsets[23]),
+        kink: Parser.parseFloat64(data.buffer, offsets[24]),
+        borrow_rate: Parser.parseFloat64(data.buffer, offsets[25]),
+        deposit_rate: Parser.parseFloat64(data.buffer, offsets[26]),
+        reward_multiplier: Parser.parseFloat64(data.buffer, offsets[27]),
+        reward_deposit_intra: Parser.parseFloat64(data.buffer, offsets[28]),
+        reward_deposit_share: Parser.parseFloat64(data.buffer, offsets[29]),
+        reward_borrow_share: Parser.parseFloat64(data.buffer, offsets[30]),
+        reward_per_year: Parser.parseFloat64(data.buffer, offsets[31]),
+        reward_per_year_deposit: Parser.parseFloat64(data.buffer, offsets[32]),
+        reward_per_year_borrow: Parser.parseFloat64(data.buffer, offsets[33]),
+        reward_per_year_per_d: Parser.parseFloat64(data.buffer, offsets[34]),
+        reward_per_year_per_b: Parser.parseFloat64(data.buffer, offsets[35]),
+        reward_deposit_index: Parser.parseFloat64(data.buffer, offsets[36]),
+        reward_borrow_index: Parser.parseFloat64(data.buffer, offsets[37])
       };
     }
   }, {
@@ -635,7 +637,7 @@ var Parser = /*#__PURE__*/function () {
   }, {
     key: "parseUserInfo",
     value: function parseUserInfo(data) {
-      var widths = [2, 1, 1, 1, 1];
+      var widths = [2, 1];
 
       var _Parser$getOffsets3 = Parser.getOffsets(widths),
           _Parser$getOffsets4 = _slicedToArray(_Parser$getOffsets3, 2),
@@ -644,14 +646,11 @@ var Parser = /*#__PURE__*/function () {
 
       var result = {
         page_id: new DataView(data.buffer.slice(offsets[0], ends[0])).getUint16(0, true),
-        self_liquidation_threshold: data[offsets[1]],
-        post_self_liquidation_ratio_target: data[offsets[2]],
-        post_extern_liquidation_ratio_target: data[offsets[3]],
-        num_assets: data[offsets[4]],
+        num_assets: data[offsets[1]],
         user_asset_info: []
       };
-      var uai_base = ends[4];
-      var uai_size = 1 + 1 + 16 + 8 + 8 + 8 + 16 + 8 + 8 + 8;
+      var uai_base = ends[1];
+      var uai_size = 1 + 1 + 16 + 8 + 8 + 8 + 8 + 16 + 8 + 8 + 8 + 8;
 
       for (var i = 0; i < result.num_assets; i++) {
         var uai_offset = uai_base + i * uai_size;
@@ -663,7 +662,7 @@ var Parser = /*#__PURE__*/function () {
   }, {
     key: "parseUserAssetInfo",
     value: function parseUserAssetInfo(data, offset) {
-      var widths = [1, 1, 16, 8, 8, 8, 16, 8, 8, 8];
+      var widths = [1, 1, 16, 8, 8, 8, 8, 16, 8, 8, 8, 8];
 
       var _Parser$getOffsets5 = Parser.getOffsets(widths),
           _Parser$getOffsets6 = _slicedToArray(_Parser$getOffsets5, 2),
@@ -674,13 +673,15 @@ var Parser = /*#__PURE__*/function () {
         pool_id: data[offset + offsets[0]],
         use_as_collateral: data[offset + offsets[1]],
         deposit_amount: Parser.parseBigInt128(data.buffer, offset + offsets[2]) / (0, _bigInteger["default"])(consts.AMOUNT_MULTIPLIER),
-        deposit_index: Parser.parseFloat64(data.buffer, offset + offsets[3]),
-        reward_deposit_amount: Parser.parseFloat64(data.buffer, offset + offsets[4]),
-        reward_deposit_index: Parser.parseFloat64(data.buffer, offset + offsets[5]),
-        borrow_amount: Parser.parseBigInt128(data.buffer, offset + offsets[6]) / (0, _bigInteger["default"])(consts.AMOUNT_MULTIPLIER),
-        borrow_index: Parser.parseFloat64(data.buffer, offset + offsets[7]),
-        reward_borrow_amount: Parser.parseFloat64(data.buffer, offset + offsets[8]),
-        reward_borrow_index: Parser.parseFloat64(data.buffer, offset + offsets[0])
+        deposit_interests: Parser.parseBigUint64(data.buffer, offset + offsets[3]),
+        deposit_index: Parser.parseFloat64(data.buffer, offset + offsets[4]),
+        reward_deposit_amount: Parser.parseFloat64(data.buffer, offset + offsets[5]),
+        reward_deposit_index: Parser.parseFloat64(data.buffer, offset + offsets[6]),
+        borrow_amount: Parser.parseBigInt128(data.buffer, offset + offsets[7]) / (0, _bigInteger["default"])(consts.AMOUNT_MULTIPLIER),
+        borrow_interests: Parser.parseBigUint64(data.buffer, offset + offsets[8]),
+        borrow_index: Parser.parseFloat64(data.buffer, offset + offsets[9]),
+        reward_borrow_amount: Parser.parseFloat64(data.buffer, offset + offsets[10]),
+        reward_borrow_index: Parser.parseFloat64(data.buffer, offset + offsets[11])
       };
     }
   }, {
@@ -701,20 +702,84 @@ var TxMaker = /*#__PURE__*/function () {
   }
 
   _createClass(TxMaker, null, [{
-    key: "update_user_config",
+    key: "refresh_user",
     value: function () {
-      var _update_user_config = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(user_wallet_account, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target) {
-        var wallet_key, userInfoKey, inst;
+      var _refresh_user = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(user_wallet_key) {
+        var _yield$consts$get_bas, _yield$consts$get_bas2, base_pda, _1, userInfoKey, poolSummariesKey, inst;
+
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
+                _context2.next = 2;
+                return consts.get_base_pda();
+
+              case 2:
+                _yield$consts$get_bas = _context2.sent;
+                _yield$consts$get_bas2 = _slicedToArray(_yield$consts$get_bas, 2);
+                base_pda = _yield$consts$get_bas2[0];
+                _1 = _yield$consts$get_bas2[1];
+                _context2.next = 8;
+                return consts.get_user_info_key(user_wallet_key);
+
+              case 8:
+                userInfoKey = _context2.sent;
+                _context2.next = 11;
+                return consts.get_pool_summaries_key(base_pda);
+
+              case 11:
+                poolSummariesKey = _context2.sent;
+                inst = new S.TransactionInstruction({
+                  programId: programPubkey,
+                  keys: [{
+                    pubkey: user_wallet_key,
+                    isSigner: false,
+                    isWritable: false
+                  }, // wallet
+                  {
+                    pubkey: userInfoKey,
+                    isSigner: false,
+                    isWritable: true
+                  }, // UserInfo
+                  {
+                    pubkey: poolSummariesKey,
+                    isSigner: false,
+                    isWritable: false
+                  } // PoolSummaries
+                  ],
+                  data: [consts.CMD_REFRESH_USER]
+                });
+                return _context2.abrupt("return", new S.Transaction().add(inst));
+
+              case 14:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
+      }));
+
+      function refresh_user(_x) {
+        return _refresh_user.apply(this, arguments);
+      }
+
+      return refresh_user;
+    }()
+  }, {
+    key: "update_user_config",
+    value: function () {
+      var _update_user_config = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(user_wallet_account, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target) {
+        var wallet_key, userInfoKey, inst;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
                 wallet_key = user_wallet_account.publicKey;
-                _context2.next = 3;
+                _context3.next = 3;
                 return consts.get_user_info_key(wallet_key);
 
               case 3:
-                userInfoKey = _context2.sent;
+                userInfoKey = _context3.sent;
                 inst = new S.TransactionInstruction({
                   programId: programPubkey,
                   keys: [{
@@ -729,17 +794,17 @@ var TxMaker = /*#__PURE__*/function () {
                   data: [consts.CMD_UPDATE_USER_CONFIG, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target]
                 }); // signer: user_wallet
 
-                return _context2.abrupt("return", new S.Transaction().add(inst));
+                return _context3.abrupt("return", new S.Transaction().add(inst));
 
               case 6:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2);
+        }, _callee3);
       }));
 
-      function update_user_config(_x, _x2, _x3, _x4) {
+      function update_user_config(_x2, _x3, _x4, _x5) {
         return _update_user_config.apply(this, arguments);
       }
 
@@ -748,57 +813,57 @@ var TxMaker = /*#__PURE__*/function () {
   }, {
     key: "add_user_and_deposit",
     value: function () {
-      var _add_user_and_deposit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(page_id, wallet_account, user_spl_key, mint_key_str, amount) {
-        var _yield$consts$get_bas, _yield$consts$get_bas2, base_pda, _0, user_wallet_key, userPagesStatsKey, usersPageKey, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, priceSummariesKey, buffer, view, payload, poolIdArray, inst;
+      var _add_user_and_deposit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(page_id, wallet_account, user_spl_key, mint_key_str, amount) {
+        var _yield$consts$get_bas3, _yield$consts$get_bas4, base_pda, _0, user_wallet_key, userPagesStatsKey, usersPageKey, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, priceSummariesKey, buffer, view, payload, poolIdArray, inst;
 
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
-                _context3.next = 2;
+                _context4.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas = _context3.sent;
-                _yield$consts$get_bas2 = _slicedToArray(_yield$consts$get_bas, 2);
-                base_pda = _yield$consts$get_bas2[0];
-                _0 = _yield$consts$get_bas2[1];
+                _yield$consts$get_bas3 = _context4.sent;
+                _yield$consts$get_bas4 = _slicedToArray(_yield$consts$get_bas3, 2);
+                base_pda = _yield$consts$get_bas4[0];
+                _0 = _yield$consts$get_bas4[1];
                 user_wallet_key = wallet_account.publicKey;
-                _context3.next = 9;
+                _context4.next = 9;
                 return consts.get_user_pages_stats_key(base_pda);
 
               case 9:
-                userPagesStatsKey = _context3.sent;
-                _context3.next = 12;
+                userPagesStatsKey = _context4.sent;
+                _context4.next = 12;
                 return consts.get_users_page_key(base_pda, page_id);
 
               case 12:
-                usersPageKey = _context3.sent;
-                _context3.next = 15;
+                usersPageKey = _context4.sent;
+                _context4.next = 15;
                 return consts.get_user_info_key(user_wallet_key);
 
               case 15:
-                userInfoKey = _context3.sent;
-                _context3.next = 18;
+                userInfoKey = _context4.sent;
+                _context4.next = 18;
                 return consts.get_asset_pool_key(base_pda, mint_key_str);
 
               case 18:
-                assetPoolKey = _context3.sent;
-                _context3.next = 21;
+                assetPoolKey = _context4.sent;
+                _context4.next = 21;
                 return consts.get_asset_pool_spl_key(base_pda, mint_key_str);
 
               case 21:
-                assetPoolSplKey = _context3.sent;
-                _context3.next = 24;
+                assetPoolSplKey = _context4.sent;
+                _context4.next = 24;
                 return consts.get_pool_summaries_key(base_pda);
 
               case 24:
-                poolSummariesKey = _context3.sent;
-                _context3.next = 27;
+                poolSummariesKey = _context4.sent;
+                _context4.next = 27;
                 return consts.get_price_summaries_key(base_pda);
 
               case 27:
-                priceSummariesKey = _context3.sent;
+                priceSummariesKey = _context4.sent;
                 buffer = new ArrayBuffer(10);
                 view = new DataView(buffer);
                 view.setUint16(0, page_id, true);
@@ -866,17 +931,17 @@ var TxMaker = /*#__PURE__*/function () {
                   data: [consts.CMD_ADD_USER_AND_DEPOSIT].concat(payload).concat(poolIdArray)
                 }); // signer: wallet_account
 
-                return _context3.abrupt("return", new S.Transaction().add(inst));
+                return _context4.abrupt("return", new S.Transaction().add(inst));
 
               case 36:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3);
+        }, _callee4);
       }));
 
-      function add_user_and_deposit(_x5, _x6, _x7, _x8, _x9) {
+      function add_user_and_deposit(_x6, _x7, _x8, _x9, _x10) {
         return _add_user_and_deposit.apply(this, arguments);
       }
 
@@ -885,42 +950,42 @@ var TxMaker = /*#__PURE__*/function () {
   }, {
     key: "deposit",
     value: function () {
-      var _deposit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(wallet_account, user_spl_key, mint_key_str, amount) {
-        var _yield$consts$get_bas3, _yield$consts$get_bas4, base_pda, _0, user_wallet_key, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, buffer, payload, poolIdArray, inst;
+      var _deposit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(wallet_account, user_spl_key, mint_key_str, amount) {
+        var _yield$consts$get_bas5, _yield$consts$get_bas6, base_pda, _0, user_wallet_key, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, buffer, payload, poolIdArray, inst;
 
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                _context4.next = 2;
+                _context5.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas3 = _context4.sent;
-                _yield$consts$get_bas4 = _slicedToArray(_yield$consts$get_bas3, 2);
-                base_pda = _yield$consts$get_bas4[0];
-                _0 = _yield$consts$get_bas4[1];
+                _yield$consts$get_bas5 = _context5.sent;
+                _yield$consts$get_bas6 = _slicedToArray(_yield$consts$get_bas5, 2);
+                base_pda = _yield$consts$get_bas6[0];
+                _0 = _yield$consts$get_bas6[1];
                 user_wallet_key = wallet_account.publicKey;
-                _context4.next = 9;
+                _context5.next = 9;
                 return consts.get_user_info_key(user_wallet_key);
 
               case 9:
-                userInfoKey = _context4.sent;
-                _context4.next = 12;
+                userInfoKey = _context5.sent;
+                _context5.next = 12;
                 return consts.get_asset_pool_key(base_pda, mint_key_str);
 
               case 12:
-                assetPoolKey = _context4.sent;
-                _context4.next = 15;
+                assetPoolKey = _context5.sent;
+                _context5.next = 15;
                 return consts.get_asset_pool_spl_key(base_pda, mint_key_str);
 
               case 15:
-                assetPoolSplKey = _context4.sent;
-                _context4.next = 18;
+                assetPoolSplKey = _context5.sent;
+                _context5.next = 18;
                 return consts.get_pool_summaries_key(base_pda);
 
               case 18:
-                poolSummariesKey = _context4.sent;
+                poolSummariesKey = _context5.sent;
                 buffer = new ArrayBuffer(8);
                 Parser.setBigUint64(buffer, 0, amount);
                 payload = Array.from(new Uint8Array(buffer));
@@ -966,17 +1031,17 @@ var TxMaker = /*#__PURE__*/function () {
                   data: [consts.CMD_DEPOSIT].concat(payload).concat(poolIdArray)
                 }); // signer: wallet_account
 
-                return _context4.abrupt("return", new S.Transaction().add(inst));
+                return _context5.abrupt("return", new S.Transaction().add(inst));
 
               case 25:
               case "end":
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4);
+        }, _callee5);
       }));
 
-      function deposit(_x10, _x11, _x12, _x13) {
+      function deposit(_x11, _x12, _x13, _x14) {
         return _deposit.apply(this, arguments);
       }
 
@@ -985,68 +1050,68 @@ var TxMaker = /*#__PURE__*/function () {
   }, {
     key: "withdraw_and_remove_user",
     value: function () {
-      var _withdraw_and_remove_user = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount, user_info) {
-        var page_id, _yield$consts$get_bas5, _yield$consts$get_bas6, base_pda, _0, user_wallet_key, userPagesStatsKey, usersPageKey, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, payload, poolIdArray, data, inst;
+      var _withdraw_and_remove_user = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount, user_info) {
+        var page_id, _yield$consts$get_bas7, _yield$consts$get_bas8, base_pda, _0, user_wallet_key, userPagesStatsKey, usersPageKey, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, payload, poolIdArray, data, inst;
 
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context6.prev = _context6.next) {
               case 0:
                 page_id = user_info.page_id;
 
                 if (!(page_id > 10000)) {
-                  _context5.next = 4;
+                  _context6.next = 4;
                   break;
                 }
 
                 console.log("User not added to backend yet.");
-                return _context5.abrupt("return");
+                return _context6.abrupt("return");
 
               case 4:
-                _context5.next = 6;
+                _context6.next = 6;
                 return consts.get_base_pda();
 
               case 6:
-                _yield$consts$get_bas5 = _context5.sent;
-                _yield$consts$get_bas6 = _slicedToArray(_yield$consts$get_bas5, 2);
-                base_pda = _yield$consts$get_bas6[0];
-                _0 = _yield$consts$get_bas6[1];
+                _yield$consts$get_bas7 = _context6.sent;
+                _yield$consts$get_bas8 = _slicedToArray(_yield$consts$get_bas7, 2);
+                base_pda = _yield$consts$get_bas8[0];
+                _0 = _yield$consts$get_bas8[1];
                 user_wallet_key = wallet_account.publicKey;
-                _context5.next = 13;
+                _context6.next = 13;
                 return consts.get_user_pages_stats_key(base_pda);
 
               case 13:
-                userPagesStatsKey = _context5.sent;
-                _context5.next = 16;
+                userPagesStatsKey = _context6.sent;
+                _context6.next = 16;
                 return consts.get_users_page_key(base_pda, page_id);
 
               case 16:
-                usersPageKey = _context5.sent;
-                _context5.next = 19;
+                usersPageKey = _context6.sent;
+                _context6.next = 19;
                 return consts.get_user_info_key(user_wallet_key);
 
               case 19:
-                userInfoKey = _context5.sent;
-                _context5.next = 22;
+                userInfoKey = _context6.sent;
+                _context6.next = 22;
                 return consts.get_asset_pool_key(base_pda, mint_key_str);
 
               case 22:
-                assetPoolKey = _context5.sent;
-                _context5.next = 25;
+                assetPoolKey = _context6.sent;
+                _context6.next = 25;
                 return consts.get_asset_pool_spl_key(base_pda, mint_key_str);
 
               case 25:
-                assetPoolSplKey = _context5.sent;
-                _context5.next = 28;
+                assetPoolSplKey = _context6.sent;
+                _context6.next = 28;
                 return consts.get_pool_summaries_key(base_pda);
 
               case 28:
-                poolSummariesKey = _context5.sent;
-                _context5.next = 31;
+                poolSummariesKey = _context6.sent;
+                _context6.next = 31;
                 return consts.get_price_summaries_key(base_pda);
 
               case 31:
-                priceSummariesKey = _context5.sent;
+                priceSummariesKey = _context6.sent;
                 keys = [{
                   pubkey: user_wallet_key,
                   isSigner: true,
@@ -1115,17 +1180,17 @@ var TxMaker = /*#__PURE__*/function () {
                   data: data
                 }); // signer: wallet_account
 
-                return _context5.abrupt("return", new S.Transaction().add(inst));
+                return _context6.abrupt("return", new S.Transaction().add(inst));
 
               case 41:
               case "end":
-                return _context5.stop();
+                return _context6.stop();
             }
           }
-        }, _callee5);
+        }, _callee6);
       }));
 
-      function withdraw_and_remove_user(_x14, _x15, _x16, _x17, _x18, _x19) {
+      function withdraw_and_remove_user(_x15, _x16, _x17, _x18, _x19, _x20) {
         return _withdraw_and_remove_user.apply(this, arguments);
       }
 
@@ -1134,125 +1199,7 @@ var TxMaker = /*#__PURE__*/function () {
   }, {
     key: "withdraw",
     value: function () {
-      var _withdraw = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount) {
-        var _yield$consts$get_bas7, _yield$consts$get_bas8, base_pda, _0, user_wallet_key, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, payload, poolIdArray, data, inst;
-
-        return regeneratorRuntime.wrap(function _callee6$(_context6) {
-          while (1) {
-            switch (_context6.prev = _context6.next) {
-              case 0:
-                _context6.next = 2;
-                return consts.get_base_pda();
-
-              case 2:
-                _yield$consts$get_bas7 = _context6.sent;
-                _yield$consts$get_bas8 = _slicedToArray(_yield$consts$get_bas7, 2);
-                base_pda = _yield$consts$get_bas8[0];
-                _0 = _yield$consts$get_bas8[1];
-                user_wallet_key = wallet_account.publicKey;
-                _context6.next = 9;
-                return consts.get_user_info_key(user_wallet_key);
-
-              case 9:
-                userInfoKey = _context6.sent;
-                _context6.next = 12;
-                return consts.get_asset_pool_key(base_pda, mint_key_str);
-
-              case 12:
-                assetPoolKey = _context6.sent;
-                _context6.next = 15;
-                return consts.get_asset_pool_spl_key(base_pda, mint_key_str);
-
-              case 15:
-                assetPoolSplKey = _context6.sent;
-                _context6.next = 18;
-                return consts.get_pool_summaries_key(base_pda);
-
-              case 18:
-                poolSummariesKey = _context6.sent;
-                _context6.next = 21;
-                return consts.get_price_summaries_key(base_pda);
-
-              case 21:
-                priceSummariesKey = _context6.sent;
-                keys = [{
-                  pubkey: user_wallet_key,
-                  isSigner: true,
-                  isWritable: true
-                }, // user wallet
-                {
-                  pubkey: user_spl_key,
-                  isSigner: false,
-                  isWritable: true
-                }, // account for PoolList
-                {
-                  pubkey: userInfoKey,
-                  isSigner: false,
-                  isWritable: true
-                }, // UserInfo
-                {
-                  pubkey: assetPoolKey,
-                  isSigner: false,
-                  isWritable: true
-                }, // AssetPool
-                {
-                  pubkey: assetPoolSplKey,
-                  isSigner: false,
-                  isWritable: true
-                }, // AssetPool's spl account
-                {
-                  pubkey: poolSummariesKey,
-                  isSigner: false,
-                  isWritable: true
-                }, // PoolSummaries
-                {
-                  pubkey: priceSummariesKey,
-                  isSigner: false,
-                  isWritable: false
-                }, // PriceSummaries
-                {
-                  pubkey: base_pda,
-                  isSigner: false,
-                  isWritable: false
-                }, // base_pda
-                {
-                  pubkey: T.TOKEN_PROGRAM_ID,
-                  isSigner: false,
-                  isWritable: false
-                } // spl-token program account
-                ];
-                buffer = new ArrayBuffer(9);
-                Parser.setUint8(buffer, 0, withdraw_all ? 1 : 0);
-                Parser.setBigUint64(buffer, 1, amount);
-                payload = Array.from(new Uint8Array(buffer));
-                poolIdArray = Parser.getPoolIdArray(mint_key_str);
-                data = [consts.CMD_WITHDRAW].concat(payload).concat(poolIdArray);
-                inst = new S.TransactionInstruction({
-                  programId: programPubkey,
-                  keys: keys,
-                  data: data
-                }); // signer: wallet_account
-
-                return _context6.abrupt("return", new S.Transaction().add(inst));
-
-              case 31:
-              case "end":
-                return _context6.stop();
-            }
-          }
-        }, _callee6);
-      }));
-
-      function withdraw(_x20, _x21, _x22, _x23, _x24) {
-        return _withdraw.apply(this, arguments);
-      }
-
-      return withdraw;
-    }()
-  }, {
-    key: "borrow",
-    value: function () {
-      var _borrow = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(wallet_account, user_spl_key, mint_key_str, amount) {
+      var _withdraw = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount) {
         var _yield$consts$get_bas9, _yield$consts$get_bas10, base_pda, _0, user_wallet_key, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, payload, poolIdArray, data, inst;
 
         return regeneratorRuntime.wrap(function _callee7$(_context7) {
@@ -1339,11 +1286,12 @@ var TxMaker = /*#__PURE__*/function () {
                   isWritable: false
                 } // spl-token program account
                 ];
-                buffer = new ArrayBuffer(8);
-                Parser.setBigUint64(buffer, 0, amount);
+                buffer = new ArrayBuffer(9);
+                Parser.setUint8(buffer, 0, withdraw_all ? 1 : 0);
+                Parser.setBigUint64(buffer, 1, amount);
                 payload = Array.from(new Uint8Array(buffer));
                 poolIdArray = Parser.getPoolIdArray(mint_key_str);
-                data = [consts.CMD_BORROW].concat(payload).concat(poolIdArray);
+                data = [consts.CMD_WITHDRAW].concat(payload).concat(poolIdArray);
                 inst = new S.TransactionInstruction({
                   programId: programPubkey,
                   keys: keys,
@@ -1352,7 +1300,7 @@ var TxMaker = /*#__PURE__*/function () {
 
                 return _context7.abrupt("return", new S.Transaction().add(inst));
 
-              case 30:
+              case 31:
               case "end":
                 return _context7.stop();
             }
@@ -1360,17 +1308,17 @@ var TxMaker = /*#__PURE__*/function () {
         }, _callee7);
       }));
 
-      function borrow(_x25, _x26, _x27, _x28) {
-        return _borrow.apply(this, arguments);
+      function withdraw(_x21, _x22, _x23, _x24, _x25) {
+        return _withdraw.apply(this, arguments);
       }
 
-      return borrow;
+      return withdraw;
     }()
   }, {
-    key: "repay",
+    key: "borrow",
     value: function () {
-      var _repay = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(wallet_account, user_spl_key, mint_key_str, repay_all, amount) {
-        var _yield$consts$get_bas11, _yield$consts$get_bas12, base_pda, _0, user_wallet_key, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, keys, buffer, payload, poolIdArray, inst;
+      var _borrow = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(wallet_account, user_spl_key, mint_key_str, amount) {
+        var _yield$consts$get_bas11, _yield$consts$get_bas12, base_pda, _0, user_wallet_key, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, payload, poolIdArray, data, inst;
 
         return regeneratorRuntime.wrap(function _callee8$(_context8) {
           while (1) {
@@ -1405,6 +1353,123 @@ var TxMaker = /*#__PURE__*/function () {
 
               case 18:
                 poolSummariesKey = _context8.sent;
+                _context8.next = 21;
+                return consts.get_price_summaries_key(base_pda);
+
+              case 21:
+                priceSummariesKey = _context8.sent;
+                keys = [{
+                  pubkey: user_wallet_key,
+                  isSigner: true,
+                  isWritable: true
+                }, // user wallet
+                {
+                  pubkey: user_spl_key,
+                  isSigner: false,
+                  isWritable: true
+                }, // account for PoolList
+                {
+                  pubkey: userInfoKey,
+                  isSigner: false,
+                  isWritable: true
+                }, // UserInfo
+                {
+                  pubkey: assetPoolKey,
+                  isSigner: false,
+                  isWritable: true
+                }, // AssetPool
+                {
+                  pubkey: assetPoolSplKey,
+                  isSigner: false,
+                  isWritable: true
+                }, // AssetPool's spl account
+                {
+                  pubkey: poolSummariesKey,
+                  isSigner: false,
+                  isWritable: true
+                }, // PoolSummaries
+                {
+                  pubkey: priceSummariesKey,
+                  isSigner: false,
+                  isWritable: false
+                }, // PriceSummaries
+                {
+                  pubkey: base_pda,
+                  isSigner: false,
+                  isWritable: false
+                }, // base_pda
+                {
+                  pubkey: T.TOKEN_PROGRAM_ID,
+                  isSigner: false,
+                  isWritable: false
+                } // spl-token program account
+                ];
+                buffer = new ArrayBuffer(8);
+                Parser.setBigUint64(buffer, 0, amount);
+                payload = Array.from(new Uint8Array(buffer));
+                poolIdArray = Parser.getPoolIdArray(mint_key_str);
+                data = [consts.CMD_BORROW].concat(payload).concat(poolIdArray);
+                inst = new S.TransactionInstruction({
+                  programId: programPubkey,
+                  keys: keys,
+                  data: data
+                }); // signer: wallet_account
+
+                return _context8.abrupt("return", new S.Transaction().add(inst));
+
+              case 30:
+              case "end":
+                return _context8.stop();
+            }
+          }
+        }, _callee8);
+      }));
+
+      function borrow(_x26, _x27, _x28, _x29) {
+        return _borrow.apply(this, arguments);
+      }
+
+      return borrow;
+    }()
+  }, {
+    key: "repay",
+    value: function () {
+      var _repay = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(wallet_account, user_spl_key, mint_key_str, repay_all, amount) {
+        var _yield$consts$get_bas13, _yield$consts$get_bas14, base_pda, _0, user_wallet_key, userInfoKey, assetPoolKey, assetPoolSplKey, poolSummariesKey, keys, buffer, payload, poolIdArray, inst;
+
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                _context9.next = 2;
+                return consts.get_base_pda();
+
+              case 2:
+                _yield$consts$get_bas13 = _context9.sent;
+                _yield$consts$get_bas14 = _slicedToArray(_yield$consts$get_bas13, 2);
+                base_pda = _yield$consts$get_bas14[0];
+                _0 = _yield$consts$get_bas14[1];
+                user_wallet_key = wallet_account.publicKey;
+                _context9.next = 9;
+                return consts.get_user_info_key(user_wallet_key);
+
+              case 9:
+                userInfoKey = _context9.sent;
+                _context9.next = 12;
+                return consts.get_asset_pool_key(base_pda, mint_key_str);
+
+              case 12:
+                assetPoolKey = _context9.sent;
+                _context9.next = 15;
+                return consts.get_asset_pool_spl_key(base_pda, mint_key_str);
+
+              case 15:
+                assetPoolSplKey = _context9.sent;
+                _context9.next = 18;
+                return consts.get_pool_summaries_key(base_pda);
+
+              case 18:
+                poolSummariesKey = _context9.sent;
                 keys = [{
                   pubkey: user_wallet_key,
                   isSigner: true,
@@ -1452,17 +1517,17 @@ var TxMaker = /*#__PURE__*/function () {
                   data: [consts.CMD_REPAY].concat(payload).concat(poolIdArray)
                 }); // signer: wallet_account
 
-                return _context8.abrupt("return", new S.Transaction().add(inst));
+                return _context9.abrupt("return", new S.Transaction().add(inst));
 
               case 27:
               case "end":
-                return _context8.stop();
+                return _context9.stop();
             }
           }
-        }, _callee8);
+        }, _callee9);
       }));
 
-      function repay(_x29, _x30, _x31, _x32, _x33) {
+      function repay(_x30, _x31, _x32, _x33, _x34) {
         return _repay.apply(this, arguments);
       }
 
@@ -1471,59 +1536,59 @@ var TxMaker = /*#__PURE__*/function () {
   }, {
     key: "extern_liquidate",
     value: function () {
-      var _extern_liquidate = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(liquidator_wallet_account, liquidated_wallet_key, liquidator_collateral_spl, // PublicKey
+      var _extern_liquidate = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(liquidator_wallet_account, liquidated_wallet_key, liquidator_collateral_spl, // PublicKey
       liquidator_borrowed_spl, // PublicKey
       collateral_mint_str, borrowed_mint_str, min_collateral_amount, repaid_borrow_amount) {
-        var _yield$consts$get_bas13, _yield$consts$get_bas14, base_pda, _0, liquidator_wallet_key, userInfoKey, collateralPoolKey, collateralPoolSpl, borrowedPoolKey, borrowedPoolSpl, poolSummariesKey, priceSummariesKey, keys, buffer, payload, collateralPoolIdArray, borrowedPoolIdArray, data, inst;
+        var _yield$consts$get_bas15, _yield$consts$get_bas16, base_pda, _0, liquidator_wallet_key, userInfoKey, collateralPoolKey, collateralPoolSpl, borrowedPoolKey, borrowedPoolSpl, poolSummariesKey, priceSummariesKey, keys, buffer, payload, collateralPoolIdArray, borrowedPoolIdArray, data, inst;
 
-        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+        return regeneratorRuntime.wrap(function _callee10$(_context10) {
           while (1) {
-            switch (_context9.prev = _context9.next) {
+            switch (_context10.prev = _context10.next) {
               case 0:
-                _context9.next = 2;
+                _context10.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas13 = _context9.sent;
-                _yield$consts$get_bas14 = _slicedToArray(_yield$consts$get_bas13, 2);
-                base_pda = _yield$consts$get_bas14[0];
-                _0 = _yield$consts$get_bas14[1];
+                _yield$consts$get_bas15 = _context10.sent;
+                _yield$consts$get_bas16 = _slicedToArray(_yield$consts$get_bas15, 2);
+                base_pda = _yield$consts$get_bas16[0];
+                _0 = _yield$consts$get_bas16[1];
                 liquidator_wallet_key = liquidator_wallet_account.publicKey;
-                _context9.next = 9;
+                _context10.next = 9;
                 return consts.get_user_info_key(liquidated_wallet_key);
 
               case 9:
-                userInfoKey = _context9.sent;
-                _context9.next = 12;
+                userInfoKey = _context10.sent;
+                _context10.next = 12;
                 return consts.get_asset_pool_key(base_pda, collateral_mint_str);
 
               case 12:
-                collateralPoolKey = _context9.sent;
-                _context9.next = 15;
+                collateralPoolKey = _context10.sent;
+                _context10.next = 15;
                 return consts.get_asset_pool_spl_key(base_pda, collateral_mint_str);
 
               case 15:
-                collateralPoolSpl = _context9.sent;
-                _context9.next = 18;
+                collateralPoolSpl = _context10.sent;
+                _context10.next = 18;
                 return consts.get_asset_pool_key(base_pda, borrowed_mint_str);
 
               case 18:
-                borrowedPoolKey = _context9.sent;
-                _context9.next = 21;
+                borrowedPoolKey = _context10.sent;
+                _context10.next = 21;
                 return consts.get_asset_pool_spl_key(base_pda, borrowed_mint_str);
 
               case 21:
-                borrowedPoolSpl = _context9.sent;
-                _context9.next = 24;
+                borrowedPoolSpl = _context10.sent;
+                _context10.next = 24;
                 return consts.get_pool_summaries_key(base_pda);
 
               case 24:
-                poolSummariesKey = _context9.sent;
-                _context9.next = 27;
+                poolSummariesKey = _context10.sent;
+                _context10.next = 27;
                 return consts.get_price_summaries_key(base_pda);
 
               case 27:
-                priceSummariesKey = _context9.sent;
+                priceSummariesKey = _context10.sent;
                 keys = [{
                   pubkey: liquidated_wallet_key,
                   isSigner: false,
@@ -1593,17 +1658,17 @@ var TxMaker = /*#__PURE__*/function () {
                   data: data
                 }); // signer: liquidator_wallet_account
 
-                return _context9.abrupt("return", new S.Transaction().add(inst));
+                return _context10.abrupt("return", new S.Transaction().add(inst));
 
               case 38:
               case "end":
-                return _context9.stop();
+                return _context10.stop();
             }
           }
-        }, _callee9);
+        }, _callee10);
       }));
 
-      function extern_liquidate(_x34, _x35, _x36, _x37, _x38, _x39, _x40, _x41) {
+      function extern_liquidate(_x35, _x36, _x37, _x38, _x39, _x40, _x41, _x42) {
         return _extern_liquidate.apply(this, arguments);
       }
 
@@ -1612,56 +1677,56 @@ var TxMaker = /*#__PURE__*/function () {
   }, {
     key: "build_swap",
     value: function () {
-      var _build_swap = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(cmd, signed, liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
-        var _yield$consts$get_bas15, _yield$consts$get_bas16, base_pda, _0, userInfoKey, collateralPoolKey, collateralPoolSpl, borrowedPoolKey, borrowedPoolSpl, poolSummariesKey, priceSummariesKey, keys, buffer, payload, collateralPoolIdArray, borrowedPoolIdArray, data, inst;
+      var _build_swap = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(cmd, signed, liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
+        var _yield$consts$get_bas17, _yield$consts$get_bas18, base_pda, _0, userInfoKey, collateralPoolKey, collateralPoolSpl, borrowedPoolKey, borrowedPoolSpl, poolSummariesKey, priceSummariesKey, keys, buffer, payload, collateralPoolIdArray, borrowedPoolIdArray, data, inst;
 
-        return regeneratorRuntime.wrap(function _callee10$(_context10) {
+        return regeneratorRuntime.wrap(function _callee11$(_context11) {
           while (1) {
-            switch (_context10.prev = _context10.next) {
+            switch (_context11.prev = _context11.next) {
               case 0:
-                _context10.next = 2;
+                _context11.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas15 = _context10.sent;
-                _yield$consts$get_bas16 = _slicedToArray(_yield$consts$get_bas15, 2);
-                base_pda = _yield$consts$get_bas16[0];
-                _0 = _yield$consts$get_bas16[1];
-                _context10.next = 8;
+                _yield$consts$get_bas17 = _context11.sent;
+                _yield$consts$get_bas18 = _slicedToArray(_yield$consts$get_bas17, 2);
+                base_pda = _yield$consts$get_bas18[0];
+                _0 = _yield$consts$get_bas18[1];
+                _context11.next = 8;
                 return consts.get_user_info_key(liquidated_wallet_key);
 
               case 8:
-                userInfoKey = _context10.sent;
-                _context10.next = 11;
+                userInfoKey = _context11.sent;
+                _context11.next = 11;
                 return consts.get_asset_pool_key(base_pda, collateral_mint_str);
 
               case 11:
-                collateralPoolKey = _context10.sent;
-                _context10.next = 14;
+                collateralPoolKey = _context11.sent;
+                _context11.next = 14;
                 return consts.get_asset_pool_spl_key(base_pda, collateral_mint_str);
 
               case 14:
-                collateralPoolSpl = _context10.sent;
-                _context10.next = 17;
+                collateralPoolSpl = _context11.sent;
+                _context11.next = 17;
                 return consts.get_asset_pool_key(base_pda, borrowed_mint_str);
 
               case 17:
-                borrowedPoolKey = _context10.sent;
-                _context10.next = 20;
+                borrowedPoolKey = _context11.sent;
+                _context11.next = 20;
                 return consts.get_asset_pool_spl_key(base_pda, borrowed_mint_str);
 
               case 20:
-                borrowedPoolSpl = _context10.sent;
-                _context10.next = 23;
+                borrowedPoolSpl = _context11.sent;
+                _context11.next = 23;
                 return consts.get_pool_summaries_key(base_pda);
 
               case 23:
-                poolSummariesKey = _context10.sent;
-                _context10.next = 26;
+                poolSummariesKey = _context11.sent;
+                _context11.next = 26;
                 return consts.get_price_summaries_key(base_pda);
 
               case 26:
-                priceSummariesKey = _context10.sent;
+                priceSummariesKey = _context11.sent;
                 keys = [{
                   pubkey: liquidated_wallet_key,
                   isSigner: signed,
@@ -1735,17 +1800,17 @@ var TxMaker = /*#__PURE__*/function () {
                   data: data
                 }); // signer: devAccount
 
-                return _context10.abrupt("return", new S.Transaction().add(inst));
+                return _context11.abrupt("return", new S.Transaction().add(inst));
 
               case 39:
               case "end":
-                return _context10.stop();
+                return _context11.stop();
             }
           }
-        }, _callee10);
+        }, _callee11);
       }));
 
-      function build_swap(_x42, _x43, _x44, _x45, _x46, _x47, _x48, _x49, _x50, _x51, _x52, _x53) {
+      function build_swap(_x43, _x44, _x45, _x46, _x47, _x48, _x49, _x50, _x51, _x52, _x53, _x54) {
         return _build_swap.apply(this, arguments);
       }
 
@@ -1754,36 +1819,12 @@ var TxMaker = /*#__PURE__*/function () {
   }, {
     key: "self_liquidate",
     value: function () {
-      var _self_liquidate = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
-        return regeneratorRuntime.wrap(function _callee11$(_context11) {
-          while (1) {
-            switch (_context11.prev = _context11.next) {
-              case 0:
-                return _context11.abrupt("return", TxMaker.build_swap(consts.CMD_SELF_LIQUIDATE, false, liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys));
-
-              case 1:
-              case "end":
-                return _context11.stop();
-            }
-          }
-        }, _callee11);
-      }));
-
-      function self_liquidate(_x54, _x55, _x56, _x57, _x58, _x59, _x60, _x61, _x62, _x63) {
-        return _self_liquidate.apply(this, arguments);
-      }
-
-      return self_liquidate;
-    }()
-  }, {
-    key: "margin_swap",
-    value: function () {
-      var _margin_swap = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(user_wallet_key, need_to_sell, need_to_buy, sell_mint_str, sell_amount, buy_mint_str, min_buy_amount, intermediate_spl, serum_sell_keys, serum_buy_keys) {
+      var _self_liquidate = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12(liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
         return regeneratorRuntime.wrap(function _callee12$(_context12) {
           while (1) {
             switch (_context12.prev = _context12.next) {
               case 0:
-                return _context12.abrupt("return", TxMaker.build_swap(consts.CMD_MARGIN_SWAP, true, user_wallet_key, need_to_sell, need_to_buy, sell_mint_str, sell_amount, buy_mint_str, min_buy_amount, intermediate_spl, serum_sell_keys, serum_buy_keys));
+                return _context12.abrupt("return", TxMaker.build_swap(consts.CMD_SELF_LIQUIDATE, false, liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys));
 
               case 1:
               case "end":
@@ -1793,7 +1834,31 @@ var TxMaker = /*#__PURE__*/function () {
         }, _callee12);
       }));
 
-      function margin_swap(_x64, _x65, _x66, _x67, _x68, _x69, _x70, _x71, _x72, _x73) {
+      function self_liquidate(_x55, _x56, _x57, _x58, _x59, _x60, _x61, _x62, _x63, _x64) {
+        return _self_liquidate.apply(this, arguments);
+      }
+
+      return self_liquidate;
+    }()
+  }, {
+    key: "margin_swap",
+    value: function () {
+      var _margin_swap = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13(user_wallet_key, need_to_sell, need_to_buy, sell_mint_str, sell_amount, buy_mint_str, min_buy_amount, intermediate_spl, serum_sell_keys, serum_buy_keys) {
+        return regeneratorRuntime.wrap(function _callee13$(_context13) {
+          while (1) {
+            switch (_context13.prev = _context13.next) {
+              case 0:
+                return _context13.abrupt("return", TxMaker.build_swap(consts.CMD_MARGIN_SWAP, true, user_wallet_key, need_to_sell, need_to_buy, sell_mint_str, sell_amount, buy_mint_str, min_buy_amount, intermediate_spl, serum_sell_keys, serum_buy_keys));
+
+              case 1:
+              case "end":
+                return _context13.stop();
+            }
+          }
+        }, _callee13);
+      }));
+
+      function margin_swap(_x65, _x66, _x67, _x68, _x69, _x70, _x71, _x72, _x73, _x74) {
         return _margin_swap.apply(this, arguments);
       }
 
@@ -1802,67 +1867,67 @@ var TxMaker = /*#__PURE__*/function () {
   }, {
     key: "margin_lp_create",
     value: function () {
-      var _margin_lp_create = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13(wallet_account, left_mint_str, left_amount, right_mint_str, right_amount, lp_mint_str, min_lp_amount, target_swap, swap_account_keys) {
-        var _yield$consts$get_bas17, _yield$consts$get_bas18, base_pda, _0, user_wallet_key, userInfoKey, leftAssetPoolKey, leftAssetPoolSplKey, rightAssetPoolKey, rightAssetPoolSplKey, lpAssetPoolKey, lpAssetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, leftPoolId, rightPoolId, lpPoolId, payload, data, inst;
+      var _margin_lp_create = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14(wallet_account, left_mint_str, left_amount, right_mint_str, right_amount, lp_mint_str, min_lp_amount, target_swap, swap_account_keys) {
+        var _yield$consts$get_bas19, _yield$consts$get_bas20, base_pda, _0, user_wallet_key, userInfoKey, leftAssetPoolKey, leftAssetPoolSplKey, rightAssetPoolKey, rightAssetPoolSplKey, lpAssetPoolKey, lpAssetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, leftPoolId, rightPoolId, lpPoolId, payload, data, inst;
 
-        return regeneratorRuntime.wrap(function _callee13$(_context13) {
+        return regeneratorRuntime.wrap(function _callee14$(_context14) {
           while (1) {
-            switch (_context13.prev = _context13.next) {
+            switch (_context14.prev = _context14.next) {
               case 0:
-                _context13.next = 2;
+                _context14.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas17 = _context13.sent;
-                _yield$consts$get_bas18 = _slicedToArray(_yield$consts$get_bas17, 2);
-                base_pda = _yield$consts$get_bas18[0];
-                _0 = _yield$consts$get_bas18[1];
+                _yield$consts$get_bas19 = _context14.sent;
+                _yield$consts$get_bas20 = _slicedToArray(_yield$consts$get_bas19, 2);
+                base_pda = _yield$consts$get_bas20[0];
+                _0 = _yield$consts$get_bas20[1];
                 user_wallet_key = wallet_account.publicKey;
-                _context13.next = 9;
+                _context14.next = 9;
                 return consts.get_user_info_key(user_wallet_key);
 
               case 9:
-                userInfoKey = _context13.sent;
-                _context13.next = 12;
+                userInfoKey = _context14.sent;
+                _context14.next = 12;
                 return consts.get_asset_pool_key(base_pda, left_mint_str);
 
               case 12:
-                leftAssetPoolKey = _context13.sent;
-                _context13.next = 15;
+                leftAssetPoolKey = _context14.sent;
+                _context14.next = 15;
                 return consts.get_asset_pool_spl_key(base_pda, left_mint_str);
 
               case 15:
-                leftAssetPoolSplKey = _context13.sent;
-                _context13.next = 18;
+                leftAssetPoolSplKey = _context14.sent;
+                _context14.next = 18;
                 return consts.get_asset_pool_key(base_pda, right_mint_str);
 
               case 18:
-                rightAssetPoolKey = _context13.sent;
-                _context13.next = 21;
+                rightAssetPoolKey = _context14.sent;
+                _context14.next = 21;
                 return consts.get_asset_pool_spl_key(base_pda, right_mint_str);
 
               case 21:
-                rightAssetPoolSplKey = _context13.sent;
-                _context13.next = 24;
+                rightAssetPoolSplKey = _context14.sent;
+                _context14.next = 24;
                 return consts.get_asset_pool_key(base_pda, lp_mint_str);
 
               case 24:
-                lpAssetPoolKey = _context13.sent;
-                _context13.next = 27;
+                lpAssetPoolKey = _context14.sent;
+                _context14.next = 27;
                 return consts.get_asset_pool_spl_key(base_pda, lp_mint_str);
 
               case 27:
-                lpAssetPoolSplKey = _context13.sent;
-                _context13.next = 30;
+                lpAssetPoolSplKey = _context14.sent;
+                _context14.next = 30;
                 return consts.get_pool_summaries_key(base_pda);
 
               case 30:
-                poolSummariesKey = _context13.sent;
-                _context13.next = 33;
+                poolSummariesKey = _context14.sent;
+                _context14.next = 33;
                 return consts.get_price_summaries_key(base_pda);
 
               case 33:
-                priceSummariesKey = _context13.sent;
+                priceSummariesKey = _context14.sent;
                 keys = [{
                   pubkey: user_wallet_key,
                   isSigner: true,
@@ -1930,17 +1995,17 @@ var TxMaker = /*#__PURE__*/function () {
                   keys: keys,
                   data: data
                 });
-                return _context13.abrupt("return", new S.Transaction().add(inst));
+                return _context14.abrupt("return", new S.Transaction().add(inst));
 
               case 50:
               case "end":
-                return _context13.stop();
+                return _context14.stop();
             }
           }
-        }, _callee13);
+        }, _callee14);
       }));
 
-      function margin_lp_create(_x74, _x75, _x76, _x77, _x78, _x79, _x80, _x81, _x82) {
+      function margin_lp_create(_x75, _x76, _x77, _x78, _x79, _x80, _x81, _x82, _x83) {
         return _margin_lp_create.apply(this, arguments);
       }
 
@@ -1949,67 +2014,67 @@ var TxMaker = /*#__PURE__*/function () {
   }, {
     key: "margin_lp_redeem",
     value: function () {
-      var _margin_lp_redeem = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14(wallet_account, left_mint_str, min_left_amount, right_mint_str, min_right_amount, lp_mint_str, lp_amount, target_swap, swap_account_keys) {
-        var _yield$consts$get_bas19, _yield$consts$get_bas20, base_pda, _0, user_wallet_key, userInfoKey, leftAssetPoolKey, leftAssetPoolSplKey, rightAssetPoolKey, rightAssetPoolSplKey, lpAssetPoolKey, lpAssetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, leftPoolId, rightPoolId, lpPoolId, payload, data, inst;
+      var _margin_lp_redeem = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(wallet_account, left_mint_str, min_left_amount, right_mint_str, min_right_amount, lp_mint_str, lp_amount, target_swap, swap_account_keys) {
+        var _yield$consts$get_bas21, _yield$consts$get_bas22, base_pda, _0, user_wallet_key, userInfoKey, leftAssetPoolKey, leftAssetPoolSplKey, rightAssetPoolKey, rightAssetPoolSplKey, lpAssetPoolKey, lpAssetPoolSplKey, poolSummariesKey, priceSummariesKey, keys, buffer, leftPoolId, rightPoolId, lpPoolId, payload, data, inst;
 
-        return regeneratorRuntime.wrap(function _callee14$(_context14) {
+        return regeneratorRuntime.wrap(function _callee15$(_context15) {
           while (1) {
-            switch (_context14.prev = _context14.next) {
+            switch (_context15.prev = _context15.next) {
               case 0:
-                _context14.next = 2;
+                _context15.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas19 = _context14.sent;
-                _yield$consts$get_bas20 = _slicedToArray(_yield$consts$get_bas19, 2);
-                base_pda = _yield$consts$get_bas20[0];
-                _0 = _yield$consts$get_bas20[1];
+                _yield$consts$get_bas21 = _context15.sent;
+                _yield$consts$get_bas22 = _slicedToArray(_yield$consts$get_bas21, 2);
+                base_pda = _yield$consts$get_bas22[0];
+                _0 = _yield$consts$get_bas22[1];
                 user_wallet_key = wallet_account.publicKey;
-                _context14.next = 9;
+                _context15.next = 9;
                 return consts.get_user_info_key(user_wallet_key);
 
               case 9:
-                userInfoKey = _context14.sent;
-                _context14.next = 12;
+                userInfoKey = _context15.sent;
+                _context15.next = 12;
                 return consts.get_asset_pool_key(base_pda, left_mint_str);
 
               case 12:
-                leftAssetPoolKey = _context14.sent;
-                _context14.next = 15;
+                leftAssetPoolKey = _context15.sent;
+                _context15.next = 15;
                 return consts.get_asset_pool_spl_key(base_pda, left_mint_str);
 
               case 15:
-                leftAssetPoolSplKey = _context14.sent;
-                _context14.next = 18;
+                leftAssetPoolSplKey = _context15.sent;
+                _context15.next = 18;
                 return consts.get_asset_pool_key(base_pda, right_mint_str);
 
               case 18:
-                rightAssetPoolKey = _context14.sent;
-                _context14.next = 21;
+                rightAssetPoolKey = _context15.sent;
+                _context15.next = 21;
                 return consts.get_asset_pool_spl_key(base_pda, right_mint_str);
 
               case 21:
-                rightAssetPoolSplKey = _context14.sent;
-                _context14.next = 24;
+                rightAssetPoolSplKey = _context15.sent;
+                _context15.next = 24;
                 return consts.get_asset_pool_key(base_pda, lp_mint_str);
 
               case 24:
-                lpAssetPoolKey = _context14.sent;
-                _context14.next = 27;
+                lpAssetPoolKey = _context15.sent;
+                _context15.next = 27;
                 return consts.get_asset_pool_spl_key(base_pda, lp_mint_str);
 
               case 27:
-                lpAssetPoolSplKey = _context14.sent;
-                _context14.next = 30;
+                lpAssetPoolSplKey = _context15.sent;
+                _context15.next = 30;
                 return consts.get_pool_summaries_key(base_pda);
 
               case 30:
-                poolSummariesKey = _context14.sent;
-                _context14.next = 33;
+                poolSummariesKey = _context15.sent;
+                _context15.next = 33;
                 return consts.get_price_summaries_key(base_pda);
 
               case 33:
-                priceSummariesKey = _context14.sent;
+                priceSummariesKey = _context15.sent;
                 keys = [{
                   pubkey: user_wallet_key,
                   isSigner: true,
@@ -2077,17 +2142,17 @@ var TxMaker = /*#__PURE__*/function () {
                   keys: keys,
                   data: data
                 });
-                return _context14.abrupt("return", new S.Transaction().add(inst));
+                return _context15.abrupt("return", new S.Transaction().add(inst));
 
               case 50:
               case "end":
-                return _context14.stop();
+                return _context15.stop();
             }
           }
-        }, _callee14);
+        }, _callee15);
       }));
 
-      function margin_lp_redeem(_x83, _x84, _x85, _x86, _x87, _x88, _x89, _x90, _x91) {
+      function margin_lp_redeem(_x84, _x85, _x86, _x87, _x88, _x89, _x90, _x91, _x92) {
         return _margin_lp_redeem.apply(this, arguments);
       }
 
@@ -2108,59 +2173,22 @@ var ConnWrapper = /*#__PURE__*/function () {
   }
 
   _createClass(ConnWrapper, [{
-    key: "update_user_config",
+    key: "refresh_user",
     value: function () {
-      var _update_user_config2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15(user_wallet_account, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target) {
+      var _refresh_user2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16(payer_account, user_wallet_key) {
         var tx;
-        return regeneratorRuntime.wrap(function _callee15$(_context15) {
-          while (1) {
-            switch (_context15.prev = _context15.next) {
-              case 0:
-                _context15.next = 2;
-                return TxMaker.update_user_config(user_wallet_account, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target);
-
-              case 2:
-                tx = _context15.sent;
-                return _context15.abrupt("return", this.connection.sendTransaction(tx, [user_wallet_account]));
-
-              case 4:
-              case "end":
-                return _context15.stop();
-            }
-          }
-        }, _callee15, this);
-      }));
-
-      function update_user_config(_x92, _x93, _x94, _x95) {
-        return _update_user_config2.apply(this, arguments);
-      }
-
-      return update_user_config;
-    }()
-  }, {
-    key: "add_user_and_deposit",
-    value: function () {
-      var _add_user_and_deposit2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16(wallet_account, user_spl_key, mint_key_str, amount) {
-        var num_free_slots, max_num_free, max_page_id, tx;
         return regeneratorRuntime.wrap(function _callee16$(_context16) {
           while (1) {
             switch (_context16.prev = _context16.next) {
               case 0:
                 _context16.next = 2;
-                return this.getParsedUserPagesStats();
+                return TxMaker.refresh_user(user_wallet_key);
 
               case 2:
-                num_free_slots = _context16.sent;
-                max_num_free = Math.max.apply(Math, _toConsumableArray(num_free_slots));
-                max_page_id = num_free_slots.indexOf(max_num_free);
-                _context16.next = 7;
-                return TxMaker.add_user_and_deposit(max_page_id, wallet_account, user_spl_key, mint_key_str, amount);
-
-              case 7:
                 tx = _context16.sent;
-                return _context16.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
+                return _context16.abrupt("return", this.connection.sendTransaction(tx, [payer_account]));
 
-              case 9:
+              case 4:
               case "end":
                 return _context16.stop();
             }
@@ -2168,27 +2196,27 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee16, this);
       }));
 
-      function add_user_and_deposit(_x96, _x97, _x98, _x99) {
-        return _add_user_and_deposit2.apply(this, arguments);
+      function refresh_user(_x93, _x94) {
+        return _refresh_user2.apply(this, arguments);
       }
 
-      return add_user_and_deposit;
+      return refresh_user;
     }()
   }, {
-    key: "deposit",
+    key: "update_user_config",
     value: function () {
-      var _deposit2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17(wallet_account, user_spl_key, mint_key_str, amount) {
+      var _update_user_config2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17(user_wallet_account, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target) {
         var tx;
         return regeneratorRuntime.wrap(function _callee17$(_context17) {
           while (1) {
             switch (_context17.prev = _context17.next) {
               case 0:
                 _context17.next = 2;
-                return TxMaker.deposit(wallet_account, user_spl_key, mint_key_str, amount);
+                return TxMaker.update_user_config(user_wallet_account, self_liquidation_threshold, post_self_liquidation_ratio_target, post_extern_liquidation_ratio_target);
 
               case 2:
                 tx = _context17.sent;
-                return _context17.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
+                return _context17.abrupt("return", this.connection.sendTransaction(tx, [user_wallet_account]));
 
               case 4:
               case "end":
@@ -2198,34 +2226,36 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee17, this);
       }));
 
-      function deposit(_x100, _x101, _x102, _x103) {
-        return _deposit2.apply(this, arguments);
+      function update_user_config(_x95, _x96, _x97, _x98) {
+        return _update_user_config2.apply(this, arguments);
       }
 
-      return deposit;
+      return update_user_config;
     }()
   }, {
-    key: "withdraw_and_remove_user",
+    key: "add_user_and_deposit",
     value: function () {
-      var _withdraw_and_remove_user2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee18(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount) {
-        var user_info, tx;
+      var _add_user_and_deposit2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee18(wallet_account, user_spl_key, mint_key_str, amount) {
+        var num_free_slots, max_num_free, max_page_id, tx;
         return regeneratorRuntime.wrap(function _callee18$(_context18) {
           while (1) {
             switch (_context18.prev = _context18.next) {
               case 0:
                 _context18.next = 2;
-                return this.getParsedUserInfo(wallet_account.publicKey);
+                return this.getParsedUserPagesStats();
 
               case 2:
-                user_info = _context18.sent;
-                _context18.next = 5;
-                return TxMaker.withdraw_and_remove_user(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount, user_info);
+                num_free_slots = _context18.sent;
+                max_num_free = Math.max.apply(Math, _toConsumableArray(num_free_slots));
+                max_page_id = num_free_slots.indexOf(max_num_free);
+                _context18.next = 7;
+                return TxMaker.add_user_and_deposit(max_page_id, wallet_account, user_spl_key, mint_key_str, amount);
 
-              case 5:
+              case 7:
                 tx = _context18.sent;
                 return _context18.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
 
-              case 7:
+              case 9:
               case "end":
                 return _context18.stop();
             }
@@ -2233,23 +2263,23 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee18, this);
       }));
 
-      function withdraw_and_remove_user(_x104, _x105, _x106, _x107, _x108) {
-        return _withdraw_and_remove_user2.apply(this, arguments);
+      function add_user_and_deposit(_x99, _x100, _x101, _x102) {
+        return _add_user_and_deposit2.apply(this, arguments);
       }
 
-      return withdraw_and_remove_user;
+      return add_user_and_deposit;
     }()
   }, {
-    key: "withdraw",
+    key: "deposit",
     value: function () {
-      var _withdraw2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount) {
+      var _deposit2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(wallet_account, user_spl_key, mint_key_str, amount) {
         var tx;
         return regeneratorRuntime.wrap(function _callee19$(_context19) {
           while (1) {
             switch (_context19.prev = _context19.next) {
               case 0:
                 _context19.next = 2;
-                return TxMaker.withdraw(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount);
+                return TxMaker.deposit(wallet_account, user_spl_key, mint_key_str, amount);
 
               case 2:
                 tx = _context19.sent;
@@ -2263,29 +2293,34 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee19, this);
       }));
 
-      function withdraw(_x109, _x110, _x111, _x112, _x113) {
-        return _withdraw2.apply(this, arguments);
+      function deposit(_x103, _x104, _x105, _x106) {
+        return _deposit2.apply(this, arguments);
       }
 
-      return withdraw;
+      return deposit;
     }()
   }, {
-    key: "borrow",
+    key: "withdraw_and_remove_user",
     value: function () {
-      var _borrow2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(wallet_account, user_spl_key, mint_key_str, amount) {
-        var tx;
+      var _withdraw_and_remove_user2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount) {
+        var user_info, tx;
         return regeneratorRuntime.wrap(function _callee20$(_context20) {
           while (1) {
             switch (_context20.prev = _context20.next) {
               case 0:
                 _context20.next = 2;
-                return TxMaker.borrow(wallet_account, user_spl_key, mint_key_str, amount);
+                return this.getParsedUserInfo(wallet_account.publicKey);
 
               case 2:
+                user_info = _context20.sent;
+                _context20.next = 5;
+                return TxMaker.withdraw_and_remove_user(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount, user_info);
+
+              case 5:
                 tx = _context20.sent;
                 return _context20.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
 
-              case 4:
+              case 7:
               case "end":
                 return _context20.stop();
             }
@@ -2293,23 +2328,23 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee20, this);
       }));
 
-      function borrow(_x114, _x115, _x116, _x117) {
-        return _borrow2.apply(this, arguments);
+      function withdraw_and_remove_user(_x107, _x108, _x109, _x110, _x111) {
+        return _withdraw_and_remove_user2.apply(this, arguments);
       }
 
-      return borrow;
+      return withdraw_and_remove_user;
     }()
   }, {
-    key: "repay",
+    key: "withdraw",
     value: function () {
-      var _repay2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21(wallet_account, user_spl_key, mint_key_str, repay_all, amount) {
+      var _withdraw2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount) {
         var tx;
         return regeneratorRuntime.wrap(function _callee21$(_context21) {
           while (1) {
             switch (_context21.prev = _context21.next) {
               case 0:
                 _context21.next = 2;
-                return TxMaker.repay(wallet_account, user_spl_key, mint_key_str, repay_all, amount);
+                return TxMaker.withdraw(wallet_account, user_spl_key, mint_key_str, withdraw_all, amount);
 
               case 2:
                 tx = _context21.sent;
@@ -2323,31 +2358,27 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee21, this);
       }));
 
-      function repay(_x118, _x119, _x120, _x121, _x122) {
-        return _repay2.apply(this, arguments);
+      function withdraw(_x112, _x113, _x114, _x115, _x116) {
+        return _withdraw2.apply(this, arguments);
       }
 
-      return repay;
+      return withdraw;
     }()
   }, {
-    key: "extern_liquidate",
+    key: "borrow",
     value: function () {
-      var _extern_liquidate2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22(liquidator_wallet_account, liquidated_wallet_key, liquidator_collateral_spl, // PublicKey
-      liquidator_borrowed_spl, // PublicKey
-      collateral_mint_str, borrowed_mint_str, min_collateral_amount, repaid_borrow_amount) {
+      var _borrow2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22(wallet_account, user_spl_key, mint_key_str, amount) {
         var tx;
         return regeneratorRuntime.wrap(function _callee22$(_context22) {
           while (1) {
             switch (_context22.prev = _context22.next) {
               case 0:
                 _context22.next = 2;
-                return TxMaker.extern_liquidate(liquidator_wallet_account, liquidated_wallet_key, liquidator_collateral_spl, // PublicKey
-                liquidator_borrowed_spl, // PublicKey
-                collateral_mint_str, borrowed_mint_str, min_collateral_amount, repaid_borrow_amount);
+                return TxMaker.borrow(wallet_account, user_spl_key, mint_key_str, amount);
 
               case 2:
                 tx = _context22.sent;
-                return _context22.abrupt("return", this.connection.sendTransaction(tx, [liquidator_wallet_account]));
+                return _context22.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
 
               case 4:
               case "end":
@@ -2357,27 +2388,27 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee22, this);
       }));
 
-      function extern_liquidate(_x123, _x124, _x125, _x126, _x127, _x128, _x129, _x130) {
-        return _extern_liquidate2.apply(this, arguments);
+      function borrow(_x117, _x118, _x119, _x120) {
+        return _borrow2.apply(this, arguments);
       }
 
-      return extern_liquidate;
+      return borrow;
     }()
   }, {
-    key: "self_liquidate",
+    key: "repay",
     value: function () {
-      var _self_liquidate2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee23(funder_account, liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
+      var _repay2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee23(wallet_account, user_spl_key, mint_key_str, repay_all, amount) {
         var tx;
         return regeneratorRuntime.wrap(function _callee23$(_context23) {
           while (1) {
             switch (_context23.prev = _context23.next) {
               case 0:
                 _context23.next = 2;
-                return TxMaker.self_liquidate(liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys);
+                return TxMaker.repay(wallet_account, user_spl_key, mint_key_str, repay_all, amount);
 
               case 2:
                 tx = _context23.sent;
-                return _context23.abrupt("return", this.connection.sendTransaction(tx, [funder_account]));
+                return _context23.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
 
               case 4:
               case "end":
@@ -2387,27 +2418,31 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee23, this);
       }));
 
-      function self_liquidate(_x131, _x132, _x133, _x134, _x135, _x136, _x137, _x138, _x139, _x140, _x141) {
-        return _self_liquidate2.apply(this, arguments);
+      function repay(_x121, _x122, _x123, _x124, _x125) {
+        return _repay2.apply(this, arguments);
       }
 
-      return self_liquidate;
+      return repay;
     }()
   }, {
-    key: "margin_swap",
+    key: "extern_liquidate",
     value: function () {
-      var _margin_swap2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee24(user_wallet_account, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
+      var _extern_liquidate2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee24(liquidator_wallet_account, liquidated_wallet_key, liquidator_collateral_spl, // PublicKey
+      liquidator_borrowed_spl, // PublicKey
+      collateral_mint_str, borrowed_mint_str, min_collateral_amount, repaid_borrow_amount) {
         var tx;
         return regeneratorRuntime.wrap(function _callee24$(_context24) {
           while (1) {
             switch (_context24.prev = _context24.next) {
               case 0:
                 _context24.next = 2;
-                return TxMaker.margin_swap(user_wallet_account.publicKey, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys);
+                return TxMaker.extern_liquidate(liquidator_wallet_account, liquidated_wallet_key, liquidator_collateral_spl, // PublicKey
+                liquidator_borrowed_spl, // PublicKey
+                collateral_mint_str, borrowed_mint_str, min_collateral_amount, repaid_borrow_amount);
 
               case 2:
                 tx = _context24.sent;
-                return _context24.abrupt("return", this.connection.sendTransaction(tx, [user_wallet_account]));
+                return _context24.abrupt("return", this.connection.sendTransaction(tx, [liquidator_wallet_account]));
 
               case 4:
               case "end":
@@ -2417,27 +2452,27 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee24, this);
       }));
 
-      function margin_swap(_x142, _x143, _x144, _x145, _x146, _x147, _x148, _x149, _x150, _x151) {
-        return _margin_swap2.apply(this, arguments);
+      function extern_liquidate(_x126, _x127, _x128, _x129, _x130, _x131, _x132, _x133) {
+        return _extern_liquidate2.apply(this, arguments);
       }
 
-      return margin_swap;
+      return extern_liquidate;
     }()
   }, {
-    key: "margin_lp_create",
+    key: "self_liquidate",
     value: function () {
-      var _margin_lp_create2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee25(wallet_account, left_mint_str, left_amount, right_mint_str, right_amount, lp_mint_str, min_lp_amount, target_swap, swap_account_keys) {
+      var _self_liquidate2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee25(funder_account, liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
         var tx;
         return regeneratorRuntime.wrap(function _callee25$(_context25) {
           while (1) {
             switch (_context25.prev = _context25.next) {
               case 0:
                 _context25.next = 2;
-                return TxMaker.margin_lp_create(wallet_account, left_mint_str, left_amount, right_mint_str, right_amount, lp_mint_str, min_lp_amount, target_swap, swap_account_keys);
+                return TxMaker.self_liquidate(liquidated_wallet_key, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys);
 
               case 2:
                 tx = _context25.sent;
-                return _context25.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
+                return _context25.abrupt("return", this.connection.sendTransaction(tx, [funder_account]));
 
               case 4:
               case "end":
@@ -2447,27 +2482,27 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee25, this);
       }));
 
-      function margin_lp_create(_x152, _x153, _x154, _x155, _x156, _x157, _x158, _x159, _x160) {
-        return _margin_lp_create2.apply(this, arguments);
+      function self_liquidate(_x134, _x135, _x136, _x137, _x138, _x139, _x140, _x141, _x142, _x143, _x144) {
+        return _self_liquidate2.apply(this, arguments);
       }
 
-      return margin_lp_create;
+      return self_liquidate;
     }()
   }, {
-    key: "margin_lp_redeem",
+    key: "margin_swap",
     value: function () {
-      var _margin_lp_redeem2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee26(wallet_account, left_mint_str, min_left_amount, right_mint_str, min_right_amount, lp_mint_str, lp_amount, target_swap, swap_account_keys) {
+      var _margin_swap2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee26(user_wallet_account, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys) {
         var tx;
         return regeneratorRuntime.wrap(function _callee26$(_context26) {
           while (1) {
             switch (_context26.prev = _context26.next) {
               case 0:
                 _context26.next = 2;
-                return TxMaker.margin_lp_redeem(wallet_account, left_mint_str, min_left_amount, right_mint_str, min_right_amount, lp_mint_str, lp_amount, target_swap, swap_account_keys);
+                return TxMaker.margin_swap(user_wallet_account.publicKey, need_to_sell, need_to_buy, collateral_mint_str, sell_collateral_amount, borrowed_mint_str, buy_borrowed_amount, intermediate_spl, serum_collateral_keys, serum_borrowed_keys);
 
               case 2:
                 tx = _context26.sent;
-                return _context26.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
+                return _context26.abrupt("return", this.connection.sendTransaction(tx, [user_wallet_account]));
 
               case 4:
               case "end":
@@ -2477,7 +2512,67 @@ var ConnWrapper = /*#__PURE__*/function () {
         }, _callee26, this);
       }));
 
-      function margin_lp_redeem(_x161, _x162, _x163, _x164, _x165, _x166, _x167, _x168, _x169) {
+      function margin_swap(_x145, _x146, _x147, _x148, _x149, _x150, _x151, _x152, _x153, _x154) {
+        return _margin_swap2.apply(this, arguments);
+      }
+
+      return margin_swap;
+    }()
+  }, {
+    key: "margin_lp_create",
+    value: function () {
+      var _margin_lp_create2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee27(wallet_account, left_mint_str, left_amount, right_mint_str, right_amount, lp_mint_str, min_lp_amount, target_swap, swap_account_keys) {
+        var tx;
+        return regeneratorRuntime.wrap(function _callee27$(_context27) {
+          while (1) {
+            switch (_context27.prev = _context27.next) {
+              case 0:
+                _context27.next = 2;
+                return TxMaker.margin_lp_create(wallet_account, left_mint_str, left_amount, right_mint_str, right_amount, lp_mint_str, min_lp_amount, target_swap, swap_account_keys);
+
+              case 2:
+                tx = _context27.sent;
+                return _context27.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
+
+              case 4:
+              case "end":
+                return _context27.stop();
+            }
+          }
+        }, _callee27, this);
+      }));
+
+      function margin_lp_create(_x155, _x156, _x157, _x158, _x159, _x160, _x161, _x162, _x163) {
+        return _margin_lp_create2.apply(this, arguments);
+      }
+
+      return margin_lp_create;
+    }()
+  }, {
+    key: "margin_lp_redeem",
+    value: function () {
+      var _margin_lp_redeem2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee28(wallet_account, left_mint_str, min_left_amount, right_mint_str, min_right_amount, lp_mint_str, lp_amount, target_swap, swap_account_keys) {
+        var tx;
+        return regeneratorRuntime.wrap(function _callee28$(_context28) {
+          while (1) {
+            switch (_context28.prev = _context28.next) {
+              case 0:
+                _context28.next = 2;
+                return TxMaker.margin_lp_redeem(wallet_account, left_mint_str, min_left_amount, right_mint_str, min_right_amount, lp_mint_str, lp_amount, target_swap, swap_account_keys);
+
+              case 2:
+                tx = _context28.sent;
+                return _context28.abrupt("return", this.connection.sendTransaction(tx, [wallet_account]));
+
+              case 4:
+              case "end":
+                return _context28.stop();
+            }
+          }
+        }, _callee28, this);
+      }));
+
+      function margin_lp_redeem(_x164, _x165, _x166, _x167, _x168, _x169, _x170, _x171, _x172) {
         return _margin_lp_redeem2.apply(this, arguments);
       }
 
@@ -2486,39 +2581,39 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "getParsedPoolList",
     value: function () {
-      var _getParsedPoolList = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee27() {
-        var _yield$consts$get_bas21, _yield$consts$get_bas22, base_pda, bump, pool_list_pubkey, response;
+      var _getParsedPoolList = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee29() {
+        var _yield$consts$get_bas23, _yield$consts$get_bas24, base_pda, bump, pool_list_pubkey, response;
 
-        return regeneratorRuntime.wrap(function _callee27$(_context27) {
+        return regeneratorRuntime.wrap(function _callee29$(_context29) {
           while (1) {
-            switch (_context27.prev = _context27.next) {
+            switch (_context29.prev = _context29.next) {
               case 0:
-                _context27.next = 2;
+                _context29.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas21 = _context27.sent;
-                _yield$consts$get_bas22 = _slicedToArray(_yield$consts$get_bas21, 2);
-                base_pda = _yield$consts$get_bas22[0];
-                bump = _yield$consts$get_bas22[1];
-                _context27.next = 8;
+                _yield$consts$get_bas23 = _context29.sent;
+                _yield$consts$get_bas24 = _slicedToArray(_yield$consts$get_bas23, 2);
+                base_pda = _yield$consts$get_bas24[0];
+                bump = _yield$consts$get_bas24[1];
+                _context29.next = 8;
                 return consts.get_pool_list_key(base_pda);
 
               case 8:
-                pool_list_pubkey = _context27.sent;
-                _context27.next = 11;
+                pool_list_pubkey = _context29.sent;
+                _context29.next = 11;
                 return this.connection.getParsedAccountInfo(pool_list_pubkey);
 
               case 11:
-                response = _context27.sent;
-                return _context27.abrupt("return", Parser.parsePoolList(new Uint8Array(response.value.data)));
+                response = _context29.sent;
+                return _context29.abrupt("return", Parser.parsePoolList(new Uint8Array(response.value.data)));
 
               case 13:
               case "end":
-                return _context27.stop();
+                return _context29.stop();
             }
           }
-        }, _callee27, this);
+        }, _callee29, this);
       }));
 
       function getParsedPoolList() {
@@ -2530,39 +2625,39 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "getParsedUserPagesStats",
     value: function () {
-      var _getParsedUserPagesStats = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee28() {
-        var _yield$consts$get_bas23, _yield$consts$get_bas24, base_pda, _, statsAccountKey, response;
+      var _getParsedUserPagesStats = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee30() {
+        var _yield$consts$get_bas25, _yield$consts$get_bas26, base_pda, _, statsAccountKey, response;
 
-        return regeneratorRuntime.wrap(function _callee28$(_context28) {
+        return regeneratorRuntime.wrap(function _callee30$(_context30) {
           while (1) {
-            switch (_context28.prev = _context28.next) {
+            switch (_context30.prev = _context30.next) {
               case 0:
-                _context28.next = 2;
+                _context30.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas23 = _context28.sent;
-                _yield$consts$get_bas24 = _slicedToArray(_yield$consts$get_bas23, 2);
-                base_pda = _yield$consts$get_bas24[0];
-                _ = _yield$consts$get_bas24[1];
-                _context28.next = 8;
+                _yield$consts$get_bas25 = _context30.sent;
+                _yield$consts$get_bas26 = _slicedToArray(_yield$consts$get_bas25, 2);
+                base_pda = _yield$consts$get_bas26[0];
+                _ = _yield$consts$get_bas26[1];
+                _context30.next = 8;
                 return consts.get_user_pages_stats_key(base_pda);
 
               case 8:
-                statsAccountKey = _context28.sent;
-                _context28.next = 11;
+                statsAccountKey = _context30.sent;
+                _context30.next = 11;
                 return this.connection.getParsedAccountInfo(statsAccountKey);
 
               case 11:
-                response = _context28.sent;
-                return _context28.abrupt("return", Parser.parseUserPagesStats(new Uint8Array(response.value.data)));
+                response = _context30.sent;
+                return _context30.abrupt("return", Parser.parseUserPagesStats(new Uint8Array(response.value.data)));
 
               case 13:
               case "end":
-                return _context28.stop();
+                return _context30.stop();
             }
           }
-        }, _callee28, this);
+        }, _callee30, this);
       }));
 
       function getParsedUserPagesStats() {
@@ -2574,42 +2669,42 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "getParsedAssetPool",
     value: function () {
-      var _getParsedAssetPool = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee29(mint_key_str) {
-        var _yield$consts$get_bas25, _yield$consts$get_bas26, base_pda, _, poolAccountKey, response;
+      var _getParsedAssetPool = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee31(mint_key_str) {
+        var _yield$consts$get_bas27, _yield$consts$get_bas28, base_pda, _, poolAccountKey, response;
 
-        return regeneratorRuntime.wrap(function _callee29$(_context29) {
+        return regeneratorRuntime.wrap(function _callee31$(_context31) {
           while (1) {
-            switch (_context29.prev = _context29.next) {
+            switch (_context31.prev = _context31.next) {
               case 0:
-                _context29.next = 2;
+                _context31.next = 2;
                 return consts.get_base_pda();
 
               case 2:
-                _yield$consts$get_bas25 = _context29.sent;
-                _yield$consts$get_bas26 = _slicedToArray(_yield$consts$get_bas25, 2);
-                base_pda = _yield$consts$get_bas26[0];
-                _ = _yield$consts$get_bas26[1];
-                _context29.next = 8;
+                _yield$consts$get_bas27 = _context31.sent;
+                _yield$consts$get_bas28 = _slicedToArray(_yield$consts$get_bas27, 2);
+                base_pda = _yield$consts$get_bas28[0];
+                _ = _yield$consts$get_bas28[1];
+                _context31.next = 8;
                 return consts.get_asset_pool_key(base_pda, mint_key_str);
 
               case 8:
-                poolAccountKey = _context29.sent;
-                _context29.next = 11;
+                poolAccountKey = _context31.sent;
+                _context31.next = 11;
                 return this.connection.getParsedAccountInfo(poolAccountKey);
 
               case 11:
-                response = _context29.sent;
-                return _context29.abrupt("return", Parser.parseAssetPool(new Uint8Array(response.value.data)));
+                response = _context31.sent;
+                return _context31.abrupt("return", Parser.parseAssetPool(new Uint8Array(response.value.data)));
 
               case 13:
               case "end":
-                return _context29.stop();
+                return _context31.stop();
             }
           }
-        }, _callee29, this);
+        }, _callee31, this);
       }));
 
-      function getParsedAssetPool(_x170) {
+      function getParsedAssetPool(_x173) {
         return _getParsedAssetPool.apply(this, arguments);
       }
 
@@ -2618,42 +2713,42 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "getParsedAssetPrice",
     value: function () {
-      var _getParsedAssetPrice = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee30(mint_key_str) {
+      var _getParsedAssetPrice = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee32(mint_key_str) {
         var _yield$consts$get_pri, _yield$consts$get_pri2, price_pda, _, assetPriceKey, response;
 
-        return regeneratorRuntime.wrap(function _callee30$(_context30) {
+        return regeneratorRuntime.wrap(function _callee32$(_context32) {
           while (1) {
-            switch (_context30.prev = _context30.next) {
+            switch (_context32.prev = _context32.next) {
               case 0:
-                _context30.next = 2;
+                _context32.next = 2;
                 return consts.get_price_pda();
 
               case 2:
-                _yield$consts$get_pri = _context30.sent;
+                _yield$consts$get_pri = _context32.sent;
                 _yield$consts$get_pri2 = _slicedToArray(_yield$consts$get_pri, 2);
                 price_pda = _yield$consts$get_pri2[0];
                 _ = _yield$consts$get_pri2[1];
-                _context30.next = 8;
+                _context32.next = 8;
                 return consts.get_asset_price_key(price_pda, mint_key_str);
 
               case 8:
-                assetPriceKey = _context30.sent;
-                _context30.next = 11;
+                assetPriceKey = _context32.sent;
+                _context32.next = 11;
                 return this.connection.getParsedAccountInfo(assetPriceKey);
 
               case 11:
-                response = _context30.sent;
-                return _context30.abrupt("return", Parser.parseAssetPrice(new Uint8Array(response.value.data)));
+                response = _context32.sent;
+                return _context32.abrupt("return", Parser.parseAssetPrice(new Uint8Array(response.value.data)));
 
               case 13:
               case "end":
-                return _context30.stop();
+                return _context32.stop();
             }
           }
-        }, _callee30, this);
+        }, _callee32, this);
       }));
 
-      function getParsedAssetPrice(_x171) {
+      function getParsedAssetPrice(_x174) {
         return _getParsedAssetPrice.apply(this, arguments);
       }
 
@@ -2662,33 +2757,33 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "getParsedUserInfo",
     value: function () {
-      var _getParsedUserInfo = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee31(wallet_key) {
+      var _getParsedUserInfo = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee33(wallet_key) {
         var userInfoKey, response;
-        return regeneratorRuntime.wrap(function _callee31$(_context31) {
+        return regeneratorRuntime.wrap(function _callee33$(_context33) {
           while (1) {
-            switch (_context31.prev = _context31.next) {
+            switch (_context33.prev = _context33.next) {
               case 0:
-                _context31.next = 2;
+                _context33.next = 2;
                 return consts.get_user_info_key(wallet_key);
 
               case 2:
-                userInfoKey = _context31.sent;
-                _context31.next = 5;
+                userInfoKey = _context33.sent;
+                _context33.next = 5;
                 return this.connection.getParsedAccountInfo(userInfoKey);
 
               case 5:
-                response = _context31.sent;
-                return _context31.abrupt("return", Parser.parseUserInfo(new Uint8Array(response.value.data)));
+                response = _context33.sent;
+                return _context33.abrupt("return", Parser.parseUserInfo(new Uint8Array(response.value.data)));
 
               case 7:
               case "end":
-                return _context31.stop();
+                return _context33.stop();
             }
           }
-        }, _callee31, this);
+        }, _callee33, this);
       }));
 
-      function getParsedUserInfo(_x172) {
+      function getParsedUserInfo(_x175) {
         return _getParsedUserInfo.apply(this, arguments);
       }
 
@@ -2697,43 +2792,43 @@ var ConnWrapper = /*#__PURE__*/function () {
   }, {
     key: "isUserActive",
     value: function () {
-      var _isUserActive = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee32(wallet_key) {
+      var _isUserActive = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee34(wallet_key) {
         var userInfoKey, response, user_info;
-        return regeneratorRuntime.wrap(function _callee32$(_context32) {
+        return regeneratorRuntime.wrap(function _callee34$(_context34) {
           while (1) {
-            switch (_context32.prev = _context32.next) {
+            switch (_context34.prev = _context34.next) {
               case 0:
-                _context32.next = 2;
+                _context34.next = 2;
                 return consts.get_user_info_key(wallet_key);
 
               case 2:
-                userInfoKey = _context32.sent;
-                _context32.next = 5;
+                userInfoKey = _context34.sent;
+                _context34.next = 5;
                 return this.connection.getParsedAccountInfo(userInfoKey);
 
               case 5:
-                response = _context32.sent;
+                response = _context34.sent;
 
                 if (!(response.value === null)) {
-                  _context32.next = 8;
+                  _context34.next = 8;
                   break;
                 }
 
-                return _context32.abrupt("return", false);
+                return _context34.abrupt("return", false);
 
               case 8:
                 user_info = Parser.parseUserInfo(new Uint8Array(response.value.data));
-                return _context32.abrupt("return", user_info.page_id !== consts.INVALID_PAGE);
+                return _context34.abrupt("return", user_info.page_id !== consts.INVALID_PAGE);
 
               case 10:
               case "end":
-                return _context32.stop();
+                return _context34.stop();
             }
           }
-        }, _callee32, this);
+        }, _callee34, this);
       }));
 
-      function isUserActive(_x173) {
+      function isUserActive(_x176) {
         return _isUserActive.apply(this, arguments);
       }
 
