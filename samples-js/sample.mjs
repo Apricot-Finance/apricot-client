@@ -38,10 +38,12 @@ const wrapper = new ConnWrapper(conn);
 if(await wrapper.isUserActive(testAccount.publicKey)) {
     // if user already exists, make a direct deposit
     await wrapper.deposit(testAccount, testBtcSpl, mints.fake_btc, 1000000000);
+    console.log("Deposited");
 }
 else {
     // if user does not exist yet, initialize user info first, then deposit
     await wrapper.add_user_and_deposit(testAccount, testBtcSpl, mints.fake_btc, 1000000000);
+    console.log("Deposited");
 
     // sleeping 20 seconds for account creation
     await new Promise(r => setTimeout(r, 20000));
@@ -49,8 +51,14 @@ else {
 
 // withdraw 1000000 (0.001) fake BTC
 await wrapper.withdraw(testAccount, testBtcSpl, mints.fake_btc, false, 1000000);
+console.log("Partially withdrawn");
 
 // borrow 1000000 (0.001) fake ETH
 await wrapper.borrow(testAccount, testEthSpl, mints.fake_eth, 1000000);
+console.log("Borrowed");
 
+// sleeping 20 seconds for updated result
+console.log("SLeeping 20 seconds for updated result");
+await new Promise(r => setTimeout(r, 20000));
+console.log("UserInfo at the end:");
 console.log(await wrapper.getParsedUserInfo(testAccount.publicKey));

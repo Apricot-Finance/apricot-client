@@ -9,7 +9,7 @@
   "author": "Apricot",
   "license": "ISC",
   "dependencies": {
-    "@apricot-lend/apricot": "0.10.0",
+    "@apricot-lend/apricot": "0.14.1",
     "@solana/spl-token": "^0.1.4",
     "@solana/web3.js": "^1.14.0"
   }
