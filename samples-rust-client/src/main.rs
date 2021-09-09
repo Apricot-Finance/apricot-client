@@ -8,11 +8,17 @@ use solana_sdk::{
 use apricot_client::consts;
 use apricot_client::instructions;
 use apricot_client::utils;
+use apricot_client::state;
 use solana_sdk::account::ReadableAccount;
 use spl_associated_token_account;
 use solana_sdk::transaction::Transaction;
 
 fn main() {
+
+    println!("{}", std::env::args().nth(0).unwrap());
+    let args = std::env::args();
+    let only_print = args.len() > 1;
+
     let conn = RpcClient::new_with_commitment(
         "https://api.devnet.solana.com".to_string(), CommitmentConfig::confirmed());
 
@@ -22,12 +28,13 @@ fn main() {
     let user_wallet_keypair = Keypair::from_bytes(&user_private_key).unwrap();
     let user_wallet = &user_wallet_keypair.pubkey();
     let btc_mint = &consts::btc::ID;
-    let user_spl = spl_associated_token_account::get_associated_token_address(user_wallet, btc_mint);
-    let deposit_amount = 1000000000;
-    let withdraw_amount = 100000000;
+    let user_spl_btc = spl_associated_token_account::get_associated_token_address(user_wallet, btc_mint);
+    let deposit_amount = 1000000;
+    let withdraw_amount = 100000;
     let btc_pool_id = consts::btc::POOL_ID;
+    println!("Test wallet key: {}", user_wallet);
+    println!("Test wallet btc token account: {}", user_spl_btc);
 
-    let ix;
 
     /*
     When making a deposit, there are two cases:
@@ -35,14 +42,16 @@ fn main() {
     - existing user: use deposit()
      */
 
+    if !only_print
     {
+        let ix;
         if is_user_active(&conn, user_wallet) {
-            ix = instructions::deposit(user_wallet, &user_spl, deposit_amount, btc_pool_id);
+            ix = instructions::deposit(user_wallet, &user_spl_btc, deposit_amount, btc_pool_id);
             println!("Making deposit");
         }
         else {
             let page_id = get_best_page_id(&conn);
-            ix = instructions::add_user_and_deposit( user_wallet, &user_spl, deposit_amount, btc_pool_id, page_id);
+            ix = instructions::add_user_and_deposit( user_wallet, &user_spl_btc, deposit_amount, btc_pool_id, page_id);
             println!("Creating new user and making deposit");
         }
 
@@ -55,9 +64,10 @@ fn main() {
     }
 
     // withdraw is straightforward
+    if !only_print
     {
         let withdraw_ix = instructions::withdraw(
-            user_wallet, &user_spl, false, withdraw_amount, btc_pool_id);
+            user_wallet, &user_spl_btc, false, withdraw_amount, btc_pool_id);
 
         let blockhash = conn.get_recent_blockhash().unwrap();
         let withdraw_tx = Transaction::new_signed_with_payer(
@@ -77,6 +87,23 @@ fn main() {
             &[refresh_ix], Some(user_wallet), &[&user_wallet_keypair], blockhash.0);
         let result = conn.send_and_confirm_transaction_with_spinner(&refresh_tx).unwrap();
         println!("Refresh done: {}", result);
+    }
+
+    // print what's in user's apricot account
+    #[allow(unaligned_references)]
+    {
+        let user_info_key = consts::get_user_info_k(user_wallet);
+        let data = conn.get_account_data(&user_info_key).unwrap();
+        let user_info = utils::cast::<state::UserInfo>(&data[..]);
+        println!("Showing user with {} assets:", user_info.num_assets);
+        for i in 0 .. user_info.num_assets as usize  {
+            println!("=============================");
+            println!("Asset PoolID: {}", user_info.user_asset_info[i].pool_id);
+            println!("Asset borrow amount: {}", user_info.user_asset_info[i].borrow_amount.to_native_amount());
+            println!("Asset deposit amount: {}", user_info.user_asset_info[i].deposit_amount.to_native_amount());
+            println!("Asset borrow interests: {}", user_info.user_asset_info[i].borrow_interests);
+            println!("Asset deposit interests: {}", user_info.user_asset_info[i].deposit_interests);
+        }
     }
 
 }
