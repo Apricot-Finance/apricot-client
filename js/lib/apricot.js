@@ -5,7 +5,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ConnWrapper = exports.TxMaker = exports.Parser = exports.Errors = exports.consts = exports.poolIdToLtv = exports.pool_id_to_decimal_multiplier = exports.mints = exports.serumPubkey = exports.programPubkey = exports.serumPubkeyStr = exports.programPubkeyStr = void 0;
+exports.ConnWrapper = exports.TxMaker = exports.Parser = exports.Errors = exports.consts = exports.poolIdToLtv = exports.poolIdToMintStr = exports.pool_id_to_decimal_multiplier = exports.mints = exports.serumPubkey = exports.programPubkey = exports.serumPubkeyStr = exports.programPubkeyStr = void 0;
 
 var S = _interopRequireWildcard(require("@solana/web3.js"));
 
@@ -93,6 +93,27 @@ var pool_id_to_decimal_multiplier = {
   8: 1e9
 };
 exports.pool_id_to_decimal_multiplier = pool_id_to_decimal_multiplier;
+var poolIdToMintStr = {
+  0: mints.fake_btc,
+  // BTC
+  1: mints.fake_eth,
+  // ETH
+  2: mints.fake_usdt,
+  // USDT
+  3: mints.fake_usdc,
+  // USDC
+  4: mints.fake_sol,
+  // SOL
+  5: mints.fake_usdt_usdc,
+  // USDT-USDC LP
+  6: mints.fake_ust,
+  // UST
+  7: mints.fake_usdt_usdc_orca,
+  // USDT-USDC LP (Orca)
+  8: mints.fake_ust_usdc_saber // UST-USDC LP (Saber)
+
+};
+exports.poolIdToMintStr = poolIdToMintStr;
 var poolIdToLtv = {
   0: 0.85,
   // BTC

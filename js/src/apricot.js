@@ -46,6 +46,18 @@ export const pool_id_to_decimal_multiplier = {
     8: 1e9,
 };
 
+export const poolIdToMintStr = {
+    0: mints.fake_btc,              // BTC
+    1: mints.fake_eth,              // ETH
+    2: mints.fake_usdt,             // USDT
+    3: mints.fake_usdc,             // USDC
+    4: mints.fake_sol,              // SOL
+    5: mints.fake_usdt_usdc,        // USDT-USDC LP
+    6: mints.fake_ust,              // UST
+    7: mints.fake_usdt_usdc_orca,   // USDT-USDC LP (Orca)
+    8: mints.fake_ust_usdc_saber,   // UST-USDC LP (Saber)
+};
+
 export const poolIdToLtv = {
     0: 0.85,    // BTC
     1: 0.85,    // ETH
