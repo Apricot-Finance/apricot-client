@@ -46,6 +46,18 @@ export const pool_id_to_decimal_multiplier = {
     8: 1e9,
 };
 
+export const poolIdToLtv = {
+    0: 0.85,    // BTC
+    1: 0.85,    // ETH
+    2: 0.91,    // USDT
+    3: 0.91,    // USDC
+    4: 0.80,    // SOL
+    5: 0.80,    // USDT-USDC LP
+    6: 0.80,    // UST
+    7: 0.80,    // USDT-USDC LP (Orca)
+    8: 0.80,    // UST-USDC LP (Saber)
+};
+
 const devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
 
 export class consts{

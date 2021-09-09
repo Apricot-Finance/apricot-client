@@ -5,7 +5,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ConnWrapper = exports.TxMaker = exports.Parser = exports.Errors = exports.consts = exports.pool_id_to_decimal_multiplier = exports.mints = exports.serumPubkey = exports.programPubkey = exports.serumPubkeyStr = exports.programPubkeyStr = void 0;
+exports.ConnWrapper = exports.TxMaker = exports.Parser = exports.Errors = exports.consts = exports.poolIdToLtv = exports.pool_id_to_decimal_multiplier = exports.mints = exports.serumPubkey = exports.programPubkey = exports.serumPubkeyStr = exports.programPubkeyStr = void 0;
 
 var S = _interopRequireWildcard(require("@solana/web3.js"));
 
@@ -93,6 +93,27 @@ var pool_id_to_decimal_multiplier = {
   8: 1e9
 };
 exports.pool_id_to_decimal_multiplier = pool_id_to_decimal_multiplier;
+var poolIdToLtv = {
+  0: 0.85,
+  // BTC
+  1: 0.85,
+  // ETH
+  2: 0.91,
+  // USDT
+  3: 0.91,
+  // USDC
+  4: 0.80,
+  // SOL
+  5: 0.80,
+  // USDT-USDC LP
+  6: 0.80,
+  // UST
+  7: 0.80,
+  // USDT-USDC LP (Orca)
+  8: 0.80 // UST-USDC LP (Saber)
+
+};
+exports.poolIdToLtv = poolIdToLtv;
 var devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
 
 var consts = /*#__PURE__*/function () {
