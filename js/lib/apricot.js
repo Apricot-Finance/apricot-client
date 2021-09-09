@@ -65,7 +65,10 @@ var mints = {
   fake_usdt: "GjJFUSzbjZZMXySmJ8jwYmYcZhosN4PAcBKDTnSpHd3s",
   fake_usdc: "BwNiXVdAYt5g5tGSn6Apadk72SEqzmEd3Tv2W5pgvWFM",
   fake_sol: "4jSAADAjfidWvkpRVBk4Q5LMiZT2UNyw8A3D3oKwBC2u",
-  fake_usdt_usdc: "9R9MtiUGKwp3V8atf636X3nJc6KbCsJNGCFJcdPLeTu7"
+  fake_usdt_usdc: "9R9MtiUGKwp3V8atf636X3nJc6KbCsJNGCFJcdPLeTu7",
+  fake_ust: "G6V7e333pY2uQC9dN78euNvC9jpAMtsAdLZUddVjCy6d",
+  fake_usdt_usdc_orca: "JCUUGC8DKggrCQJANxwFuki2Uu7Ypr4B1G7WXHW1wksu",
+  fake_ust_usdc_saber: "HBu1cw7226zSyjkcnmH6P6DoHNLSgcs7XVqY641nrgEv"
 };
 exports.mints = mints;
 var mint_key_str_to_pool_id = {};
@@ -75,13 +78,19 @@ mint_key_str_to_pool_id[mints.fake_usdt] = 2;
 mint_key_str_to_pool_id[mints.fake_usdc] = 3;
 mint_key_str_to_pool_id[mints.fake_sol] = 4;
 mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 5;
+mint_key_str_to_pool_id[mints.fake_ust] = 6;
+mint_key_str_to_pool_id[mints.fake_usdt_usdc_orca] = 7;
+mint_key_str_to_pool_id[mints.fake_ust_usdc_saber] = 8;
 var pool_id_to_decimal_multiplier = {
   0: 1e9,
   1: 1e9,
   2: 1e9,
   3: 1e9,
   4: 1e9,
-  5: 1e9
+  5: 1e9,
+  6: 1e9,
+  7: 1e9,
+  8: 1e9
 };
 exports.pool_id_to_decimal_multiplier = pool_id_to_decimal_multiplier;
 var devAccountKey = new S.PublicKey("7WjocgG2eHXx1P1L3WQtrSYQUPRZALzYxSM8pQ2xPSwU");
