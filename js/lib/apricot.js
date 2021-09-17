@@ -68,7 +68,8 @@ var mints = {
   fake_usdt_usdc: "9R9MtiUGKwp3V8atf636X3nJc6KbCsJNGCFJcdPLeTu7",
   fake_ust: "G6V7e333pY2uQC9dN78euNvC9jpAMtsAdLZUddVjCy6d",
   fake_usdt_usdc_orca: "JCUUGC8DKggrCQJANxwFuki2Uu7Ypr4B1G7WXHW1wksu",
-  fake_ust_usdc_saber: "HBu1cw7226zSyjkcnmH6P6DoHNLSgcs7XVqY641nrgEv"
+  fake_ust_usdc_saber: "HBu1cw7226zSyjkcnmH6P6DoHNLSgcs7XVqY641nrgEv",
+  fake_pai: "Gtgt9ieDGjBH391YgpHb64XhSNyFeddHuXjavRbkhQNZ"
 };
 exports.mints = mints;
 var mint_key_str_to_pool_id = {};
@@ -81,6 +82,7 @@ mint_key_str_to_pool_id[mints.fake_usdt_usdc] = 5;
 mint_key_str_to_pool_id[mints.fake_ust] = 6;
 mint_key_str_to_pool_id[mints.fake_usdt_usdc_orca] = 7;
 mint_key_str_to_pool_id[mints.fake_ust_usdc_saber] = 8;
+mint_key_str_to_pool_id[mints.fake_pai] = 9;
 var pool_id_to_decimal_multiplier = {
   0: 1e9,
   1: 1e9,
@@ -90,7 +92,8 @@ var pool_id_to_decimal_multiplier = {
   5: 1e9,
   6: 1e9,
   7: 1e9,
-  8: 1e9
+  8: 1e9,
+  9: 1e9
 };
 exports.pool_id_to_decimal_multiplier = pool_id_to_decimal_multiplier;
 var poolIdToMintStr = {
@@ -110,7 +113,9 @@ var poolIdToMintStr = {
   // UST
   7: mints.fake_usdt_usdc_orca,
   // USDT-USDC LP (Orca)
-  8: mints.fake_ust_usdc_saber // UST-USDC LP (Saber)
+  8: mints.fake_ust_usdc_saber,
+  // UST-USDC LP (Saber)
+  9: mints.fake_pai // PAI
 
 };
 exports.poolIdToMintStr = poolIdToMintStr;
@@ -131,7 +136,9 @@ var poolIdToLtv = {
   // UST
   7: 0.80,
   // USDT-USDC LP (Orca)
-  8: 0.80 // UST-USDC LP (Saber)
+  8: 0.80,
+  // UST-USDC LP (Saber)
+  9: 0.75 // PAI
 
 };
 exports.poolIdToLtv = poolIdToLtv;
