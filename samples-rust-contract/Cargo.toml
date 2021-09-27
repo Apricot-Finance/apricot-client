@@ -7,8 +7,8 @@ edition = "2018"
 
 
 [dependencies]
-solana-program = "=1.7.1"
-apricot-client = "0.10.4"
+solana-program = "^1.7.1"
+apricot-client = "0.14.0"
 spl-token = { version = "3.1.0", features = [ "no-entrypoint" ] }
 
 [lib]
