@@ -14,6 +14,10 @@ export class Addresses {
       return this.config.programPubkey;
     }
 
+    getAdminKey() {
+      return this.config.adminPubkey;
+    }
+
     mintKeyStrToPoolId(mintKeyStr: string) : number {
       return this.config.mintKeyStrToPoolId(mintKeyStr);
     }
