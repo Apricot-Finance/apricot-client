@@ -109,7 +109,7 @@ const LP_SWAP_METAS = {
       return [key, bump];
     },
 
-    getLpDepositKeys: async (ownerKey: PublicKey) => {
+    getLpDepositKeys: async (_ownerKey: PublicKey) => {
       /*
       - saber_lp_program
       - swap
@@ -218,7 +218,7 @@ const LP_SWAP_METAS = {
     pdaFarmState:           new PublicKey("7jpHoqo8pw5EZD4gEBBhicZmKp3tcMH6Qp2e7WK7xVXV"),
     pdaRewardTokenAccount:  new PublicKey("14m3NvUVx7o1ctTXaPKpVeUWT6ThrMR2U2tQC3Yu2DUt"),
 
-    getLpDepositKeys: async (ownerKey: PublicKey) => {
+    getLpDepositKeys: async (_ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
       const smetalp = LP_SWAP_METAS[TokenID.USDC_USDT_ORCA];
       return [
@@ -230,7 +230,7 @@ const LP_SWAP_METAS = {
         { pubkey: smetalp.lpMintPubkey,       isSigner: false, isWritable: true }
       ];
     },
-    getLpWithdrawKeys: async (ownerKey: PublicKey) => {
+    getLpWithdrawKeys: async (_ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
       const smetalp = LP_SWAP_METAS[TokenID.USDC_USDT_ORCA];
       return [
@@ -243,7 +243,7 @@ const LP_SWAP_METAS = {
         { pubkey: smetalp.feeAccount,         isSigner: false, isWritable: true }
       ];
     },
-    getLpStakeKeys: async (ownerKey: PublicKey) => {
+    getLpStakeKeys: async (_ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
       const smetalp = LP_SWAP_METAS[TokenID.USDC_USDT_ORCA];
       return [

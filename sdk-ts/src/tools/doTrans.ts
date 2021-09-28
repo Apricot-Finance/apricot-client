@@ -4,10 +4,9 @@ import { TokenID } from "../types";
 import { MINTS } from "../constants";
 import { ActionWrapper } from "../utils/ActionWrapper";
 import * as fs from "fs";
-import { Addresses } from "../addresses";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
-const [nodeStr, scriptStr, keyLocation, action, ] = process.argv.slice(0, 4);
+const [_nodeStr, _scriptStr, keyLocation, action, ] = process.argv.slice(0, 4);
 
 async function doTransaction() {
   const keyStr = fs.readFileSync(keyLocation, "utf8");

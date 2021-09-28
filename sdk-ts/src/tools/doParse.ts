@@ -4,7 +4,7 @@ import { TokenID } from "../types";
 import { MINTS } from "../constants";
 import { ActionWrapper } from "../utils/ActionWrapper";
 
-const [nodeStr, scriptStr, action, ] = process.argv.slice(0, 3);
+const [_nodeStr, _scriptStr, action, ] = process.argv.slice(0, 3);
 
 async function doParse() {
 

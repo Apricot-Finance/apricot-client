@@ -49,7 +49,6 @@ export class ActionWrapper {
 
   // administrative methods:
   async getParsedUserPagesStats() {
-    const [base_pda, _] = await this.addresses.getBasePda();
     const statsAccountKey = await this.addresses.getUserPagesStatsKey(); 
     const response = await this.connection.getAccountInfo(statsAccountKey);
     if(response === null){

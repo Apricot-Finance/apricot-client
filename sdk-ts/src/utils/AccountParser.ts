@@ -1,8 +1,7 @@
-import { Connection, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import { AMOUNT_MULTIPLIER } from "../constants";
-import { AppConfig, AssetPool, UserAssetInfo, UserInfo } from "../types";
-import { Addresses } from "../addresses";
+import { AssetPool, UserAssetInfo, UserInfo } from "../types";
 
 export class AccountParser {
   static getOffsets(widths: number[]) {

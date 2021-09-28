@@ -17,10 +17,10 @@ const TWO_32 = new Decimal(4294967296);
 const TWO_64 = TWO_32.mul(TWO_32);
 
 export const TYPE_TO_ENCODER: {[type in FieldType]: (value:any, buffer:Buffer, offset: number) => void} = {
-  [FieldType.str] : (value: string, buffer: Buffer, offset: number) => {
+  [FieldType.str] : (_value: string, _buffer: Buffer, _offset: number) => {
     throw new Error("Unable to encode STR type");
   },
-  [FieldType.u8] : (value: number, buffer: Buffer, offset: number) => {
+  [FieldType.u8] : (value: number, buffer: Buffer, _offset: number) => {
     buffer.writeUInt8(value);
   },
   [FieldType.u32] : (value: number, buffer: Buffer, offset: number) => {
@@ -30,7 +30,7 @@ export const TYPE_TO_ENCODER: {[type in FieldType]: (value:any, buffer:Buffer, o
     buffer.writeUInt32LE(value % 4294967296, offset);
     buffer.writeUInt32LE(value / 4294967296, offset + 4);
   },
-  [FieldType.u128] : (value: number, buffer: Buffer, offset: number) => {
+  [FieldType.u128] : (_value: number, _buffer: Buffer, _offset: number) => {
     throw new Error("Unable to encode u128 type"); // not needed for now
   },
   [FieldType.f64] : (value: number, buffer: Buffer, offset: number) => {
@@ -39,7 +39,7 @@ export const TYPE_TO_ENCODER: {[type in FieldType]: (value:any, buffer:Buffer, o
 };
 
 export const TYPE_TO_DECODER: {[type in FieldType]: (buffer:Buffer, offset: number) => any} = {
-  [FieldType.str] : (buffer: Buffer, offset: number) => {
+  [FieldType.str] : (_buffer: Buffer, _offset: number) => {
     throw new Error("Unable to encode STR type");
   },
   [FieldType.u8] : (buffer: Buffer, offset: number) => {
