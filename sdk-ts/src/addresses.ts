@@ -1,6 +1,7 @@
-import { AppConfig } from "./types";
-import { PublicKey } from "@solana/web3.js";
+import { AppConfig, TokenID } from "./types";
+import { AccountMeta, PublicKey } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { LP_SWAP_INFO, LP_TO_TARGET_SWAP } from "./constants";
 
 // mostly computes addresses
 export class Addresses {
@@ -9,57 +10,84 @@ export class Addresses {
       this.config = config;
     }
 
-    get_base_pda() {
+    getProgramKey() {
+      return this.config.programPubkey;
+    }
+
+    mintKeyStrToPoolId(mintKeyStr: string) : number {
+      return this.config.mintKeyStrToPoolId(mintKeyStr);
+    }
+
+    getBasePda() {
       return PublicKey.findProgramAddress([Buffer.from("2")], this.config.programPubkey);
     }
-    get_price_pda() {
+    getPricePda() {
       return PublicKey.findProgramAddress([Buffer.from("PRICE")], this.config.programPubkey);
     }
-    get_pool_list_key(base_pda: PublicKey) {
-      return PublicKey.createWithSeed(base_pda, "PoolList", this.config.programPubkey);
+    getPoolListKey(basePda: PublicKey) {
+      return PublicKey.createWithSeed(basePda, "PoolList", this.config.programPubkey);
     }
     POOL_SUMMARIES_SEED = "PoolSummaries";
-    get_pool_summaries_key() {
+    getPoolSummariesKey() {
       return PublicKey.createWithSeed(this.config.adminPubkey, this.POOL_SUMMARIES_SEED, this.config.programPubkey);
     }
 
-    get_price_summaries_key(base_pda: PublicKey) {
-      return PublicKey.createWithSeed(base_pda, "PriceSummaries", this.config.programPubkey);
+    getPriceSummariesKey(basePda: PublicKey) {
+      return PublicKey.createWithSeed(basePda, "PriceSummaries", this.config.programPubkey);
     }
     static USER_STATS_SEED =  "UserPagesStats";
-    get_user_pages_stats_key() {
+    getUserPagesStatsKey() {
       return PublicKey.createWithSeed(this.config.adminPubkey, Addresses.USER_STATS_SEED, this.config.programPubkey);
     }
-    get_users_page_key(base_pda: PublicKey, page_id: number) {
-      return PublicKey.createWithSeed(base_pda, "UsersPage_"+page_id, this.config.programPubkey);
+    getUsersPageKey(basePda: PublicKey, page_id: number) {
+      return PublicKey.createWithSeed(basePda, "UsersPage_"+page_id, this.config.programPubkey);
     }
 
-    get_asset_pool_key(base_pda: PublicKey, mint_key_str: string) {
-      const pool_seed_str = this.mint_key_str_to_pool_seed_str(mint_key_str);
-      return PublicKey.createWithSeed(base_pda, pool_seed_str, this.config.programPubkey);
+    getAssetPoolKey(basePda: PublicKey, mintKeyStr: string) {
+      const poolSeedStr = this.mintKeyStrToPoolSeedStr(mintKeyStr);
+      return PublicKey.createWithSeed(basePda, poolSeedStr, this.config.programPubkey);
     }
-    get_asset_price_key(price_pda: PublicKey, mint_key_str: string) {
-      const pool_seed_str = this.mint_key_str_to_pool_seed_str(mint_key_str);
-      return PublicKey.createWithSeed(price_pda, pool_seed_str, this.config.programPubkey);
+    getAssetPriceKey(pricePda: PublicKey, mintKeyStr: string) {
+      const poolSeedStr = this.mintKeyStrToPoolSeedStr(mintKeyStr);
+      return PublicKey.createWithSeed(pricePda, poolSeedStr, this.config.programPubkey);
     }
-    get_asset_pool_spl_key(base_pda:PublicKey, mint_key_str: string) {
-      const pool_seed_str = this.mint_key_str_to_pool_seed_str(mint_key_str);
-      return PublicKey.createWithSeed(base_pda, pool_seed_str, TOKEN_PROGRAM_ID);
+    getAssetPoolSplKey(basePda:PublicKey, mintKeyStr: string) {
+      const poolSeedStr = this.mintKeyStrToPoolSeedStr(mintKeyStr);
+      return PublicKey.createWithSeed(basePda, poolSeedStr, TOKEN_PROGRAM_ID);
     }
-    get_user_info_key(wallet_key: PublicKey) {
-      return PublicKey.createWithSeed(wallet_key, "UserInfo", this.config.programPubkey);
+    getUserInfoKey(walletKey: PublicKey) {
+      return PublicKey.createWithSeed(walletKey, "UserInfo", this.config.programPubkey);
     }
-    get_price_key(price_pda: PublicKey, mint_key_str: string) {
-      return this.get_asset_price_key(price_pda, mint_key_str);
-    }
-    pool_id_to_seed_str(pool_id: number) {
+    poolIdToSeedStr(pool_id: number) {
       const char1 = String.fromCharCode(pool_id / 16 + "a".charCodeAt(0));
       const char2 = String.fromCharCode(pool_id % 16 + "a".charCodeAt(0));
       return "POOL__" + char1 + char2;
     }
 
-    mint_key_str_to_pool_seed_str(mint_key_str: string) {
-      const poolId = this.config.mintKeyStrToPoolId(mint_key_str);
-      return this.pool_id_to_seed_str(poolId);
+    mintKeyStrToPoolSeedStr(mintKeyStr: string) {
+      const poolId = this.config.mintKeyStrToPoolId(mintKeyStr);
+      return this.poolIdToSeedStr(poolId);
+    }
+
+    getLpTargetSwap(tokenId: TokenID) : number {
+      return LP_TO_TARGET_SWAP[tokenId]!;
+    }
+
+    async getLpDepositKeys(tokenId: TokenID) : Promise<AccountMeta[]> {
+      const [ownerKey, _bump] = await this.getBasePda();
+      const lpSwapInfo = LP_SWAP_INFO[tokenId]!;
+      return await lpSwapInfo.getLpDepositKeys(ownerKey);
+    }
+
+    async getLpWithdrawKeys(tokenId: TokenID) : Promise<AccountMeta[]> {
+      const [ownerKey, _bump] = await this.getBasePda();
+      const lpSwapInfo = LP_SWAP_INFO[tokenId]!;
+      return await lpSwapInfo.getLpWithdrawKeys(ownerKey);
+    }
+
+    async getLpStakeKeys(tokenId: TokenID) : Promise<AccountMeta[]> {
+      const [ownerKey, _bump] = await this.getBasePda();
+      const lpSwapInfo = LP_SWAP_INFO[tokenId]!;
+      return await lpSwapInfo.getLpStakeKeys(ownerKey);
     }
 }

@@ -1,8 +1,8 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
-import { AMOUNT_MULTIPLIER } from "./constants";
-import { AppConfig, AssetPool, UserAssetInfo, UserInfo } from "./types";
-import { Addresses } from "./addresses";
+import { AMOUNT_MULTIPLIER } from "../constants";
+import { AppConfig, AssetPool, UserAssetInfo, UserInfo } from "../types";
+import { Addresses } from "../addresses";
 
 export class AccountParser {
   static getOffsets(widths: number[]) {
@@ -55,7 +55,8 @@ export class AccountParser {
     view.setUint8(offset, value);
   }
 
-  static setBigUint64(buffer: ArrayBufferLike, offset: number, value: Decimal ) {
+  static setBigUint64(buffer: ArrayBufferLike, offset: number, value: Decimal | number ) {
+    value = new Decimal(value);
     const view = new DataView(buffer);
     const high = value.divToInt(4294967296);
     const low = value.mod(4294967296);
@@ -275,67 +276,5 @@ export class AccountParser {
       num_actions           : data[offset + offsets[6]],
       num_executed          : data[offset + offsets[7]],
     };
-  }
-}
-
-export class Wrapper {
-  addresses: Addresses;
-  constructor(
-    public connection: Connection,
-    public config: AppConfig,
-  ) {
-    this.addresses = new Addresses(config);
-  }
-
-  async getParsedAssetPool(mint: PublicKey) {
-    const [base_pda, _] = await this.addresses.get_base_pda();
-    const poolAccountKey = await this.addresses.get_asset_pool_key(base_pda, mint.toString()); 
-    const response = await this.connection.getAccountInfo(poolAccountKey);
-    if(response === null) {
-      return null;
-    }
-    const data = new Uint8Array(response.data);
-    return AccountParser.parseAssetPool(data);
-  }
-
-  async getParsedAssetPrice(mint: PublicKey) {
-    const [price_pda, _] = await this.addresses.get_price_pda();
-    const assetPriceKey = await this.addresses.get_asset_price_key(price_pda, mint.toString()); 
-    const response = await this.connection.getAccountInfo(assetPriceKey);
-    if(response === null){
-      return null;
-    }
-    return AccountParser.parseAssetPrice(new Uint8Array(response.data));
-  }
-
-  async getParsedUserInfo(wallet_key: PublicKey) {
-    const userInfoKey = await this.addresses.get_user_info_key(wallet_key); 
-    const response = await this.connection.getAccountInfo(userInfoKey);
-    if(response === null){
-      return null;
-    }
-    return AccountParser.parseUserInfo(new Uint8Array(response.data));
-  }
-
-
-  // administrative methods:
-  async getParsedUserPagesStats() {
-    const [base_pda, _] = await this.addresses.get_base_pda();
-    const statsAccountKey = await this.addresses.get_user_pages_stats_key(); 
-    const response = await this.connection.getAccountInfo(statsAccountKey);
-    if(response === null){
-      return null;
-    }
-    return AccountParser.parseUserPagesStats(new Uint8Array(response.data));
-  }
-
-  async getParsedUsersPage(page_id: number) {
-    const [base_pda, _] = await this.addresses.get_base_pda();
-    const usersPageKey = await this.addresses.get_users_page_key(base_pda, page_id);
-    const response = await this.connection.getAccountInfo(usersPageKey);
-    if(response === null){
-      return null;
-    }
-    return AccountParser.parseUsersPage(new Uint8Array(response.data));
   }
 }

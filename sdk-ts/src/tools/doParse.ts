@@ -1,26 +1,25 @@
-import { AccountParser, Wrapper } from "../AccountParser";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { ALPHA_CONFIG } from "../constants";
-import { TokenType } from "../types";
-import { Addresses } from "../addresses";
+import { TokenID } from "../types";
 import { MINTS } from "../constants";
+import { ActionWrapper } from "../utils/ActionWrapper";
 
 const [nodeStr, scriptStr, action, ] = process.argv.slice(0, 3);
 
 async function doParse() {
 
   const conn = new Connection("https://api.mainnet-beta.solana.com", "confirmed");
-  const wrapper = new Wrapper(conn, ALPHA_CONFIG);
+  const wrapper = new ActionWrapper(conn, ALPHA_CONFIG);
 
   if(action === "pool") {
-    const poolId = TokenType[process.argv[3] as keyof typeof TokenType];
+    const poolId = TokenID[process.argv[3] as keyof typeof TokenID];
     const poolMint = MINTS[poolId]!;
     const result = await wrapper.getParsedAssetPool(poolMint)!;
     console.log(result);
 
   }
   else if(action === "price") {
-    const poolId = TokenType[process.argv[3] as keyof typeof TokenType];
+    const poolId = TokenID[process.argv[3] as keyof typeof TokenID];
     const poolMint = MINTS[poolId]!;
     const result = await wrapper.getParsedAssetPrice(poolMint)!;
     console.log(result);

@@ -2,7 +2,7 @@ import { Decimal } from "decimal.js";
 import { PublicKey } from "@solana/web3.js";
 import { assert } from "./utils";
 
-export enum TokenType {
+export enum TokenID {
   BTC = "BTC",
   ETH = "ETH",
   USDT = "USDT",
@@ -15,32 +15,28 @@ export enum TokenType {
 }
 
 export class AppConfig {
-    programPubkey: PublicKey;
-    adminPubkey: PublicKey;
-    mints: { [key in TokenType]?: PublicKey };
-    poolIds: { [key in TokenType]?: number };
-    constructor(
-      programPubkey: PublicKey,
-      adminPubkey: PublicKey,
-      mints: { [key in TokenType]?: PublicKey; },
-      poolIds: { [key in TokenType]?: number; }
-    ) {
-      this.programPubkey = programPubkey;
-      this.adminPubkey = adminPubkey;
-      this.mints = mints;
-      this.poolIds = poolIds;
-      Object.keys(mints).map(tokType => { assert(tokType in poolIds); });
-    }
-    mintKeyStrToPoolId(mint_key_str: string): number {
-      for(const [tokenType, pubkey] of Object.entries(this.mints)) {
-        if(pubkey.toString() === mint_key_str) {
-          const result = this.poolIds[tokenType as TokenType];
-          assert(result !== undefined);
-          return result;
-        }
+  constructor(
+    public programPubkey: PublicKey,
+    public adminPubkey: PublicKey,
+    public mints: { [key in TokenID]: PublicKey; },
+    public poolIds: { [key in TokenID]?: number; }
+  ) {
+    this.mints = mints;
+    this.poolIds = poolIds;
+    const ids = Object.values(poolIds);
+    const idSet = new Set(ids);
+    assert(ids.length === idSet.size);
+  }
+  mintKeyStrToPoolId(mint_key_str: string): number {
+    for(const [tokenType, pubkey] of Object.entries(this.mints)) {
+      if(pubkey.toString() === mint_key_str) {
+        const result = this.poolIds[tokenType as TokenID];
+        assert(result !== undefined);
+        return result;
       }
-      assert(false);
     }
+    assert(false);
+  }
 }
 
 export interface AssetPool {
