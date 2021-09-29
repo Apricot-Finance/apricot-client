@@ -1,6 +1,6 @@
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
-import { TokenID, AppConfig } from "../types";
+import { TokenID, TokenCategory, AppConfig, Dex } from "../types";
 import { SWAP_ORCA, SWAP_SABER } from "./commands";
 
 export const MINTS: { [key in TokenID]: PublicKey } = {
@@ -27,6 +27,18 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.UST_USDC_SABER]: 1e9,
 };
 
+export const CATEGORY: { [key in TokenID]: TokenCategory } = {
+  [TokenID.BTC] : TokenCategory.Volatile,
+  [TokenID.ETH] : TokenCategory.Volatile,
+  [TokenID.SOL] : TokenCategory.Volatile,
+  [TokenID.USDT]: TokenCategory.Stable,
+  [TokenID.USDC]: TokenCategory.Stable,
+  [TokenID.UST] : TokenCategory.Stable,
+  [TokenID.USDT_USDC_SABER]: TokenCategory.Lp,
+  [TokenID.USDC_USDT_ORCA]: TokenCategory.Lp,
+  [TokenID.UST_USDC_SABER]: TokenCategory.Lp,
+};
+
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.USDT_USDC_SABER] : [TokenID.USDT, TokenID.USDC],
   [TokenID.USDC_USDT_ORCA] : [TokenID.USDC, TokenID.USDT],
@@ -39,12 +51,19 @@ export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.UST_USDC_SABER] : SWAP_SABER,
 };
 
+export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
+  [TokenID.USDT_USDC_SABER] : Dex.Saber,
+  [TokenID.USDC_USDT_ORCA] : Dex.Orca,
+  [TokenID.UST_USDC_SABER] : Dex.Saber,
+};
+
 // alpha mainnet is where we deploy tests
 export const ALPHA_CONFIG = new AppConfig(
   new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
   new PublicKey("EFo9V7mFQgxz7xPMrJ6qLyrjfGXPgsEFEfGEtVQx2xKt"),
   MINTS,
   DECIMAL_MULT,
+  CATEGORY,
   {
     [TokenID.BTC]: 0,
     [TokenID.ETH]: 1,
@@ -66,6 +85,8 @@ export const ALPHA_CONFIG = new AppConfig(
     [TokenID.UST]: 0.8,
     [TokenID.USDC_USDT_ORCA]: 0.8,
   },
+  LP_TO_LR,
+  LP_TO_DEX,
 );
 
 // public mainnet is where the real thing is
@@ -75,8 +96,11 @@ export const PUBLIC_CONFIG = new AppConfig(
   new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
   MINTS,
   DECIMAL_MULT,
+  CATEGORY,
   { },
   { },
+  LP_TO_LR,
+  LP_TO_DEX,
 );
 
 

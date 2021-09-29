@@ -14,6 +14,8 @@ async function printAddresses() {
   console.log(`user_pages_stats: ${(await consts.getUserPagesStatsKey()).toString()}`);
   console.log(`pool_summaries  : ${(await consts.getPoolSummariesKey()).toString()}`);
   console.log(`Price_summaries : ${(await consts.getPriceSummariesKey(base_pda)).toString()}`);
+
+  console.log(config.poolConfigs);
 }
 
 printAddresses();

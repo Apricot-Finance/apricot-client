@@ -14,21 +14,84 @@ export enum TokenID {
   UST_USDC_SABER = "UST_USDC_SABER"
 }
 
+export type PoolId = number;
+
+export enum TokenCategory {
+  Volatile = "volatile",
+  Stable = "stable",
+  Lp = "lp",
+}
+
+export enum Dex {
+  Serum, Raydium, Saber, Mercurial, Orca
+}
+
+export class PoolConfig {
+  constructor(
+    public tokenId: TokenID,
+    public poolId: PoolId,
+    public ltv: number,
+    public mint: PublicKey,
+    public tokenCategory: TokenCategory,
+    public lpLeftRightTokenId: [TokenID, TokenID] | null,
+    public lpLeftRightPoolId: [PoolId, PoolId] | null,
+    public lpDex: Dex | null,
+  ) {
+    if(tokenCategory === TokenCategory.Lp) {
+      assert( lpLeftRightTokenId !== null && lpLeftRightTokenId !== undefined);
+      assert( lpLeftRightPoolId !== null && lpLeftRightPoolId !== undefined);
+      assert( lpDex !== null && lpDex !== undefined);
+    }
+  }
+
+  isStable() { return this.tokenCategory === TokenCategory.Stable; }
+  isLp() { return this.tokenCategory === TokenCategory.Lp; }
+  isVolatile() { return this.tokenCategory === TokenCategory.Volatile; }
+}
+
+function getLpLRPoolIds(
+  tokId: TokenID,
+  lpToLR: { [key in TokenID]?: [TokenID, TokenID] | undefined },
+  tokenIdToPoolId: { [key in TokenID]?: PoolId | undefined; },
+): [PoolId, PoolId] {
+  const [leftTokId, rightTokId] = lpToLR[tokId]!;
+  return [tokenIdToPoolId[leftTokId]!, tokenIdToPoolId[rightTokId]!];
+}
+
 export class AppConfig {
+  poolConfigs: {[key in TokenID]? : PoolConfig};
   constructor(
     public programPubkey: PublicKey,
     public adminPubkey: PublicKey,
     // maps from TokenID to mint/decimalMult/poolId/ltv
     public mints: { [key in TokenID]: PublicKey; },
     public decimalMults: { [key in TokenID]: number; },
-    public tokenIdToPoolId: { [key in TokenID]?: number; },
-    public ltvs: {[key in TokenID]?: number},
+    public categories: {[key in TokenID]: TokenCategory},
+
+    public tokenIdToPoolId: { [key in TokenID]?: PoolId | undefined },
+    public ltvs: {[key in TokenID]?: number | undefined },
+    public lpToLR: { [key in TokenID]?: [TokenID, TokenID] | undefined },
+    public lpToDex: { [key in TokenID]?: Dex | undefined },
   ) {
     this.mints = mints;
     this.tokenIdToPoolId = tokenIdToPoolId;
-    const ids = Object.values(tokenIdToPoolId);
-    const idSet = new Set(ids);
-    assert(ids.length === idSet.size);
+    const poolIds = Object.values(tokenIdToPoolId);
+    const idSet = new Set(poolIds);
+    assert(poolIds.length === idSet.size);
+    this.poolConfigs = {};
+    for (const tokenId in tokenIdToPoolId) {
+      const tokId = tokenId as TokenID;
+      this.poolConfigs[tokId] = new PoolConfig(
+        tokId, 
+        tokenIdToPoolId[tokId]!,
+        ltvs[tokId]!,
+        mints[tokId],
+        categories[tokId],
+        categories[tokId] === TokenCategory.Lp? lpToLR[tokId]! : null,
+        categories[tokId] === TokenCategory.Lp? getLpLRPoolIds(tokId, lpToLR, tokenIdToPoolId) : null,
+        categories[tokId] === TokenCategory.Lp? lpToDex[tokId]! : null,
+      );
+    }
   }
   mintKeyStrToPoolId(mint_key_str: string): number {
     for(const [tokenType, pubkey] of Object.entries(this.mints)) {
