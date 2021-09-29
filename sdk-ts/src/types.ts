@@ -1,6 +1,6 @@
 import { Decimal } from "decimal.js";
 import { PublicKey } from "@solana/web3.js";
-import { assert } from "./utils";
+import invariant from "tiny-invariant";
 
 export enum TokenID {
   BTC = "BTC",
@@ -38,9 +38,9 @@ export class PoolConfig {
     public lpDex: Dex | null,
   ) {
     if(tokenCategory === TokenCategory.Lp) {
-      assert( lpLeftRightTokenId !== null && lpLeftRightTokenId !== undefined);
-      assert( lpLeftRightPoolId !== null && lpLeftRightPoolId !== undefined);
-      assert( lpDex !== null && lpDex !== undefined);
+      invariant( lpLeftRightTokenId !== null && lpLeftRightTokenId !== undefined);
+      invariant( lpLeftRightPoolId !== null && lpLeftRightPoolId !== undefined);
+      invariant( lpDex !== null && lpDex !== undefined);
     }
   }
 
@@ -77,7 +77,7 @@ export class AppConfig {
     this.tokenIdToPoolId = tokenIdToPoolId;
     const poolIds = Object.values(tokenIdToPoolId);
     const idSet = new Set(poolIds);
-    assert(poolIds.length === idSet.size);
+    invariant(poolIds.length === idSet.size);
     this.poolConfigs = {};
     for (const tokenId in tokenIdToPoolId) {
       const tokId = tokenId as TokenID;
@@ -97,11 +97,11 @@ export class AppConfig {
     for(const [tokenType, pubkey] of Object.entries(this.mints)) {
       if(pubkey.toString() === mint_key_str) {
         const result = this.tokenIdToPoolId[tokenType as TokenID];
-        assert(result !== undefined);
+        invariant(result !== undefined);
         return result;
       }
     }
-    assert(false);
+    invariant(false);
   }
   getPoolIdList(): number[] {
     return Object.values(this.tokenIdToPoolId);
