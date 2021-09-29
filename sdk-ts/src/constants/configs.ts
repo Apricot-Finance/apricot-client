@@ -44,6 +44,7 @@ export const ALPHA_CONFIG = new AppConfig(
   new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
   new PublicKey("EFo9V7mFQgxz7xPMrJ6qLyrjfGXPgsEFEfGEtVQx2xKt"),
   MINTS,
+  DECIMAL_MULT,
   {
     [TokenID.BTC]: 0,
     [TokenID.ETH]: 1,
@@ -51,7 +52,20 @@ export const ALPHA_CONFIG = new AppConfig(
     [TokenID.USDC]: 3,
     [TokenID.SOL]: 4,
     [TokenID.USDT_USDC_SABER]: 5,
-  }
+    [TokenID.UST]: 6,
+    // pool 7 deprecated
+    [TokenID.USDC_USDT_ORCA]: 8,
+  },
+  {
+    [TokenID.BTC]: 0.85,
+    [TokenID.ETH]: 0.85,
+    [TokenID.USDT]: 0.91,
+    [TokenID.USDC]: 0.91,
+    [TokenID.SOL]: 0.8,
+    [TokenID.USDT_USDC_SABER]: 0.8,
+    [TokenID.UST]: 0.8,
+    [TokenID.USDC_USDT_ORCA]: 0.8,
+  },
 );
 
 // public mainnet is where the real thing is
@@ -60,7 +74,9 @@ export const PUBLIC_CONFIG = new AppConfig(
   new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
   new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
   MINTS,
-  { }
+  DECIMAL_MULT,
+  { },
+  { },
 );
 
 

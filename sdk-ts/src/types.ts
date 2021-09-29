@@ -18,8 +18,11 @@ export class AppConfig {
   constructor(
     public programPubkey: PublicKey,
     public adminPubkey: PublicKey,
+    // maps from TokenID to mint/decimalMult/poolId/ltv
     public mints: { [key in TokenID]: PublicKey; },
-    public poolIds: { [key in TokenID]?: number; }
+    public decimalMults: { [key in TokenID]: number; },
+    public poolIds: { [key in TokenID]?: number; },
+    public ltvs: {[key in TokenID]?: number},
   ) {
     this.mints = mints;
     this.poolIds = poolIds;
@@ -36,6 +39,25 @@ export class AppConfig {
       }
     }
     assert(false);
+  }
+  getTokenIdByPoolId(targetPoolId: number): TokenID {
+    for(const [tokenId, poolId] of Object.entries(this.poolIds)) {
+      if (poolId === targetPoolId)
+        return tokenId as TokenID;
+    }
+    throw new Error(`poolId ${targetPoolId} not valid`);
+  }
+  getLtvByPoolId(poolId: number) {
+    const tokenId = this.getTokenIdByPoolId(poolId);
+    return this.ltvs[tokenId];
+  }
+  getDecimalMultByPoolId(poolId: number) {
+    const tokenId = this.getTokenIdByPoolId(poolId);
+    return this.decimalMults[tokenId];
+  }
+  getMintByPoolId(poolId: number) {
+    const tokenId = this.getTokenIdByPoolId(poolId);
+    return this.mints[tokenId];
   }
 }
 
