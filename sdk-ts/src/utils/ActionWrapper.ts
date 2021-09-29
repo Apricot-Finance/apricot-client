@@ -1,6 +1,5 @@
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { Addresses } from "../addresses";
-import { LP_TO_LR, MINTS } from "../constants/configs";
 import { AppConfig, TokenID } from "../types";
 import { AccountParser } from "./AccountParser";
 import { TransactionBuilder } from "./TransactionBuilder";
@@ -118,22 +117,13 @@ export class ActionWrapper {
     rightAmount: number,
     minLpAmount: number,
   ) {
-    const [leftId, rightId] = LP_TO_LR[lpTokenId]!;
-    const lpMint = MINTS[lpTokenId];
-    const leftMint = MINTS[leftId];
-    const rightMint = MINTS[rightId];
 
-    const tx = await this.builder.marginLpCreate(
+    const tx = await this.builder.simpleLpCreate(
       walletAccount, 
-      leftMint.toString(),
+      lpTokenId,
       leftAmount,
-      rightMint.toString(),
       rightAmount,
-      lpMint.toString(),
       minLpAmount,
-      this.addresses.getLpTargetSwap(lpTokenId),
-      await this.addresses.getLpDepositKeys(lpTokenId),
-      await this.addresses.getLpStakeKeys(lpTokenId),
     );
     return this.connection.sendTransaction(tx, [walletAccount]);
   }
@@ -145,21 +135,12 @@ export class ActionWrapper {
     minRightAmount: number,
     lpAmount: number,
   ) {
-    const [leftId, rightId] = LP_TO_LR[lpTokenId]!;
-    const lpMint = MINTS[lpTokenId];
-    const leftMint = MINTS[leftId];
-    const rightMint = MINTS[rightId];
-    const tx = await this.builder.marginLpRedeem(
+    const tx = await this.builder.simpleLpRedeem(
       walletAccount.publicKey, 
-      leftMint.toString(),
+      lpTokenId,
       minLeftAmount,
-      rightMint.toString(),
       minRightAmount,
-      lpMint.toString(),
       lpAmount,
-      this.addresses.getLpTargetSwap(lpTokenId),
-      await this.addresses.getLpWithdrawKeys(lpTokenId),
-      await this.addresses.getLpStakeKeys(lpTokenId),
       true,
     );
     return this.connection.sendTransaction(tx, [walletAccount]);

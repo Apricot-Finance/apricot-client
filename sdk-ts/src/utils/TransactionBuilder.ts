@@ -2,7 +2,8 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Keypair, AccountMeta, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Addresses } from "../addresses";
 import { CMD_ADD_USER_AND_DEPOSIT, CMD_BORROW, CMD_DEPOSIT, CMD_EXTERN_LIQUIDATE, CMD_LP_CREATE, CMD_LP_OP_CHECK, CMD_LP_OP_ENDCHECK, CMD_LP_REDEEM, CMD_LP_STAKE, CMD_LP_UNSTAKE, CMD_REFRESH_USER, CMD_REPAY, CMD_UPDATE_USER_CONFIG, CMD_WITHDRAW, CMD_WITHDRAW_AND_REMOVE_USER } from "../constants/commands";
-import { UserInfo } from "../types";
+import { LP_TO_LR, MINTS } from "../constants/configs";
+import { UserInfo, TokenID } from "../types";
 import { AccountParser } from "./AccountParser";
 
 const sysvarInstructionsKey = new PublicKey("Sysvar1nstructions1111111111111111111111111");
@@ -678,5 +679,62 @@ export class TransactionBuilder {
       keys: keys,
       data: Buffer.from(data),
     });
+  }
+
+
+  // simplified interface for marginLpCreate and marginLpRedeem
+  async simpleLpCreate(
+    walletAccount: Keypair,
+    lpTokenId: TokenID,
+    leftAmount: number,
+    rightAmount: number,
+    minLpAmount: number,
+  ) {
+    const [leftId, rightId] = LP_TO_LR[lpTokenId]!;
+    const lpMint = MINTS[lpTokenId];
+    const leftMint = MINTS[leftId];
+    const rightMint = MINTS[rightId];
+
+    const tx = await this.marginLpCreate(
+      walletAccount, 
+      leftMint.toString(),
+      leftAmount,
+      rightMint.toString(),
+      rightAmount,
+      lpMint.toString(),
+      minLpAmount,
+      this.addresses.getLpTargetSwap(lpTokenId),
+      await this.addresses.getLpDepositKeys(lpTokenId),
+      await this.addresses.getLpStakeKeys(lpTokenId),
+    );
+    return tx;
+  }
+
+  async simpleLpRedeem(
+    walletKey: PublicKey,
+    lpTokenId: TokenID,
+    minLeftAmount: number,
+    minRightAmount: number,
+    lpAmount: number,
+    isSigned: boolean,
+  ) {
+    const [leftId, rightId] = LP_TO_LR[lpTokenId]!;
+    const lpMint = MINTS[lpTokenId];
+    const leftMint = MINTS[leftId];
+    const rightMint = MINTS[rightId];
+    const tx = await this.marginLpRedeem(
+      walletKey, 
+      leftMint.toString(),
+      minLeftAmount,
+      rightMint.toString(),
+      minRightAmount,
+      lpMint.toString(),
+      lpAmount,
+      this.addresses.getLpTargetSwap(lpTokenId),
+      await this.addresses.getLpWithdrawKeys(lpTokenId),
+      await this.addresses.getLpStakeKeys(lpTokenId),
+      isSigned,
+    );
+    return tx;
   }
 }
