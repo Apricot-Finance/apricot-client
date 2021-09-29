@@ -21,27 +21,30 @@ export class AppConfig {
     // maps from TokenID to mint/decimalMult/poolId/ltv
     public mints: { [key in TokenID]: PublicKey; },
     public decimalMults: { [key in TokenID]: number; },
-    public poolIds: { [key in TokenID]?: number; },
+    public tokenIdToPoolId: { [key in TokenID]?: number; },
     public ltvs: {[key in TokenID]?: number},
   ) {
     this.mints = mints;
-    this.poolIds = poolIds;
-    const ids = Object.values(poolIds);
+    this.tokenIdToPoolId = tokenIdToPoolId;
+    const ids = Object.values(tokenIdToPoolId);
     const idSet = new Set(ids);
     assert(ids.length === idSet.size);
   }
   mintKeyStrToPoolId(mint_key_str: string): number {
     for(const [tokenType, pubkey] of Object.entries(this.mints)) {
       if(pubkey.toString() === mint_key_str) {
-        const result = this.poolIds[tokenType as TokenID];
+        const result = this.tokenIdToPoolId[tokenType as TokenID];
         assert(result !== undefined);
         return result;
       }
     }
     assert(false);
   }
+  getPoolIdList(): number[] {
+    return Object.values(this.tokenIdToPoolId);
+  }
   getTokenIdByPoolId(targetPoolId: number): TokenID {
-    for(const [tokenId, poolId] of Object.entries(this.poolIds)) {
+    for(const [tokenId, poolId] of Object.entries(this.tokenIdToPoolId)) {
       if (poolId === targetPoolId)
         return tokenId as TokenID;
     }
