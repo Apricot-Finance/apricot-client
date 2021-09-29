@@ -113,6 +113,10 @@ export interface AssetPool {
   deposit_cap       : Decimal;
 }
 
+export interface AssetPrice {
+  price_in_usd: Decimal;
+}
+
 export interface UserInfo {
   page_id         : number;
   num_assets      : number;

@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import { AMOUNT_MULTIPLIER } from "../constants";
-import { AssetPool, UserAssetInfo, UserInfo } from "../types";
+import { AssetPool, AssetPrice, UserAssetInfo, UserInfo } from "../types";
 
 export class AccountParser {
   static getOffsets(widths: number[]) {
@@ -27,17 +27,17 @@ export class AccountParser {
     return view.getUint16(offset, true);
   }
 
-  static parseUint32(buffer: ArrayBufferLike, offset: number) {
+  static parseUint32(buffer: ArrayBufferLike, offset: number): Decimal {
     const view = new DataView(buffer);
     return new Decimal(view.getUint32(offset, true));
   }
 
-  static parseInt32(buffer: ArrayBufferLike, offset: number) {
+  static parseInt32(buffer: ArrayBufferLike, offset: number): Decimal {
     const view = new DataView(buffer);
     return new Decimal(view.getInt32(offset, true));
   }
 
-  static parseBigUint64(buffer: ArrayBufferLike, offset: number) {
+  static parseBigUint64(buffer: ArrayBufferLike, offset: number): Decimal {
     const view = new DataView(buffer);
     const lower = new Decimal(view.getUint32(offset, true));
     const higher = new Decimal(view.getUint32(offset + 4, true));
@@ -155,7 +155,7 @@ export class AccountParser {
     };
   }
 
-  static parseAssetPrice(data: Uint8Array) {
+  static parseAssetPrice(data: Uint8Array): AssetPrice {
     return {
       price_in_usd: AccountParser.parseBigUint64(data.buffer, 0),
     };
