@@ -125,6 +125,13 @@ export class AppConfig {
     const tokenId = this.getTokenIdByPoolId(poolId);
     return this.mints[tokenId];
   }
+  getPoolConfigList(): PoolConfig[] {
+    return Object.values(this.poolConfigs);
+  }
+  getPoolConfigByPoolId(poolId: number): PoolConfig {
+    const tokenId = this.getTokenIdByPoolId(poolId);
+    return this.poolConfigs[tokenId]!;
+  }
 }
 
 export interface AssetPool {
