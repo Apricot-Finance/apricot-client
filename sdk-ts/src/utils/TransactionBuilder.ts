@@ -1,5 +1,6 @@
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Keypair, AccountMeta, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
+import invariant from "tiny-invariant";
 import { Addresses } from "../addresses";
 import { CMD_ADD_USER_AND_DEPOSIT, CMD_BORROW, CMD_DEPOSIT, CMD_EXTERN_LIQUIDATE, CMD_LP_CREATE, CMD_LP_OP_CHECK, CMD_LP_OP_ENDCHECK, CMD_LP_REDEEM, CMD_LP_STAKE, CMD_LP_UNSTAKE, CMD_REFRESH_USER, CMD_REPAY, CMD_UPDATE_USER_CONFIG, CMD_WITHDRAW, CMD_WITHDRAW_AND_REMOVE_USER } from "../constants/commands";
 import { LP_TO_LR, MINTS } from "../constants/configs";
@@ -24,7 +25,7 @@ export class TransactionBuilder {
     return this.addresses.mintKeyStrToPoolId(mintKeyStr);
   }
 
-  async refreshUser(userWalletKey: PublicKey) {
+  async refreshUser(userWalletKey: PublicKey): Promise<Transaction> {
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
     const inst = new TransactionInstruction({
@@ -44,7 +45,7 @@ export class TransactionBuilder {
     assistMode: number,
     selfDeleverageFactor: number,
     postDeleverageFactor: number,
-  ) {
+  ): Promise<Transaction> {
     const walletKey = walletAccount.publicKey;
     const userInfoKey = await this.addresses.getUserInfoKey(walletKey);
 
@@ -71,7 +72,7 @@ export class TransactionBuilder {
     userSplKey: PublicKey,
     mintKeyStr: string,
     amount: number,
-  ) {
+  ): Promise<Transaction> {
     const [basePda] = await this.addresses.getBasePda();
     const walletKey = walletAccount.publicKey;
     const userPagesStatsKey = await this.addresses.getUserPagesStatsKey();
@@ -114,7 +115,7 @@ export class TransactionBuilder {
     userSplKey: PublicKey,
     mintKeyStr: string,
     amount: number,
-  ) {
+  ): Promise<Transaction> {
     const [basePda] = await this.addresses.getBasePda();
     const userWalletKey = walletAccount.publicKey;
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
@@ -150,11 +151,11 @@ export class TransactionBuilder {
     withdrawAll: boolean,
     amount: number,
     userInfo: UserInfo,
-  ) {
+  ): Promise<Transaction | null> {
     const pageId = userInfo.page_id;
     if (pageId > 10000) {
       console.log("User not added to backend yet.");
-      return;
+      return null;
     }
     const [basePda] = await this.addresses.getBasePda();
     const userWalletKey = walletAccount.publicKey;
@@ -200,7 +201,7 @@ export class TransactionBuilder {
     mintKeyStr: string,
     withdraw_all: boolean,
     amount: number,
-  ) {
+  ): Promise<Transaction> {
     const [basePda] = await this.addresses.getBasePda();
     const userWalletKey = walletAccount.publicKey;
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
@@ -240,7 +241,7 @@ export class TransactionBuilder {
     userSplKey: PublicKey,
     mintKeyStr: string,
     amount: number,
-  ) {
+  ): Promise<Transaction> {
     const [basePda] = await this.addresses.getBasePda();
     const userWalletKey = walletAccount.publicKey;
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
@@ -281,7 +282,7 @@ export class TransactionBuilder {
     mintKeyStr: string,
     repay_all: boolean,
     amount: number,
-  ) {
+  ): Promise<Transaction> {
     const [basePda] = await this.addresses.getBasePda();
     const userWalletKey = walletAccount.publicKey;
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
@@ -320,7 +321,7 @@ export class TransactionBuilder {
     borrowedMintStr: string,
     minCollateralAmount: number,
     repaidBorrowAmount: number,
-  ) {
+  ): Promise<Transaction> {
     const [basePda] = await this.addresses.getBasePda();
     const liquidatorWalletKey = liquidatorWalletAccount.publicKey;
     const userInfoKey = await this.addresses.getUserInfoKey(liquidatedWalletKey);
@@ -390,8 +391,8 @@ export class TransactionBuilder {
     targetSwap: number,
     isCreate: boolean,
     isSigned: boolean,
-  ) {
-    const [base_pda, _0] = await this.addresses.getBasePda();
+  ): Promise<TransactionInstruction> {
+    const [base_pda,]= await this.addresses.getBasePda();
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
     const leftAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, leftMintStr);
     const leftAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, leftMintStr);
@@ -440,7 +441,7 @@ export class TransactionBuilder {
     });
   }
 
-  async buildLpOpEndcheckIx() {
+  async buildLpOpEndcheckIx(): Promise<TransactionInstruction> {
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
 
     const keys = [
@@ -465,8 +466,8 @@ export class TransactionBuilder {
     targetSwap: number,
     swap_account_keys: AccountMeta[],
     stakeKeys: AccountMeta[],
-  ) {
-    const [base_pda, _0] = await this.addresses.getBasePda();
+  ): Promise<Transaction> {
+    const [base_pda,] = await this.addresses.getBasePda();
     const user_wallet_key = walletAccount.publicKey;
     const userInfoKey = await this.addresses.getUserInfoKey(user_wallet_key);
     const leftAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, leftMintStr);
@@ -539,7 +540,7 @@ export class TransactionBuilder {
     lpMintStr: string,
     lpAmount: number,
     targetSwap: number,
-  ) {
+  ): number[] {
     const buffer = new ArrayBuffer(28);
     AccountParser.setBigUint64(buffer, 0, minLeftAmount);
     AccountParser.setBigUint64(buffer, 8, min_rightAmount);
@@ -568,8 +569,8 @@ export class TransactionBuilder {
     swap_account_keys: AccountMeta[],
     unstakeKeys: AccountMeta[],
     is_signed = true,
-  ) {
-    const [base_pda, _0] = await this.addresses.getBasePda();
+  ): Promise<Transaction> {
+    const [base_pda,] = await this.addresses.getBasePda();
     const userInfoKey = await this.addresses.getUserInfoKey(walletKey);
     const leftAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, leftMintStr);
     const leftAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, leftMintStr);
@@ -628,8 +629,8 @@ export class TransactionBuilder {
     lpMintStr: string,
     targetSwap: number,
     stakeKeys: AccountMeta[],
-  ) {
-    const [base_pda, _] = await this.addresses.getBasePda();
+  ): Promise<TransactionInstruction> {
+    const [base_pda,] = await this.addresses.getBasePda();
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
     const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
 
@@ -657,8 +658,8 @@ export class TransactionBuilder {
     targetSwap: number,
     amount: number,
     stakeKeys: AccountMeta[],
-  ) {
-    const [base_pda, _] = await this.addresses.getBasePda();
+  ): Promise<TransactionInstruction> {
+    const [base_pda,] = await this.addresses.getBasePda();
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
     const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
 
@@ -689,8 +690,10 @@ export class TransactionBuilder {
     leftAmount: number,
     rightAmount: number,
     minLpAmount: number,
-  ) {
-    const [leftId, rightId] = LP_TO_LR[lpTokenId]!;
+  ): Promise<Transaction> {
+    const lr = LP_TO_LR[lpTokenId];
+    invariant(lr);
+    const [leftId, rightId] = lr;
     const lpMint = MINTS[lpTokenId];
     const leftMint = MINTS[leftId];
     const rightMint = MINTS[rightId];
@@ -717,8 +720,10 @@ export class TransactionBuilder {
     minRightAmount: number,
     lpAmount: number,
     isSigned: boolean,
-  ) {
-    const [leftId, rightId] = LP_TO_LR[lpTokenId]!;
+  ): Promise<Transaction> {
+    const lr = LP_TO_LR[lpTokenId];
+    invariant(lr);
+    const [leftId, rightId] = lr;
     const lpMint = MINTS[lpTokenId];
     const leftMint = MINTS[leftId];
     const rightMint = MINTS[rightId];
