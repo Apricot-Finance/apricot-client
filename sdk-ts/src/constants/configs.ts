@@ -39,6 +39,15 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.UST_USDC_SABER]: TokenCategory.Lp,
 };
 
+export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
+  [TokenID.BTC] : 0.04,
+  [TokenID.ETH] : 0.04,
+  [TokenID.SOL] : 0.04,
+  [TokenID.USDT]: 0.04,
+  [TokenID.USDC]: 0.04,
+  [TokenID.UST] : 0.04,
+}
+
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.USDT_USDC_SABER] : [TokenID.USDT, TokenID.USDC],
   [TokenID.USDC_USDT_ORCA] : [TokenID.USDC, TokenID.USDT],
@@ -75,6 +84,7 @@ export const ALPHA_CONFIG = new AppConfig(
     // pool 7 deprecated
     [TokenID.USDC_USDT_ORCA]: 8,
   },
+  LIQUIDATION_DISCOUNT,
   {
     [TokenID.BTC]: 0.85,
     [TokenID.ETH]: 0.85,
@@ -98,6 +108,7 @@ export const PUBLIC_CONFIG = new AppConfig(
   DECIMAL_MULT,
   CATEGORY,
   { },
+  LIQUIDATION_DISCOUNT,
   { },
   LP_TO_LR,
   LP_TO_DEX,

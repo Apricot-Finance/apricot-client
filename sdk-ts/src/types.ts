@@ -32,11 +32,17 @@ export class PoolConfig {
     public poolId: PoolId,
     public ltv: number,
     public mint: PublicKey,
+    public liquidationDiscount: number,
     public tokenCategory: TokenCategory,
     public lpLeftRightTokenId: [TokenID, TokenID] | null,
     public lpLeftRightPoolId: [PoolId, PoolId] | null,
     public lpDex: Dex | null,
   ) {
+    invariant(tokenId);
+    invariant(poolId >= 0);
+    invariant(ltv >= 0);
+    invariant(mint);
+    invariant(liquidationDiscount >= 0);
     if(tokenCategory === TokenCategory.Lp) {
       invariant( lpLeftRightTokenId !== null && lpLeftRightTokenId !== undefined);
       invariant( lpLeftRightPoolId !== null && lpLeftRightPoolId !== undefined);
@@ -69,6 +75,7 @@ export class AppConfig {
     public categories: {[key in TokenID]: TokenCategory},
 
     public tokenIdToPoolId: { [key in TokenID]?: PoolId | undefined },
+    public discounts: {[key in TokenID]?: number | undefined },
     public ltvs: {[key in TokenID]?: number | undefined },
     public lpToLR: { [key in TokenID]?: [TokenID, TokenID] | undefined },
     public lpToDex: { [key in TokenID]?: Dex | undefined },
@@ -86,6 +93,7 @@ export class AppConfig {
         tokenIdToPoolId[tokId]!,
         ltvs[tokId]!,
         mints[tokId],
+        discounts[tokId]!,
         categories[tokId],
         categories[tokId] === TokenCategory.Lp? lpToLR[tokId]! : null,
         categories[tokId] === TokenCategory.Lp? getLpLRPoolIds(tokId, lpToLR, tokenIdToPoolId) : null,
