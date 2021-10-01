@@ -46,6 +46,9 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.USDT]: 0.04,
   [TokenID.USDC]: 0.04,
   [TokenID.UST] : 0.04,
+  [TokenID.USDT_USDC_SABER]: 0,
+  [TokenID.USDC_USDT_ORCA]: 0,
+  [TokenID.UST_USDC_SABER]: 0,
 };
 
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
