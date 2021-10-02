@@ -1,4 +1,3 @@
-export * from "./StructParser";
 export * from "./AccountParser";
 export * from "./TransactionBuilder";
 export * from "./ActionWrapper";

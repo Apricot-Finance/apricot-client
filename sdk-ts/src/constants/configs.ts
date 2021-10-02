@@ -137,7 +137,7 @@ export const SWAP_METAS = {
   }
 };
 
-const LP_SWAP_METAS = {
+export const LP_SWAP_METAS = {
   [TokenID.USDT_USDC_SABER]: {
     // for deposit/withdraw
     swap:           new PublicKey("YAkoNb6HKmSxQN9L8hiBE5tPJRsniSSMzND1boHmZxe"),
