@@ -101,6 +101,7 @@ export const ALPHA_CONFIG = new AppConfig(
   },
   LP_TO_LR,
   LP_TO_DEX,
+  LP_TO_TARGET_SWAP,
 );
 
 // public mainnet is where the real thing is
@@ -117,6 +118,7 @@ export const PUBLIC_CONFIG = new AppConfig(
   { },
   LP_TO_LR,
   LP_TO_DEX,
+  LP_TO_TARGET_SWAP,
 );
 
 
