@@ -154,7 +154,7 @@ export const LP_SWAP_METAS = {
     miner:        new PublicKey("ABVss1hKp45vc6mFKe4r1eMgpbg5jhkQQGZzNTa2H7yg"), // computed using getMinerKey(base_pda)
     miner_vault:  new PublicKey("ADPL7KKvjjQZ7gs7B15VvyqAV6xEP8pM8HNNvpMrb7DP"),
 
-    getMinerKey: async (ownerKey: PublicKey) => {
+    getMinerKey: async (ownerKey: PublicKey): Promise<[PublicKey, number]> => {
       const [key, bump] = await PublicKey.findProgramAddress([
         Buffer.from("Miner"),
         LP_SWAP_METAS[TokenID.USDT_USDC_SABER]!.quarry.toBuffer(),
