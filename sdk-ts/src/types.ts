@@ -69,6 +69,7 @@ export class AppConfig {
   constructor(
     public programPubkey: PublicKey,
     public adminPubkey: PublicKey,
+    public farmerPubkey: PublicKey,
     // maps from TokenID to mint/decimalMult/poolId/ltv
     public mints: { [key in TokenID]: PublicKey; },
     public decimalMults: { [key in TokenID]: number; },

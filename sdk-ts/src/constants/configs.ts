@@ -73,6 +73,7 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
 export const ALPHA_CONFIG = new AppConfig(
   new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
   new PublicKey("EFo9V7mFQgxz7xPMrJ6qLyrjfGXPgsEFEfGEtVQx2xKt"),
+  new PublicKey("3cWR2VDrVhQ43VX8B43MwTazfx66naioXurUh8vrkidt"),
   MINTS,
   DECIMAL_MULT,
   CATEGORY,
@@ -105,6 +106,7 @@ export const ALPHA_CONFIG = new AppConfig(
 // public mainnet is where the real thing is
 export const PUBLIC_CONFIG = new AppConfig(
   // not added yet
+  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
   new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
   new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
   MINTS,
