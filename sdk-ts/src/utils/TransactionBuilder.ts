@@ -441,11 +441,20 @@ export class TransactionBuilder {
     });
   }
 
-  async buildLpOpEndcheckIx(): Promise<TransactionInstruction> {
+  async buildLpOpEndcheckIx(
+    userWalletKey: PublicKey,
+  ): Promise<TransactionInstruction> {
+    const [base_pda,] = await this.addresses.getBasePda();
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
+    const priceSummariesKey = await this.addresses.getPriceSummariesKey(base_pda);
+    const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
 
     const keys = [
       {pubkey: poolSummariesKey,          isSigner: false,        isWritable: true},     // PoolSummaries
+      {pubkey: userInfoKey,               isSigner: false,        isWritable: false},
+      {pubkey: priceSummariesKey,         isSigner: false,        isWritable: false},
+      {pubkey: userWalletKey,             isSigner: false,        isWritable: false},
+      {pubkey: base_pda,                  isSigner: false,        isWritable: false},
     ];
 
     return new TransactionInstruction({
@@ -529,7 +538,7 @@ export class TransactionBuilder {
       tx.add(stake_ix);
     }
 
-    return tx.add(await this.buildLpOpEndcheckIx());
+    return tx.add(await this.buildLpOpEndcheckIx(walletAccount.publicKey));
   }
 
   buildMarginLpRedeemParam(
@@ -622,7 +631,7 @@ export class TransactionBuilder {
 
     tx.add(inst);
 
-    return tx.add(await this.buildLpOpEndcheckIx());
+    return tx.add(await this.buildLpOpEndcheckIx(walletKey));
   }
 
   async buildLpStakeIx(
