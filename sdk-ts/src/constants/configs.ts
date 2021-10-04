@@ -7,6 +7,12 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.BTC]: new PublicKey("9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E"),
   [TokenID.ETH]: new PublicKey("2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk"),
   [TokenID.SOL]: new PublicKey("So11111111111111111111111111111111111111112"),
+
+  [TokenID.RAY]: new PublicKey("4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"),
+  [TokenID.ORCA]: new PublicKey("orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE"),
+  [TokenID.SBR]: new PublicKey("Saber2gLauYim4Mvftnrasomsv6NvAuncvMEZwcLpD1"),
+  [TokenID.MERC]: new PublicKey("MERt85fc5boKw3BW1eYdxonEuJNvXbiMbs6hvheau5K"),
+
   [TokenID.USDT]: new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
   [TokenID.USDC]: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
   [TokenID.UST]: new PublicKey("CXLBjMMcwkc17GfJtBos6rQCo1ypeH6eDbB82Kby4MRm"),
@@ -19,6 +25,12 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.BTC] : 1e6,
   [TokenID.ETH] : 1e6,
   [TokenID.SOL] : 1e9,
+
+  [TokenID.RAY] : 1e6,
+  [TokenID.ORCA] : 1e6,
+  [TokenID.SBR] : 1e6,
+  [TokenID.MERC] : 1e6,
+
   [TokenID.USDT]: 1e6,
   [TokenID.USDC]: 1e6,
   [TokenID.UST] : 1e9,
@@ -31,6 +43,12 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.BTC] : TokenCategory.Volatile,
   [TokenID.ETH] : TokenCategory.Volatile,
   [TokenID.SOL] : TokenCategory.Volatile,
+
+  [TokenID.RAY] : TokenCategory.Volatile,
+  [TokenID.ORCA] : TokenCategory.Volatile,
+  [TokenID.SBR] : TokenCategory.Volatile,
+  [TokenID.MERC] : TokenCategory.Volatile,
+
   [TokenID.USDT]: TokenCategory.Stable,
   [TokenID.USDC]: TokenCategory.Stable,
   [TokenID.UST] : TokenCategory.Stable,

@@ -9,6 +9,10 @@ export enum TokenID {
   USDC = "USDC",
   UST = "UST",
   SOL = "SOL",
+  SBR = "SBR",
+  ORCA = "ORCA",
+  RAY = "RAY",
+  MERC = "MERC",
   USDT_USDC_SABER = "USDT_USDC_SABER",
   USDC_USDT_ORCA = "USDC_USDT_ORCA",
   UST_USDC_SABER = "UST_USDC_SABER"
