@@ -399,20 +399,17 @@ export class TransactionBuilder {
     const rightAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, rightMintStr);
     const rightAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, rightMintStr);
     const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
-    const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
     const priceSummariesKey = await this.addresses.getPriceSummariesKey(base_pda);
 
     const keys = [
       {pubkey: userWalletKey,         isSigner: isSigned,    isWritable: false},
       {pubkey: userInfoKey,           isSigner: false,        isWritable: true},
-      {pubkey: base_pda,              isSigner: false,        isWritable: false},
       {pubkey: leftAssetPoolKey,      isSigner: false,        isWritable: true},
       {pubkey: leftAssetPoolSplKey,   isSigner: false,        isWritable: true},
       {pubkey: rightAssetPoolKey,     isSigner: false,        isWritable: true},
       {pubkey: rightAssetPoolSplKey,  isSigner: false,        isWritable: true},
       {pubkey: lpAssetPoolKey,        isSigner: false,        isWritable: true},
-      {pubkey: lpAssetPoolSplKey,     isSigner: false,        isWritable: true},
       {pubkey: poolSummariesKey,      isSigner: false,        isWritable: true},
       {pubkey: priceSummariesKey,     isSigner: false,        isWritable: false},
       {pubkey: sysvarInstructionsKey, isSigner: false,        isWritable: false},
@@ -442,18 +439,12 @@ export class TransactionBuilder {
   }
 
   async buildLpOpEndcheckIx(
-    userWalletKey: PublicKey,
+    _userWalletKey: PublicKey,
   ): Promise<TransactionInstruction> {
-    const [base_pda,] = await this.addresses.getBasePda();
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
-    const priceSummariesKey = await this.addresses.getPriceSummariesKey(base_pda);
-    const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
 
     const keys = [
       {pubkey: poolSummariesKey,          isSigner: false,        isWritable: true},     // PoolSummaries
-      {pubkey: userInfoKey,               isSigner: false,        isWritable: false},
-      {pubkey: priceSummariesKey,         isSigner: false,        isWritable: false},
-      {pubkey: userWalletKey,             isSigner: false,        isWritable: false},
     ];
 
     return new TransactionInstruction({
