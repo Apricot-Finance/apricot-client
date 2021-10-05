@@ -454,7 +454,6 @@ export class TransactionBuilder {
       {pubkey: userInfoKey,               isSigner: false,        isWritable: false},
       {pubkey: priceSummariesKey,         isSigner: false,        isWritable: false},
       {pubkey: userWalletKey,             isSigner: false,        isWritable: false},
-      {pubkey: base_pda,                  isSigner: false,        isWritable: false},
     ];
 
     return new TransactionInstruction({
