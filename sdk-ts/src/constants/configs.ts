@@ -113,6 +113,7 @@ export const ALPHA_CONFIG = new AppConfig(
     [TokenID.UST]: 6,
     // pool 7 deprecated
     [TokenID.USDC_USDT_ORCA]: 8,
+    [TokenID.SOL_USDC_RAYDIUM]: 9,
   },
   LIQUIDATION_DISCOUNT,
   {
@@ -124,6 +125,7 @@ export const ALPHA_CONFIG = new AppConfig(
     [TokenID.USDT_USDC_SABER]: 0.8,
     [TokenID.UST]: 0.8,
     [TokenID.USDC_USDT_ORCA]: 0.8,
+    [TokenID.SOL_USDC_RAYDIUM]: 0.8,
   },
   LP_TO_LR,
   LP_TO_DEX,
