@@ -1,5 +1,6 @@
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
+import { SWAP_RAYDIUM } from ".";
 import { TokenID, TokenCategory, AppConfig, Dex } from "../types";
 import { SWAP_ORCA, SWAP_SABER } from "./commands";
 
@@ -19,6 +20,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.USDT_USDC_SABER]: new PublicKey("2poo1w1DL6yd2WNTCnNTzDqkC6MBXq7axo77P16yrBuf"),
   [TokenID.USDC_USDT_ORCA]: new PublicKey("H2uzgruPvonVpCRhwwdukcpXK8TG17swFNzYFr2rtPxy"),
   [TokenID.UST_USDC_SABER]: new PublicKey("UST32f2JtPGocLzsL41B3VBBoJzTm1mK1j3rwyM3Wgc"),
+  [TokenID.SOL_USDC_RAYDIUM]: new PublicKey("8HoQnePLqPj4M7PUDzfw8e3Ymdwgc7NLGnaTUapubyvu"),
 };
 
 export const DECIMAL_MULT: { [key in TokenID]: number } = {
@@ -37,6 +39,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.USDT_USDC_SABER]: 1e6,
   [TokenID.USDC_USDT_ORCA]: 1e6,
   [TokenID.UST_USDC_SABER]: 1e9,
+  [TokenID.SOL_USDC_RAYDIUM]: 1e9,
 };
 
 export const CATEGORY: { [key in TokenID]: TokenCategory } = {
@@ -55,6 +58,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.USDT_USDC_SABER]: TokenCategory.Lp,
   [TokenID.USDC_USDT_ORCA]: TokenCategory.Lp,
   [TokenID.UST_USDC_SABER]: TokenCategory.Lp,
+  [TokenID.SOL_USDC_RAYDIUM]: TokenCategory.Lp,
 };
 
 export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
@@ -67,24 +71,28 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.USDT_USDC_SABER]: 0,
   [TokenID.USDC_USDT_ORCA]: 0,
   [TokenID.UST_USDC_SABER]: 0,
+  [TokenID.SOL_USDC_RAYDIUM]: 0,
 };
 
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.USDT_USDC_SABER] : [TokenID.USDT, TokenID.USDC],
   [TokenID.USDC_USDT_ORCA] : [TokenID.USDC, TokenID.USDT],
   [TokenID.UST_USDC_SABER] : [TokenID.UST, TokenID.USDC],
+  [TokenID.SOL_USDC_RAYDIUM]: [TokenID.SOL, TokenID.USDC],
 };
 
 export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.USDT_USDC_SABER] : SWAP_SABER,
   [TokenID.USDC_USDT_ORCA] : SWAP_ORCA,
   [TokenID.UST_USDC_SABER] : SWAP_SABER,
+  [TokenID.SOL_USDC_RAYDIUM]: SWAP_RAYDIUM,
 };
 
 export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.USDT_USDC_SABER] : Dex.Saber,
   [TokenID.USDC_USDT_ORCA] : Dex.Orca,
   [TokenID.UST_USDC_SABER] : Dex.Saber,
+  [TokenID.SOL_USDC_RAYDIUM]: Dex.Raydium,
 };
 
 // alpha mainnet is where we deploy tests
@@ -336,7 +344,32 @@ export const LP_SWAP_METAS = {
         { pubkey: TOKEN_PROGRAM_ID,               isSigner: false, isWritable: false }
       ];
     }
-  }
+  },
+  [TokenID.SOL_USDC_RAYDIUM]: {
+    lpMintPubkey: new PublicKey('8HoQnePLqPj4M7PUDzfw8e3Ymdwgc7NLGnaTUapubyvu'),
+
+    ammIdPubkey: new PublicKey('58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2'),
+    ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
+    ammOpenOrdersPubkey: new PublicKey('HRk9CMrpq7Jn9sh7mzxE8CChHG8dneX9p475QKz4Fsfc'),
+    ammTargetOrderPubkey: new PublicKey(
+      'CZza3Ej4Mc58MnxWA385itCC9jCo3L1D7zc3LKy1bZMR'
+    ),
+
+    poolCoinTokenPubkey: new PublicKey('DQyrAcCrDXQ7NeoqGgDCZwBvWDcYmFCjSb9JtteuvPpz'),
+    poolPcTokenPubkey: new PublicKey('HLmqeL62xR1QoZ1HKKbXRrdN1p3phKpxRMb2VVopvBBz'),
+    poolWithdrawQueue: new PublicKey('G7xeGGLevkRwB5f44QNgQtrPKBdMfkT6ZZwpS9xcC97n'),
+    poolTempLpTokenAccount: new PublicKey(
+      'Awpt6N7ZYPBa4vG4BQNFhFxDj4sxExAA9rpBAoBw2uok'
+    ),
+
+    serumProgramId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+    serumMarketPubkey: new PublicKey('9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT'),
+    serumCoinVaultAccount: new PublicKey(
+      '36c6YqAwyGKQG66XEp2dJc5JqjaBNv7sVghEtJv4c7u6'
+    ),
+    serumPcVaultAccount: new PublicKey('8CFo8bL8mZQK8abbFyypFMwEDd8tVJjHTTojMLgQTUSZ'),
+    serumVaultSigner: new PublicKey('F8Vyqk3unwxkXukZFQeYyGmFfTG3CAX4v24iyrjEYBJV'),
+  },
 };
 
 export const LP_SWAP_INFO : { [key in TokenID]? : LpSwapKeyInfo } = {
