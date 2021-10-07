@@ -4,7 +4,7 @@ import { Connection } from "@solana/web3.js";
 
 async function doPrice() {
 
-  const priceInfo = new PriceInfo(ALPHA_CONFIG, false);
+  const priceInfo = new PriceInfo(ALPHA_CONFIG);
 
   const conn = new Connection("https://lokidfxnwlabdq.main.genesysgo.net:8899/", "confirmed");
 

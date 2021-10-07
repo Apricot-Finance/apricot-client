@@ -8,13 +8,7 @@ import Decimal from "decimal.js";
 export class PriceInfo {
   constructor(
     public config: AppConfig,
-    public active: boolean,
-  )
-  {
-    if (active) {
-      this.activeLoop();
-    }
-  }
+  ) {}
 
   async fetchPrice(tokId: TokenID, connection: Connection): Promise<number> {
     if (tokId in this.config.switchboardPriceKeys) {
@@ -61,12 +55,30 @@ export class PriceInfo {
     const rightPrice = await this.fetchPrice(rightTokId, connection);
 
     return (leftPrice * leftBalance + rightPrice * rightBalance) / lpBalance;
-
   }
 
-  async activeLoop() {
-
+  async fetchLRStats(lpTokId: TokenID, connection: Connection, isValue: boolean): Promise<[number, number]> {
+    const poolConfig = this.config.poolConfigs[lpTokId]!;
+    invariant(poolConfig.isLp());
+    const [leftTokId, rightTokId] = poolConfig.lpLeftRightTokenId!;
+    invariant(leftTokId);
+    invariant(rightTokId);
+    const [leftVault, rightVault] = LP_SWAP_INFO[lpTokId]?.getLRVaults()!;
+    const leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
+    const rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
+    if (!isValue) {
+      return [leftBalance, rightBalance];
+    }
+    const leftPrice = await this.fetchPrice(leftTokId, connection);
+    const rightPrice = await this.fetchPrice(rightTokId, connection);
+    return [leftBalance * leftPrice, rightBalance * rightPrice];
   }
 
+  async fetchLRAmounts(lpTokId: TokenID, connection: Connection): Promise<[number, number]> {
+    return this.fetchLRStats(lpTokId, connection, false);
+  }
 
+  async fetchLRValuets(lpTokId: TokenID, connection: Connection): Promise<[number, number]> {
+    return this.fetchLRStats(lpTokId, connection, true);
+  }
 }
