@@ -89,6 +89,7 @@ export class AppConfig {
     public lpToLR: { [key in TokenID]?: [TokenID, TokenID] | undefined },
     public lpToDex: { [key in TokenID]?: Dex | undefined },
     public lpToTargetSwap: { [key in TokenID]?: number | undefined },
+    public switchboardPriceKeys: { [key in TokenID]?: PublicKey; },
   ) {
     this.mints = mints;
     this.tokenIdToPoolId = tokenIdToPoolId;

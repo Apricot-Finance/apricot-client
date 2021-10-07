@@ -95,67 +95,12 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.SOL_USDC_RAYDIUM]: Dex.Raydium,
 };
 
-// alpha mainnet is where we deploy tests
-export const ALPHA_CONFIG = new AppConfig(
-  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
-  new PublicKey("EFo9V7mFQgxz7xPMrJ6qLyrjfGXPgsEFEfGEtVQx2xKt"),
-  new PublicKey("3cWR2VDrVhQ43VX8B43MwTazfx66naioXurUh8vrkidt"),
-  new PublicKey("4DUvqxvab2BiJEYR7YHi3nM5tfyLNXFBQbJuExQPK9rf"),
-  MINTS,
-  DECIMAL_MULT,
-  CATEGORY,
-  {
-    [TokenID.BTC]: 0,
-    [TokenID.ETH]: 1,
-    [TokenID.USDT]: 2,
-    [TokenID.USDC]: 3,
-    [TokenID.SOL]: 4,
-    [TokenID.USDT_USDC_SABER]: 5,
-    [TokenID.UST]: 6,
-    // pool 7 deprecated
-    [TokenID.USDC_USDT_ORCA]: 8,
-    [TokenID.SOL_USDC_RAYDIUM]: 9,
-  },
-  LIQUIDATION_DISCOUNT,
-  {
-    [TokenID.BTC]: 0.85,
-    [TokenID.ETH]: 0.85,
-    [TokenID.USDT]: 0.91,
-    [TokenID.USDC]: 0.91,
-    [TokenID.SOL]: 0.8,
-    [TokenID.USDT_USDC_SABER]: 0.8,
-    [TokenID.UST]: 0.8,
-    [TokenID.USDC_USDT_ORCA]: 0.8,
-    [TokenID.SOL_USDC_RAYDIUM]: 0.8,
-  },
-  LP_TO_LR,
-  LP_TO_DEX,
-  LP_TO_TARGET_SWAP,
-);
-
-// public mainnet is where the real thing is
-export const PUBLIC_CONFIG = new AppConfig(
-  // not added yet
-  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
-  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
-  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
-  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
-  MINTS,
-  DECIMAL_MULT,
-  CATEGORY,
-  { },
-  LIQUIDATION_DISCOUNT,
-  { },
-  LP_TO_LR,
-  LP_TO_DEX,
-  LP_TO_TARGET_SWAP,
-);
-
 
 interface LpSwapKeyInfo {
   getLpDepositKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
   getLpWithdrawKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
   getLpStakeKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
+  getLRVaults: () => [PublicKey, PublicKey];
 }
 
 // meta-info used by Addresses to compute keys needed when interacting with various Solana swaps
@@ -290,6 +235,11 @@ export const LP_SWAP_METAS = {
         {pubkey: SYSVAR_CLOCK_PUBKEY,     isSigner: false, isWritable: false},
       ];
     },
+
+    getLRVaults: (): [PublicKey, PublicKey] => {
+      const smetalp = LP_SWAP_METAS[TokenID.USDT_USDC_SABER];
+      return [smetalp.tokenAVault, smetalp.tokenBVault];
+    },
   },
   [TokenID.USDC_USDT_ORCA]: {
     lpMintPubkey:           new PublicKey("H2uzgruPvonVpCRhwwdukcpXK8TG17swFNzYFr2rtPxy"),
@@ -351,7 +301,11 @@ export const LP_SWAP_METAS = {
         { pubkey: smetalp.rewardTokenAuthority,   isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID,               isSigner: false, isWritable: false }
       ];
-    }
+    },
+    getLRVaults: (): [PublicKey, PublicKey] => {
+      const smetalp = LP_SWAP_METAS[TokenID.USDC_USDT_ORCA];
+      return [smetalp.swapTokenAAccount, smetalp.swapTokenBAccount];
+    },
   },
   [TokenID.SOL_USDC_RAYDIUM]: {
     lpMintPubkey: new PublicKey('8HoQnePLqPj4M7PUDzfw8e3Ymdwgc7NLGnaTUapubyvu'),
@@ -417,7 +371,11 @@ export const LP_SWAP_METAS = {
     },
     getLpStakeKeys: async (_ownerKey: PublicKey) => {
       return []
-    }
+    },
+    getLRVaults: (): [PublicKey, PublicKey] => {
+      const smetalp = LP_SWAP_METAS[TokenID.SOL_USDC_RAYDIUM];
+      return [smetalp.poolCoinTokenPubkey, smetalp.poolPcTokenPubkey];
+    },
   },
 };
 
@@ -426,3 +384,76 @@ export const LP_SWAP_INFO : { [key in TokenID]? : LpSwapKeyInfo } = {
   [TokenID.USDC_USDT_ORCA] : LP_SWAP_METAS[TokenID.USDC_USDT_ORCA] as LpSwapKeyInfo,
   [TokenID.SOL_USDC_RAYDIUM] : LP_SWAP_METAS[TokenID.SOL_USDC_RAYDIUM] as LpSwapKeyInfo,
 };
+
+export const SWITCHBOARD_PRICE: { [key in TokenID]? : PublicKey} = {
+  [TokenID.BTC]: new PublicKey("74YzQPGUT9VnjrBz8MuyDLKgKpbDqGot5xZJvTtMi6Ng"),
+  [TokenID.ETH]: new PublicKey("QJc2HgGhdtW4e7zjvLB1TGRuwEpTre2agU5Lap2UqYz"),
+  [TokenID.SOL]: new PublicKey("AdtRGGhmqvom3Jemp5YNrxd9q9unX36BZk1pujkkXijL"),
+
+  [TokenID.RAY]: new PublicKey("CppyF6264uKZkGua1brTUa2fSVdMFSCszwzDs76HCuzU"),
+  [TokenID.ORCA]: new PublicKey("EHwSRkm2ErRjWxCxrTxrmC7sT2kGb5jJcsiindUHAX7W"),
+  [TokenID.SBR]: new PublicKey("Lp3VNoRQi699VZe6u59TV8J38ELEUzxkaisoWsDuJgB"),
+  // [TokenID.MERC]: new PublicKey(""), // MERC not on sb
+
+  [TokenID.USDT]: new PublicKey("5mp8kbkTYwWWCsKSte8rURjTuyinsqBpJ9xAQsewPDD"),
+  [TokenID.USDC]: new PublicKey("CZx29wKMUxaJDq6aLVQTdViPL754tTR64NAgQBUGxxHb"),
+  [TokenID.UST]: new PublicKey("8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61"),
+}
+
+// alpha mainnet is where we deploy tests
+export const ALPHA_CONFIG = new AppConfig(
+  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
+  new PublicKey("EFo9V7mFQgxz7xPMrJ6qLyrjfGXPgsEFEfGEtVQx2xKt"),
+  new PublicKey("3cWR2VDrVhQ43VX8B43MwTazfx66naioXurUh8vrkidt"),
+  new PublicKey("4DUvqxvab2BiJEYR7YHi3nM5tfyLNXFBQbJuExQPK9rf"),
+  MINTS,
+  DECIMAL_MULT,
+  CATEGORY,
+  {
+    [TokenID.BTC]: 0,
+    [TokenID.ETH]: 1,
+    [TokenID.USDT]: 2,
+    [TokenID.USDC]: 3,
+    [TokenID.SOL]: 4,
+    [TokenID.USDT_USDC_SABER]: 5,
+    [TokenID.UST]: 6,
+    // pool 7 deprecated
+    [TokenID.USDC_USDT_ORCA]: 8,
+    [TokenID.SOL_USDC_RAYDIUM]: 9,
+  },
+  LIQUIDATION_DISCOUNT,
+  {
+    [TokenID.BTC]: 0.85,
+    [TokenID.ETH]: 0.85,
+    [TokenID.USDT]: 0.91,
+    [TokenID.USDC]: 0.91,
+    [TokenID.SOL]: 0.8,
+    [TokenID.USDT_USDC_SABER]: 0.8,
+    [TokenID.UST]: 0.8,
+    [TokenID.USDC_USDT_ORCA]: 0.8,
+    [TokenID.SOL_USDC_RAYDIUM]: 0.8,
+  },
+  LP_TO_LR,
+  LP_TO_DEX,
+  LP_TO_TARGET_SWAP,
+  SWITCHBOARD_PRICE,
+);
+
+// public mainnet is where the real thing is
+export const PUBLIC_CONFIG = new AppConfig(
+  // not added yet
+  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
+  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
+  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
+  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
+  MINTS,
+  DECIMAL_MULT,
+  CATEGORY,
+  { },
+  LIQUIDATION_DISCOUNT,
+  { },
+  LP_TO_LR,
+  LP_TO_DEX,
+  LP_TO_TARGET_SWAP,
+  SWITCHBOARD_PRICE,
+);
