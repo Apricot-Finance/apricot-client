@@ -519,7 +519,7 @@ export class TransactionBuilder {
         walletAccount.publicKey, leftMintStr, leftAmount, rightMintStr, rightAmount, lpMintStr, min_lpAmount, targetSwap, true, true))
       .add(inst);
 
-    if(stakeKeys) {
+    if(stakeKeys.length > 0) {
       const stake_ix = await this.buildLpStakeIx(
         lpMintStr,
         targetSwap,

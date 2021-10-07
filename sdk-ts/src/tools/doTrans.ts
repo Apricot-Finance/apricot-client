@@ -80,15 +80,20 @@ async function doTransaction() {
   }
   else if(action === "lp-create") {
     // node doTrans.js keyLocation repay BTC 0.1
+    if (remainingArgs.length < 4) {
+      throw new Error(`Invalid argvs`);
+    }
     const tokenId = TokenID[remainingArgs[0] as keyof typeof TokenID];
     const [leftId, rightId] = LP_TO_LR[tokenId]!;
-    const amount = parseFloat(remainingArgs[1]);
+    const amountLp = parseFloat(remainingArgs[1]);
+    const amountLeft = parseFloat(remainingArgs[2]);
+    const amountRight = parseFloat(remainingArgs[3]);
     const result = await wrapper.lpCreate(
       keypair, 
       tokenId,
-      amount * 0.5 * DECIMAL_MULT[leftId],
-      amount * 0.5 * DECIMAL_MULT[rightId],
-      amount * 0.9 * DECIMAL_MULT[tokenId],
+      amountLeft * DECIMAL_MULT[leftId],
+      amountRight * DECIMAL_MULT[rightId],
+      amountLp * DECIMAL_MULT[tokenId],
     )!;
     console.log(result);
   }
