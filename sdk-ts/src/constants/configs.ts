@@ -167,6 +167,10 @@ export const SWAP_METAS = {
   [SWAP_ORCA]: {
     depositProgramPubkey: new PublicKey("9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP"),
     farmProgramPubkey: new PublicKey("82yxjeMsvaURa4MbZZ7WZZHfobirZYkH1zF8fmeGtyaQ"),
+  },
+  [SWAP_RAYDIUM]: {
+    depositProgramPubkey: new PublicKey("675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"),
+    stakeProgramPubkey: new PublicKey("EhhTKczWMGQt46ynNeRX1WfeagwwJd7ufHvCDjRxjo5Q"),
   }
 };
 
@@ -371,10 +375,52 @@ export const LP_SWAP_METAS = {
     ),
     serumPcVaultAccount: new PublicKey('8CFo8bL8mZQK8abbFyypFMwEDd8tVJjHTTojMLgQTUSZ'),
     serumVaultSigner: new PublicKey('F8Vyqk3unwxkXukZFQeYyGmFfTG3CAX4v24iyrjEYBJV'),
+
+    getLpDepositKeys: async (_ownerKey: PublicKey) => {
+      const smeta = SWAP_METAS[SWAP_RAYDIUM];
+      const smetaLp = LP_SWAP_METAS[TokenID.SOL_USDC_RAYDIUM];
+      return [
+        { pubkey: smeta.depositProgramPubkey,        isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammIdPubkey,               isSigner: false, isWritable: true },
+        { pubkey: smetaLp.ammAuthPubkey,             isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammOpenOrdersPubkey,       isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammTargetOrderPubkey,      isSigner: false, isWritable: true },
+        { pubkey: smetaLp.lpMintPubkey,              isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolCoinTokenPubkey,       isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolPcTokenPubkey,         isSigner: false, isWritable: true },
+        { pubkey: smetaLp.serumMarketPubkey,         isSigner: false, isWritable: false },
+      ];
+    },
+    getLpWithdrawKeys: async (_ownerKey: PublicKey) => {
+      const smeta = SWAP_METAS[SWAP_RAYDIUM];
+      const smetaLp = LP_SWAP_METAS[TokenID.SOL_USDC_RAYDIUM];
+      return [
+        { pubkey: smeta.depositProgramPubkey,        isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammIdPubkey,               isSigner: false, isWritable: true },
+        { pubkey: smetaLp.ammAuthPubkey,             isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammOpenOrdersPubkey,       isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammTargetOrderPubkey,      isSigner: false, isWritable: true },
+        { pubkey: smetaLp.lpMintPubkey,              isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolCoinTokenPubkey,       isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolPcTokenPubkey,         isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolWithdrawQueue,         isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolTempLpTokenAccount,    isSigner: false, isWritable: true },
+
+        { pubkey: smetaLp.serumProgramId,            isSigner: false, isWritable: false },
+        { pubkey: smetaLp.serumMarketPubkey,         isSigner: false, isWritable: true },
+        { pubkey: smetaLp.serumCoinVaultAccount,     isSigner: false, isWritable: true },
+        { pubkey: smetaLp.serumPcVaultAccount,       isSigner: false, isWritable: true },
+        { pubkey: smetaLp.serumVaultSigner,          isSigner: false, isWritable: false },
+      ];
+    },
+    getLpStakeKeys: async (_ownerKey: PublicKey) => {
+      return []
+    }
   },
 };
 
 export const LP_SWAP_INFO : { [key in TokenID]? : LpSwapKeyInfo } = {
   [TokenID.USDT_USDC_SABER] : LP_SWAP_METAS[TokenID.USDT_USDC_SABER] as LpSwapKeyInfo,
   [TokenID.USDC_USDT_ORCA] : LP_SWAP_METAS[TokenID.USDC_USDT_ORCA] as LpSwapKeyInfo,
+  [TokenID.SOL_USDC_RAYDIUM] : LP_SWAP_METAS[TokenID.SOL_USDC_RAYDIUM] as LpSwapKeyInfo,
 };
