@@ -21,6 +21,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.USDC_USDT_ORCA]: new PublicKey("H2uzgruPvonVpCRhwwdukcpXK8TG17swFNzYFr2rtPxy"),
   [TokenID.UST_USDC_SABER]: new PublicKey("UST32f2JtPGocLzsL41B3VBBoJzTm1mK1j3rwyM3Wgc"),
   [TokenID.SOL_USDC_RAYDIUM]: new PublicKey("8HoQnePLqPj4M7PUDzfw8e3Ymdwgc7NLGnaTUapubyvu"),
+  [TokenID.RAY_USDC_RAYDIUM]: new PublicKey("FbC6K13MzHvN42bXrtGaWsvZY9fxrackRSZcBGfjPc7m"),
 };
 
 export const DECIMAL_MULT: { [key in TokenID]: number } = {
@@ -40,6 +41,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.USDC_USDT_ORCA]: 1e6,
   [TokenID.UST_USDC_SABER]: 1e9,
   [TokenID.SOL_USDC_RAYDIUM]: 1e9,
+  [TokenID.RAY_USDC_RAYDIUM]: 1e6,
 };
 
 export const CATEGORY: { [key in TokenID]: TokenCategory } = {
@@ -59,6 +61,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.USDC_USDT_ORCA]: TokenCategory.Lp,
   [TokenID.UST_USDC_SABER]: TokenCategory.Lp,
   [TokenID.SOL_USDC_RAYDIUM]: TokenCategory.Lp,
+  [TokenID.RAY_USDC_RAYDIUM]: TokenCategory.Lp,
 };
 
 export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
@@ -72,6 +75,7 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.USDC_USDT_ORCA]: 0,
   [TokenID.UST_USDC_SABER]: 0,
   [TokenID.SOL_USDC_RAYDIUM]: 0,
+  [TokenID.RAY_USDC_RAYDIUM]: 0,
 };
 
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
@@ -79,6 +83,7 @@ export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.USDC_USDT_ORCA] : [TokenID.USDC, TokenID.USDT],
   [TokenID.UST_USDC_SABER] : [TokenID.UST, TokenID.USDC],
   [TokenID.SOL_USDC_RAYDIUM]: [TokenID.SOL, TokenID.USDC],
+  [TokenID.RAY_USDC_RAYDIUM]: [TokenID.RAY, TokenID.USDC],
 };
 
 export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
@@ -86,6 +91,7 @@ export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.USDC_USDT_ORCA] : SWAP_ORCA,
   [TokenID.UST_USDC_SABER] : SWAP_SABER,
   [TokenID.SOL_USDC_RAYDIUM]: SWAP_RAYDIUM,
+  [TokenID.RAY_USDC_RAYDIUM]: SWAP_RAYDIUM,
 };
 
 export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
@@ -93,6 +99,7 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.USDC_USDT_ORCA] : Dex.Orca,
   [TokenID.UST_USDC_SABER] : Dex.Saber,
   [TokenID.SOL_USDC_RAYDIUM]: Dex.Raydium,
+  [TokenID.RAY_USDC_RAYDIUM]: Dex.Raydium,
 };
 
 
@@ -242,7 +249,7 @@ export const LP_SWAP_METAS = {
     },
   },
   [TokenID.USDC_USDT_ORCA]: {
-    lpMintPubkey:           new PublicKey("H2uzgruPvonVpCRhwwdukcpXK8TG17swFNzYFr2rtPxy"),
+    lpMintPubkey:           new PublicKey(MINTS[TokenID.USDC_USDT_ORCA]),
 
     swapPubkey:             new PublicKey("F13xvvx45jVGd84ynK3c8T89UejQVxjCLtmHfPmAXAHP"),
     swapAuthority:          new PublicKey("3cGHDS8uWhdxQj14vTmFtYHX3NMouPpE4o9MjQ43Bbf4"),
@@ -308,7 +315,7 @@ export const LP_SWAP_METAS = {
     },
   },
   [TokenID.SOL_USDC_RAYDIUM]: {
-    lpMintPubkey: new PublicKey('8HoQnePLqPj4M7PUDzfw8e3Ymdwgc7NLGnaTUapubyvu'),
+    lpMintPubkey: new PublicKey(MINTS[TokenID.SOL_USDC_RAYDIUM]),
 
     ammIdPubkey: new PublicKey('58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2'),
     ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
@@ -377,12 +384,116 @@ export const LP_SWAP_METAS = {
       return [smetalp.poolCoinTokenPubkey, smetalp.poolPcTokenPubkey];
     },
   },
+  [TokenID.RAY_USDC_RAYDIUM]: {
+    lpMintPubkey: new PublicKey(MINTS[TokenID.RAY_USDC_RAYDIUM]), 
+
+    coinTokenMintPubkey: new PublicKey('4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R'),
+    pcTokenMintPubkey: new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'),
+
+    ammIdPubkey: new PublicKey('6UmmUiYoBjSrhakAobJw8BvkmJtDVxaeBtbt7rxWo1mg'),
+    ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
+    ammOpenOrdersPubkey: new PublicKey('J8u8nTHYtvudyqwLrXZboziN95LpaHFHpd97Jm5vtbkW'),
+    ammTargetOrderPubkey: new PublicKey(
+      '3cji8XW5uhtsA757vELVFAeJpskyHwbnTSceMFY5GjVT'
+    ),
+
+    poolCoinTokenPubkey: new PublicKey('FdmKUE4UMiJYFK5ogCngHzShuVKrFXBamPWcewDr31th'),
+    poolPcTokenPubkey: new PublicKey('Eqrhxd7bDUCH3MepKmdVkgwazXRzY6iHhEoBpY7yAohk'),
+    poolWithdrawQueue: new PublicKey('ERiPLHrxvjsoMuaWDWSTLdCMzRkQSo8SkLBLYEmSokyr'),
+    poolTempLpTokenAccount: new PublicKey(
+      'D1V5GMf3N26owUFcbz2qR5N4G81qPKQvS2Vc4SM73XGB'
+    ),
+
+    serumProgramId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+    serumMarketPubkey: new PublicKey('2xiv8A5xrJ7RnGdxXB42uFEkYHJjszEhaJyKKt4WaLep'),
+    serumCoinVaultAccount: new PublicKey(
+      'GGcdamvNDYFhAXr93DWyJ8QmwawUHLCyRqWL3KngtLRa'
+    ),
+    serumPcVaultAccount: new PublicKey('22jHt5WmosAykp3LPGSAKgY45p7VGh4DFWSwp21SWBVe'),
+    serumVaultSigner: new PublicKey('FmhXe9uG6zun49p222xt3nG1rBAkWvzVz7dxERQ6ouGw'),
+
+    // for stake
+    poolIdPubkey: new PublicKey('CHYrUBX2RKX8iBg7gYTkccoGNBzP44LdaazMHCLcdEgS'),
+    poolAuthorityPubkey: new PublicKey('5KQFnDd33J5NaMC9hQ64P5XzaaSz8Pt7NBCkZFYn1po'),
+    poolLpTokenAccountPubkey: new PublicKey('BNnXLFGva3K8ACruAc1gaP49NCbLkyE6xWhGV4G2HLrs'),
+    poolRewardTokenAccountPubkey: new PublicKey('DpRueBHHhrQNvrjZX7CwGitJDJ8eZc3AHcyFMG4LqCQR'),
+
+    userInfoAccountPubkey: new PublicKey('5BGkQwXsWzQZBipSho88e6zjFjxYPZnToYD1TrcG31r9'),
+
+    getLpDepositKeys: async (_ownerKey: PublicKey) => {
+      const smeta = SWAP_METAS[SWAP_RAYDIUM];
+      const smetaLp = LP_SWAP_METAS[TokenID.RAY_USDC_RAYDIUM];
+      return [
+        { pubkey: smeta.depositProgramPubkey,        isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammIdPubkey,               isSigner: false, isWritable: true },
+        { pubkey: smetaLp.ammAuthPubkey,             isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammOpenOrdersPubkey,       isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammTargetOrderPubkey,      isSigner: false, isWritable: true },
+        { pubkey: smetaLp.lpMintPubkey,              isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolCoinTokenPubkey,       isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolPcTokenPubkey,         isSigner: false, isWritable: true },
+        { pubkey: smetaLp.serumMarketPubkey,         isSigner: false, isWritable: false },
+      ];
+    },
+    getLpWithdrawKeys: async (_ownerKey: PublicKey) => {
+      const smeta = SWAP_METAS[SWAP_RAYDIUM];
+      const smetaLp = LP_SWAP_METAS[TokenID.RAY_USDC_RAYDIUM];
+      return [
+        { pubkey: smeta.depositProgramPubkey,        isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammIdPubkey,               isSigner: false, isWritable: true },
+        { pubkey: smetaLp.ammAuthPubkey,             isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammOpenOrdersPubkey,       isSigner: false, isWritable: false },
+        { pubkey: smetaLp.ammTargetOrderPubkey,      isSigner: false, isWritable: true },
+        { pubkey: smetaLp.lpMintPubkey,              isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolCoinTokenPubkey,       isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolPcTokenPubkey,         isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolWithdrawQueue,         isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolTempLpTokenAccount,    isSigner: false, isWritable: true },
+
+        { pubkey: smetaLp.serumProgramId,            isSigner: false, isWritable: false },
+        { pubkey: smetaLp.serumMarketPubkey,         isSigner: false, isWritable: true },
+        { pubkey: smetaLp.serumCoinVaultAccount,     isSigner: false, isWritable: true },
+        { pubkey: smetaLp.serumPcVaultAccount,       isSigner: false, isWritable: true },
+        { pubkey: smetaLp.serumVaultSigner,          isSigner: false, isWritable: false },
+      ];
+    },
+    getLpStakeKeys: async (ownerKey: PublicKey) => {
+      const smeta = SWAP_METAS[SWAP_RAYDIUM];
+      const smetaLp = LP_SWAP_METAS[TokenID.RAY_USDC_RAYDIUM];
+
+      const userRewardTokenAccountPubkey = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        smetaLp.lpMintPubkey,
+        ownerKey,
+      );
+      return [
+        { pubkey: smeta.stakeProgramPubkey, isSigner: false, isWritable: false, },
+        { pubkey: smetaLp.poolIdPubkey, isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolAuthorityPubkey, isSigner: false, isWritable: false },
+  
+        { pubkey: smetaLp.userInfoAccountPubkey, isSigner: false, isWritable: true },
+        { pubkey: smetaLp.poolLpTokenAccountPubkey, isSigner: false, isWritable: true},
+        { pubkey: userRewardTokenAccountPubkey, isSigner: false, isWritable: true},
+        { pubkey: smetaLp.poolRewardTokenAccountPubkey, isSigner: false, isWritable: true},
+  
+        // Below account are not listed on solscan.io but explorer.solana.com, so you should better check both sites.
+        { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: true },
+      ]
+    },
+    getLRVaults: (): [PublicKey, PublicKey] => {
+      const smetalp = LP_SWAP_METAS[TokenID.SOL_USDC_RAYDIUM];
+      return [smetalp.poolCoinTokenPubkey, smetalp.poolPcTokenPubkey];
+    },
+  }
 };
 
 export const LP_SWAP_INFO : { [key in TokenID]? : LpSwapKeyInfo } = {
   [TokenID.USDT_USDC_SABER] : LP_SWAP_METAS[TokenID.USDT_USDC_SABER] as LpSwapKeyInfo,
   [TokenID.USDC_USDT_ORCA] : LP_SWAP_METAS[TokenID.USDC_USDT_ORCA] as LpSwapKeyInfo,
   [TokenID.SOL_USDC_RAYDIUM] : LP_SWAP_METAS[TokenID.SOL_USDC_RAYDIUM] as LpSwapKeyInfo,
+  [TokenID.RAY_USDC_RAYDIUM] : LP_SWAP_METAS[TokenID.RAY_USDC_RAYDIUM] as LpSwapKeyInfo,
 };
 
 export const SWITCHBOARD_PRICE: { [key in TokenID]? : PublicKey} = {
@@ -420,6 +531,7 @@ export const ALPHA_CONFIG = new AppConfig(
     // pool 7 deprecated
     [TokenID.USDC_USDT_ORCA]: 8,
     [TokenID.SOL_USDC_RAYDIUM]: 9,
+    [TokenID.RAY_USDC_RAYDIUM]: 10,
   },
   LIQUIDATION_DISCOUNT,
   {
@@ -432,6 +544,7 @@ export const ALPHA_CONFIG = new AppConfig(
     [TokenID.UST]: 0.8,
     [TokenID.USDC_USDT_ORCA]: 0.8,
     [TokenID.SOL_USDC_RAYDIUM]: 0.8,
+    [TokenID.RAY_USDC_RAYDIUM]: 0.8,
   },
   LP_TO_LR,
   LP_TO_DEX,
