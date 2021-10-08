@@ -609,7 +609,7 @@ export class TransactionBuilder {
       .add(await this.buildLpOpCheckIx(
         walletKey, leftMintStr, minLeftAmount, rightMintStr, min_rightAmount, lpMintStr, lpAmount, targetSwap, false, is_signed));
 
-    if(unstakeKeys) {
+    if(unstakeKeys.length > 0) {
       const unstake_ix = await this.buildLpUnstakeIx(
         lpMintStr,
         targetSwap,
