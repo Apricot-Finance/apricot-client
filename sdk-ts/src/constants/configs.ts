@@ -245,7 +245,7 @@ export const LP_SWAP_METAS = {
 
     getLRVaults: (): [PublicKey, PublicKey] => {
       const smetalp = LP_SWAP_METAS[TokenID.USDT_USDC_SABER];
-      return [smetalp.tokenAVault, smetalp.tokenBVault];
+      return [smetalp.tokenBVault, smetalp.tokenAVault];
     },
   },
   [TokenID.USDC_USDT_ORCA]: {
