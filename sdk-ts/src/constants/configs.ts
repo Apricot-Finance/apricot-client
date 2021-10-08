@@ -1,7 +1,7 @@
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
 import { SWAP_RAYDIUM } from ".";
-import { TokenID, TokenCategory, AppConfig, Dex } from "../types";
+import { TokenID, TokenCategory, AppConfig, Dex, PoolId } from "../types";
 import { SWAP_ORCA, SWAP_SABER } from "./commands";
 
 export const MINTS: { [key in TokenID]: PublicKey } = {
@@ -44,6 +44,35 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.RAY_USDC_RAYDIUM]: 1e6,
 };
 
+const POOL_IDS: { [key in TokenID]?: PoolId } = {
+  [TokenID.BTC]: 0,
+  [TokenID.ETH]: 1,
+  [TokenID.USDT]: 2,
+  [TokenID.USDC]: 3,
+  [TokenID.SOL]: 4,
+  [TokenID.USDT_USDC_SABER]: 5,
+  [TokenID.UST]: 6,
+  // pool 7 deprecated
+  [TokenID.USDC_USDT_ORCA]: 8,
+  [TokenID.SOL_USDC_RAYDIUM]: 9,
+  [TokenID.RAY_USDC_RAYDIUM]: 10,
+  [TokenID.RAY]: 11,
+};
+
+const LTVS: { [key in TokenID]?: number } = {
+  [TokenID.BTC]: 0.85,
+  [TokenID.ETH]: 0.85,
+  [TokenID.USDT]: 0.91,
+  [TokenID.USDC]: 0.91,
+  [TokenID.SOL]: 0.8,
+  [TokenID.USDT_USDC_SABER]: 0.8,
+  [TokenID.UST]: 0.8,
+  [TokenID.USDC_USDT_ORCA]: 0.8,
+  [TokenID.SOL_USDC_RAYDIUM]: 0.8,
+  [TokenID.RAY_USDC_RAYDIUM]: 0.8,
+  [TokenID.RAY]: 0.8,
+};
+
 export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.BTC] : TokenCategory.Volatile,
   [TokenID.ETH] : TokenCategory.Volatile,
@@ -68,6 +97,7 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.BTC] : 0.04,
   [TokenID.ETH] : 0.04,
   [TokenID.SOL] : 0.04,
+  [TokenID.RAY] : 0.04,
   [TokenID.USDT]: 0.04,
   [TokenID.USDC]: 0.04,
   [TokenID.UST] : 0.04,
@@ -419,6 +449,7 @@ export const LP_SWAP_METAS = {
     poolRewardTokenAccountPubkey: new PublicKey('DpRueBHHhrQNvrjZX7CwGitJDJ8eZc3AHcyFMG4LqCQR'),
 
     userInfoAccountPubkey: new PublicKey('5BGkQwXsWzQZBipSho88e6zjFjxYPZnToYD1TrcG31r9'),
+    userRewardAccountPubkey: new PublicKey('HEQMdvMvaTBpBPT3hvTxEcLMzbRVeTvrY764dw5dRUz3'),
 
     getLpDepositKeys: async (_ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_RAYDIUM];
@@ -457,16 +488,10 @@ export const LP_SWAP_METAS = {
         { pubkey: smetaLp.serumVaultSigner,          isSigner: false, isWritable: false },
       ];
     },
-    getLpStakeKeys: async (ownerKey: PublicKey) => {
+    getLpStakeKeys: async (_ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_RAYDIUM];
       const smetaLp = LP_SWAP_METAS[TokenID.RAY_USDC_RAYDIUM];
 
-      const userRewardTokenAccountPubkey = await Token.getAssociatedTokenAddress(
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-        TOKEN_PROGRAM_ID,
-        smetaLp.lpMintPubkey,
-        ownerKey,
-      );
       return [
         { pubkey: smeta.stakeProgramPubkey, isSigner: false, isWritable: false, },
         { pubkey: smetaLp.poolIdPubkey, isSigner: false, isWritable: true },
@@ -474,12 +499,12 @@ export const LP_SWAP_METAS = {
   
         { pubkey: smetaLp.userInfoAccountPubkey, isSigner: false, isWritable: true },
         { pubkey: smetaLp.poolLpTokenAccountPubkey, isSigner: false, isWritable: true},
-        { pubkey: userRewardTokenAccountPubkey, isSigner: false, isWritable: true},
+        { pubkey: smetaLp.userRewardAccountPubkey, isSigner: false, isWritable: true},
         { pubkey: smetaLp.poolRewardTokenAccountPubkey, isSigner: false, isWritable: true},
   
         // Below account are not listed on solscan.io but explorer.solana.com, so you should better check both sites.
         { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
-        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: true },
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       ]
     },
     getLRVaults: (): [PublicKey, PublicKey] => {
@@ -509,7 +534,7 @@ export const SWITCHBOARD_PRICE: { [key in TokenID]? : PublicKey} = {
   [TokenID.USDT]: new PublicKey("5mp8kbkTYwWWCsKSte8rURjTuyinsqBpJ9xAQsewPDD"),
   [TokenID.USDC]: new PublicKey("CZx29wKMUxaJDq6aLVQTdViPL754tTR64NAgQBUGxxHb"),
   [TokenID.UST]: new PublicKey("8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61"),
-}
+};
 
 // alpha mainnet is where we deploy tests
 export const ALPHA_CONFIG = new AppConfig(
@@ -520,32 +545,9 @@ export const ALPHA_CONFIG = new AppConfig(
   MINTS,
   DECIMAL_MULT,
   CATEGORY,
-  {
-    [TokenID.BTC]: 0,
-    [TokenID.ETH]: 1,
-    [TokenID.USDT]: 2,
-    [TokenID.USDC]: 3,
-    [TokenID.SOL]: 4,
-    [TokenID.USDT_USDC_SABER]: 5,
-    [TokenID.UST]: 6,
-    // pool 7 deprecated
-    [TokenID.USDC_USDT_ORCA]: 8,
-    [TokenID.SOL_USDC_RAYDIUM]: 9,
-    [TokenID.RAY_USDC_RAYDIUM]: 10,
-  },
+  POOL_IDS,
   LIQUIDATION_DISCOUNT,
-  {
-    [TokenID.BTC]: 0.85,
-    [TokenID.ETH]: 0.85,
-    [TokenID.USDT]: 0.91,
-    [TokenID.USDC]: 0.91,
-    [TokenID.SOL]: 0.8,
-    [TokenID.USDT_USDC_SABER]: 0.8,
-    [TokenID.UST]: 0.8,
-    [TokenID.USDC_USDT_ORCA]: 0.8,
-    [TokenID.SOL_USDC_RAYDIUM]: 0.8,
-    [TokenID.RAY_USDC_RAYDIUM]: 0.8,
-  },
+  LTVS,
   LP_TO_LR,
   LP_TO_DEX,
   LP_TO_TARGET_SWAP,
