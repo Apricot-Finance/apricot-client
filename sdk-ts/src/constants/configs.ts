@@ -8,6 +8,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.BTC]: new PublicKey("9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E"),
   [TokenID.ETH]: new PublicKey("2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk"),
   [TokenID.SOL]: new PublicKey("So11111111111111111111111111111111111111112"),
+  [TokenID.mSOL]: new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"),
 
   [TokenID.RAY]: new PublicKey("4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"),
   [TokenID.ORCA]: new PublicKey("orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE"),
@@ -22,12 +23,18 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.UST_USDC_SABER]: new PublicKey("UST32f2JtPGocLzsL41B3VBBoJzTm1mK1j3rwyM3Wgc"),
   [TokenID.SOL_USDC_RAYDIUM]: new PublicKey("8HoQnePLqPj4M7PUDzfw8e3Ymdwgc7NLGnaTUapubyvu"),
   [TokenID.RAY_USDC_RAYDIUM]: new PublicKey("FbC6K13MzHvN42bXrtGaWsvZY9fxrackRSZcBGfjPc7m"),
+  [TokenID.SOL_USDT_RAYDIUM]: new PublicKey("Epm4KfTj4DMrvqn6Bwg2Tr2N8vhQuNbuK8bESFp4k33K"),
+  [TokenID.SOL_USDC_ORCA]: new PublicKey("APDFRM3HMr8CAGXwKHiu2f5ePSpaiEJhaURwhsRrUUt9"),
+  [TokenID.mSOL_SOL_ORCA]: new PublicKey("29cdoMgu6MS2VXpcMo1sqRdWEzdUR9tjvoh8fcK8Z87R"),
+  [TokenID.ORCA_USDC_ORCA]: new PublicKey("n8Mpu28RjeYD7oUX3LG1tPxzhRZh3YYLRSHcHRdS3Zx"),
+  [TokenID.ORCA_SOL_ORCA]: new PublicKey("2uVjAuRXavpM6h1scGQaxqb6HVaNRn6T2X7HHXTabz25"),
 };
 
 export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.BTC] : 1e6,
   [TokenID.ETH] : 1e6,
   [TokenID.SOL] : 1e9,
+  [TokenID.mSOL]: 1e9,
 
   [TokenID.RAY] : 1e6,
   [TokenID.ORCA] : 1e6,
@@ -42,6 +49,11 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.UST_USDC_SABER]: 1e9,
   [TokenID.SOL_USDC_RAYDIUM]: 1e9,
   [TokenID.RAY_USDC_RAYDIUM]: 1e6,
+  [TokenID.SOL_USDT_RAYDIUM]: 1e9,
+  [TokenID.SOL_USDC_ORCA]: 1e6,
+  [TokenID.mSOL_SOL_ORCA]: 1e6,
+  [TokenID.ORCA_USDC_ORCA]: 1e6,
+  [TokenID.ORCA_SOL_ORCA]: 1e6,
 };
 
 const POOL_IDS: { [key in TokenID]?: PoolId } = {
@@ -57,6 +69,12 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.SOL_USDC_RAYDIUM]: 9,
   [TokenID.RAY_USDC_RAYDIUM]: 10,
   [TokenID.RAY]: 11,
+  [TokenID.mSOL]: 12,
+  [TokenID.SOL_USDT_RAYDIUM]: 13,
+  [TokenID.SOL_USDC_ORCA]: 14,
+  [TokenID.mSOL_SOL_ORCA]: 15,
+  [TokenID.ORCA_USDC_ORCA]: 16,
+  [TokenID.ORCA_SOL_ORCA]: 16,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
@@ -65,18 +83,25 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.USDT]: 0.91,
   [TokenID.USDC]: 0.91,
   [TokenID.SOL]: 0.8,
+  [TokenID.mSOL]: 0.8,
   [TokenID.USDT_USDC_SABER]: 0.8,
   [TokenID.UST]: 0.8,
   [TokenID.USDC_USDT_ORCA]: 0.8,
   [TokenID.SOL_USDC_RAYDIUM]: 0.8,
   [TokenID.RAY_USDC_RAYDIUM]: 0.8,
+  [TokenID.SOL_USDT_RAYDIUM]: 0.8,
   [TokenID.RAY]: 0.8,
+  [TokenID.SOL_USDC_ORCA]: 0.8,
+  [TokenID.mSOL_SOL_ORCA]: 0.8,
+  [TokenID.ORCA_USDC_ORCA]: 0.8,
+  [TokenID.ORCA_SOL_ORCA]: 0.8,
 };
 
 export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.BTC] : TokenCategory.Volatile,
   [TokenID.ETH] : TokenCategory.Volatile,
   [TokenID.SOL] : TokenCategory.Volatile,
+  [TokenID.mSOL] : TokenCategory.Volatile,
 
   [TokenID.RAY] : TokenCategory.Volatile,
   [TokenID.ORCA] : TokenCategory.Volatile,
@@ -91,12 +116,18 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.UST_USDC_SABER]: TokenCategory.Lp,
   [TokenID.SOL_USDC_RAYDIUM]: TokenCategory.Lp,
   [TokenID.RAY_USDC_RAYDIUM]: TokenCategory.Lp,
+  [TokenID.SOL_USDT_RAYDIUM]: TokenCategory.Lp,
+  [TokenID.SOL_USDC_ORCA]: TokenCategory.Lp,
+  [TokenID.mSOL_SOL_ORCA]: TokenCategory.Lp,
+  [TokenID.ORCA_USDC_ORCA]: TokenCategory.Lp,
+  [TokenID.ORCA_SOL_ORCA]: TokenCategory.Lp,
 };
 
 export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.BTC] : 0.04,
   [TokenID.ETH] : 0.04,
   [TokenID.SOL] : 0.04,
+  [TokenID.mSOL] : 0.04,
   [TokenID.RAY] : 0.04,
   [TokenID.USDT]: 0.04,
   [TokenID.USDC]: 0.04,
@@ -106,6 +137,11 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.UST_USDC_SABER]: 0,
   [TokenID.SOL_USDC_RAYDIUM]: 0,
   [TokenID.RAY_USDC_RAYDIUM]: 0,
+  [TokenID.SOL_USDT_RAYDIUM]: 0,
+  [TokenID.SOL_USDC_ORCA]: 0,
+  [TokenID.mSOL_SOL_ORCA]: 0,
+  [TokenID.ORCA_USDC_ORCA]: 0,
+  [TokenID.ORCA_SOL_ORCA]: 0,
 };
 
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
@@ -114,6 +150,11 @@ export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.UST_USDC_SABER] : [TokenID.UST, TokenID.USDC],
   [TokenID.SOL_USDC_RAYDIUM]: [TokenID.SOL, TokenID.USDC],
   [TokenID.RAY_USDC_RAYDIUM]: [TokenID.RAY, TokenID.USDC],
+  [TokenID.SOL_USDT_RAYDIUM]: [TokenID.SOL, TokenID.USDT],
+  [TokenID.SOL_USDC_ORCA]: [TokenID.SOL, TokenID.USDC],
+  [TokenID.mSOL_SOL_ORCA]: [TokenID.mSOL, TokenID.SOL],
+  [TokenID.ORCA_USDC_ORCA]: [TokenID.ORCA, TokenID.USDC],
+  [TokenID.ORCA_SOL_ORCA]: [TokenID.ORCA, TokenID.SOL],
 };
 
 export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
@@ -122,6 +163,11 @@ export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.UST_USDC_SABER] : SWAP_SABER,
   [TokenID.SOL_USDC_RAYDIUM]: SWAP_RAYDIUM,
   [TokenID.RAY_USDC_RAYDIUM]: SWAP_RAYDIUM,
+  [TokenID.SOL_USDT_RAYDIUM]: SWAP_RAYDIUM,
+  [TokenID.SOL_USDC_ORCA]: SWAP_ORCA,
+  [TokenID.mSOL_SOL_ORCA]: SWAP_ORCA,
+  [TokenID.ORCA_USDC_ORCA]: SWAP_ORCA,
+  [TokenID.ORCA_SOL_ORCA]: SWAP_ORCA,
 };
 
 export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
@@ -130,6 +176,11 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.UST_USDC_SABER] : Dex.Saber,
   [TokenID.SOL_USDC_RAYDIUM]: Dex.Raydium,
   [TokenID.RAY_USDC_RAYDIUM]: Dex.Raydium,
+  [TokenID.SOL_USDT_RAYDIUM]: Dex.Raydium,
+  [TokenID.SOL_USDC_ORCA]: Dex.Orca,
+  [TokenID.mSOL_SOL_ORCA]: Dex.Orca,
+  [TokenID.ORCA_USDC_ORCA]: Dex.Orca,
+  [TokenID.ORCA_SOL_ORCA]: Dex.Orca,
 };
 
 
