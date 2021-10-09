@@ -229,6 +229,7 @@ export interface AssetPool {
   reward_borrow_index     : Decimal;
 
   deposit_cap       : Decimal;
+  is_disabled       : boolean;
 }
 
 export interface AssetPrice {

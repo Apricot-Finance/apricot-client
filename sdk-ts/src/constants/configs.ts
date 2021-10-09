@@ -131,7 +131,6 @@ const INTEREST_RATES: {[key in TokenID]?: InterestRate} = {
   [TokenID.mSOL]:new InterestRate(0.02, 0.85, 0.20, 2.0),
 
   [TokenID.RAY]: new InterestRate(0.02, 0.85, 0.20, 2.0),
-  [TokenID.RAY]: new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.ORCA]:new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.SBR]: new InterestRate(0.02, 0.85, 0.20, 2.0),
 

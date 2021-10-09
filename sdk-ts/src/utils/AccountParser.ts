@@ -99,7 +99,7 @@ export class AccountParser {
       8, 8,
       8, 8, 8, 8, 8, 
       8, 8,
-      8,
+      8, 1,
     ];
     const [offsets, ends] = AccountParser.getOffsets(widths);
     return {
@@ -152,6 +152,7 @@ export class AccountParser {
       reward_borrow_index     : AccountParser.parseFloat64(data.buffer, offsets[35]),
 
       deposit_cap     : AccountParser.parseBigUint64(data.buffer, offsets[36]),
+      is_disabled     : data[offsets[37]] > 0,
     };
   }
 
