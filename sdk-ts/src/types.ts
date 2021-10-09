@@ -66,6 +66,12 @@ export class PoolConfig {
       invariant( lpLeftRightPoolId !== null && lpLeftRightPoolId !== undefined);
       invariant( lpDex !== null && lpDex !== undefined);
       invariant( lpTargetSwap !== null && lpTargetSwap !== undefined);
+      const [lTokId, rTokId] = lpLeftRightTokenId;
+      const [lPoolId, rPoolId] = lpLeftRightPoolId;
+      invariant(lTokId, `${tokenId} missing lTokId`);
+      invariant(rTokId, `${tokenId} missing rTokId`);
+      invariant(lPoolId >= 0, `${tokenId} missing lPoolId`);
+      invariant(rPoolId >= 0, `${tokenId} missing rPoolId`);
     }
     else {
       invariant(interestRate);

@@ -73,11 +73,12 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.RAY_USDC_RAYDIUM]: 10,
   [TokenID.RAY]: 11,
   [TokenID.mSOL]: 12,
-  [TokenID.SOL_USDT_RAYDIUM]: 13,
-  [TokenID.SOL_USDC_ORCA]: 14,
-  [TokenID.mSOL_SOL_ORCA]: 15,
-  [TokenID.ORCA_USDC_ORCA]: 16,
-  [TokenID.ORCA_SOL_ORCA]: 17,
+  [TokenID.ORCA]: 13,
+  [TokenID.SOL_USDT_RAYDIUM]: 14,
+  [TokenID.SOL_USDC_ORCA]: 15,
+  [TokenID.mSOL_SOL_ORCA]: 16,
+  [TokenID.ORCA_USDC_ORCA]: 17,
+  [TokenID.ORCA_SOL_ORCA]: 18,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
@@ -87,6 +88,7 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.SOL]: 0.8,
 
   [TokenID.RAY]: 0.8,
+  [TokenID.ORCA]: 0.8,
 
   [TokenID.USDT]: 0.90,
   [TokenID.USDC]: 0.90,
@@ -145,6 +147,7 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.SOL]: 0.2,
 
   [TokenID.RAY]: 0.2,
+  [TokenID.ORCA]: 0.2,
 
   [TokenID.USDT]: 0.2,
   [TokenID.USDC]: 0.2,
@@ -193,10 +196,14 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.ETH] : 0.04,
   [TokenID.SOL] : 0.04,
   [TokenID.mSOL] : 0.04,
+
   [TokenID.RAY] : 0.04,
+  [TokenID.ORCA] : 0.04,
+
   [TokenID.USDT]: 0.04,
   [TokenID.USDC]: 0.04,
   [TokenID.UST] : 0.04,
+
   [TokenID.USDT_USDC_SABER]: 0,
   [TokenID.USDC_USDT_ORCA]: 0,
   [TokenID.UST_USDC_SABER]: 0,
