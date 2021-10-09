@@ -1,5 +1,6 @@
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountMeta, PublicKey, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
+import invariant from "tiny-invariant";
 import { SWAP_RAYDIUM } from ".";
 import { TokenID, TokenCategory, AppConfig, Dex, PoolId } from "../types";
 import { SWAP_ORCA, SWAP_SABER } from "./commands";
@@ -18,6 +19,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.USDT]: new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
   [TokenID.USDC]: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
   [TokenID.UST]: new PublicKey("CXLBjMMcwkc17GfJtBos6rQCo1ypeH6eDbB82Kby4MRm"),
+
   [TokenID.USDT_USDC_SABER]: new PublicKey("2poo1w1DL6yd2WNTCnNTzDqkC6MBXq7axo77P16yrBuf"),
   [TokenID.USDC_USDT_ORCA]: new PublicKey("H2uzgruPvonVpCRhwwdukcpXK8TG17swFNzYFr2rtPxy"),
   [TokenID.UST_USDC_SABER]: new PublicKey("UST32f2JtPGocLzsL41B3VBBoJzTm1mK1j3rwyM3Wgc"),
@@ -44,6 +46,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.USDT]: 1e6,
   [TokenID.USDC]: 1e6,
   [TokenID.UST] : 1e9,
+
   [TokenID.USDT_USDC_SABER]: 1e6,
   [TokenID.USDC_USDT_ORCA]: 1e6,
   [TokenID.UST_USDC_SABER]: 1e9,
@@ -74,27 +77,88 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.SOL_USDC_ORCA]: 14,
   [TokenID.mSOL_SOL_ORCA]: 15,
   [TokenID.ORCA_USDC_ORCA]: 16,
-  [TokenID.ORCA_SOL_ORCA]: 16,
+  [TokenID.ORCA_SOL_ORCA]: 17,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
   [TokenID.BTC]: 0.85,
   [TokenID.ETH]: 0.85,
-  [TokenID.USDT]: 0.91,
-  [TokenID.USDC]: 0.91,
-  [TokenID.SOL]: 0.8,
   [TokenID.mSOL]: 0.8,
-  [TokenID.USDT_USDC_SABER]: 0.8,
+  [TokenID.SOL]: 0.8,
+
+  [TokenID.RAY]: 0.8,
+
+  [TokenID.USDT]: 0.90,
+  [TokenID.USDC]: 0.90,
   [TokenID.UST]: 0.8,
+
+  [TokenID.USDT_USDC_SABER]: 0.8,
   [TokenID.USDC_USDT_ORCA]: 0.8,
   [TokenID.SOL_USDC_RAYDIUM]: 0.8,
   [TokenID.RAY_USDC_RAYDIUM]: 0.8,
   [TokenID.SOL_USDT_RAYDIUM]: 0.8,
-  [TokenID.RAY]: 0.8,
   [TokenID.SOL_USDC_ORCA]: 0.8,
   [TokenID.mSOL_SOL_ORCA]: 0.8,
   [TokenID.ORCA_USDC_ORCA]: 0.8,
   [TokenID.ORCA_SOL_ORCA]: 0.8,
+};
+
+export class InterestRate {
+  multiplier: number;
+  jumpMultiplier: number;
+  constructor(
+    public baseRate: number,
+    public kink: number,
+    public kinkRate: number,
+    public fullRate: number,
+  ) {
+    invariant(baseRate >= 0);
+    invariant(kink > 0);
+    invariant(kink < 1);
+    invariant(kinkRate > 0);
+    invariant(fullRate > kinkRate);
+    this.multiplier = (kinkRate - baseRate) / kink;
+    this.jumpMultiplier = (fullRate - kinkRate) / (1 - kink);
+  }
+}
+
+const INTEREST_RATES: {[key in TokenID]?: InterestRate} = {
+  [TokenID.BTC]: new InterestRate(0.02, 0.85, 0.20, 2.0),
+  [TokenID.ETH]: new InterestRate(0.02, 0.85, 0.20, 2.0),
+  [TokenID.SOL]: new InterestRate(0.02, 0.85, 0.20, 2.0),
+  [TokenID.mSOL]:new InterestRate(0.02, 0.85, 0.20, 2.0),
+
+  [TokenID.RAY]: new InterestRate(0.02, 0.85, 0.20, 2.0),
+  [TokenID.RAY]: new InterestRate(0.02, 0.85, 0.20, 2.0),
+  [TokenID.ORCA]:new InterestRate(0.02, 0.85, 0.20, 2.0),
+  [TokenID.SBR]: new InterestRate(0.02, 0.85, 0.20, 2.0),
+
+  [TokenID.USDT]:new InterestRate(0.01, 0.85, 0.08, 1.0),
+  [TokenID.USDC]:new InterestRate(0.01, 0.85, 0.08, 1.0),
+  [TokenID.UST]: new InterestRate(0.01, 0.85, 0.08, 1.0),
+}
+
+const FEES: { [key in TokenID]?: number } = {
+  [TokenID.BTC]: 0.2,
+  [TokenID.ETH]: 0.2,
+  [TokenID.mSOL]: 0.2,
+  [TokenID.SOL]: 0.2,
+
+  [TokenID.RAY]: 0.2,
+
+  [TokenID.USDT]: 0.2,
+  [TokenID.USDC]: 0.2,
+  [TokenID.UST]: 0.2,
+
+  [TokenID.USDT_USDC_SABER]: 0.0,   // no farming
+  [TokenID.USDC_USDT_ORCA]: 0.2,
+  [TokenID.SOL_USDC_RAYDIUM]: 0.0,  // no reward
+  [TokenID.RAY_USDC_RAYDIUM]: 0.2,
+  [TokenID.SOL_USDT_RAYDIUM]: 0.0,  // no reward
+  [TokenID.SOL_USDC_ORCA]: 0.2,
+  [TokenID.mSOL_SOL_ORCA]: 0.2,
+  [TokenID.ORCA_USDC_ORCA]: 0.2,
+  [TokenID.ORCA_SOL_ORCA]: 0.2,
 };
 
 export const CATEGORY: { [key in TokenID]: TokenCategory } = {
@@ -111,6 +175,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.USDT]: TokenCategory.Stable,
   [TokenID.USDC]: TokenCategory.Stable,
   [TokenID.UST] : TokenCategory.Stable,
+
   [TokenID.USDT_USDC_SABER]: TokenCategory.Lp,
   [TokenID.USDC_USDT_ORCA]: TokenCategory.Lp,
   [TokenID.UST_USDC_SABER]: TokenCategory.Lp,
@@ -603,6 +668,8 @@ export const ALPHA_CONFIG = new AppConfig(
   LP_TO_DEX,
   LP_TO_TARGET_SWAP,
   SWITCHBOARD_PRICE,
+  INTEREST_RATES,
+  FEES,
 );
 
 // public mainnet is where the real thing is
@@ -622,4 +689,6 @@ export const PUBLIC_CONFIG = new AppConfig(
   LP_TO_DEX,
   LP_TO_TARGET_SWAP,
   SWITCHBOARD_PRICE,
+  INTEREST_RATES,
+  FEES,
 );

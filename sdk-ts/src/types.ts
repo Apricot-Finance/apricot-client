@@ -1,6 +1,7 @@
 import { Decimal } from "decimal.js";
 import { PublicKey } from "@solana/web3.js";
 import invariant from "tiny-invariant";
+import { InterestRate } from "./constants";
 
 export enum TokenID {
   BTC = "BTC",
@@ -50,17 +51,24 @@ export class PoolConfig {
     public lpLeftRightPoolId: [PoolId, PoolId] | null,
     public lpDex: Dex | null,
     public lpTargetSwap: number | null,
+    public interestRate: InterestRate | null,
+    public reserveRatio: number,
   ) {
     invariant(tokenId);
     invariant(poolId >= 0);
     invariant(ltv >= 0);
     invariant(mint);
     invariant(liquidationDiscount >= 0);
+    invariant(reserveRatio>=0);
+    invariant(reserveRatio <= 0.2);
     if(tokenCategory === TokenCategory.Lp) {
       invariant( lpLeftRightTokenId !== null && lpLeftRightTokenId !== undefined);
       invariant( lpLeftRightPoolId !== null && lpLeftRightPoolId !== undefined);
       invariant( lpDex !== null && lpDex !== undefined);
       invariant( lpTargetSwap !== null && lpTargetSwap !== undefined);
+    }
+    else {
+      invariant(interestRate);
     }
   }
 
@@ -97,12 +105,14 @@ export class AppConfig {
     public lpToDex: { [key in TokenID]?: Dex | undefined },
     public lpToTargetSwap: { [key in TokenID]?: number | undefined },
     public switchboardPriceKeys: { [key in TokenID]?: PublicKey; },
+    public interestRates: { [key in TokenID]?: InterestRate; },
+    public fees: { [key in TokenID]?: number },
   ) {
     this.mints = mints;
     this.tokenIdToPoolId = tokenIdToPoolId;
     const poolIds = Object.values(tokenIdToPoolId);
     const idSet = new Set(poolIds);
-    invariant(poolIds.length === idSet.size);
+    invariant(poolIds.length === idSet.size, `poolIds length: ${poolIds.length} != idSet.size: ${idSet.size}`);
     this.poolConfigs = {};
     for (const tokenId in tokenIdToPoolId) {
       const tokId = tokenId as TokenID;
@@ -117,6 +127,8 @@ export class AppConfig {
         categories[tokId] === TokenCategory.Lp? getLpLRPoolIds(tokId, lpToLR, tokenIdToPoolId) : null,
         categories[tokId] === TokenCategory.Lp? lpToDex[tokId]! : null,
         categories[tokId] === TokenCategory.Lp? lpToTargetSwap[tokId]! : null,
+        categories[tokId] === TokenCategory.Lp? null : interestRates[tokId]!,
+        fees[tokId]!,
       );
     }
   }
