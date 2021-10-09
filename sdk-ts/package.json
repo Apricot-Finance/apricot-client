@@ -21,6 +21,8 @@
   },
   "scripts": {
     "build": "rm -rf dist; tsc -p tsconfig.json",
+    "print": "node dist/tools/doPrint.js",
+    "loadjs": "node dist/index.js",
     "lint": "eslint src",
     "fix": "eslint --fix src"
   },
