@@ -13,6 +13,10 @@ async function doPrice() {
     console.log(`Fetching price for ${tokId}`);
     const price = await priceInfo.fetchPrice(tokId, conn);
     console.log(`Price for ${tokId}: ${price}`);
+    if (poolConfig.isLp()) {
+      const amounts = await priceInfo.fetchLRLpAmounts(tokId, conn);
+      console.log(amounts);
+    }
   }
 
   process.exit();

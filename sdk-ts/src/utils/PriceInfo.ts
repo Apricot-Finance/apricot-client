@@ -81,4 +81,16 @@ export class PriceInfo {
   async fetchLRValuets(lpTokId: TokenID, connection: Connection): Promise<[number, number]> {
     return this.fetchLRStats(lpTokId, connection, true);
   }
+
+  async fetchLRLpAmounts(lpTokId: TokenID, connection: Connection): Promise<[number, number, number]> {
+    const [leftAmt, rightAmt] = await this.fetchLRStats(lpTokId, connection, false);
+    const poolConfig = this.config.poolConfigs[lpTokId]!;
+    invariant(poolConfig.isLp());
+    const lpMint = poolConfig.mint;
+    const lpMintData = (await connection.getParsedAccountInfo(lpMint)).value?.data as any;
+    const lpBalanceStr = lpMintData.parsed?.info.supply;
+    const decimalMult = DECIMAL_MULT[lpTokId];
+    const lpBalance = new Decimal(lpBalanceStr).div(decimalMult).toNumber();
+    return [leftAmt, rightAmt, lpBalance];
+  }
 }
