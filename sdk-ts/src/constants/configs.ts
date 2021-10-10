@@ -2,6 +2,7 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/sp
 import { PublicKey, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
 import invariant from "tiny-invariant";
 import { SWAP_RAYDIUM } from ".";
+import { getAssociatedTokenPubkey } from "..";
 import { TokenID, TokenCategory, AppConfig, Dex, PoolId, LpSwapKeyInfo } from "../types";
 import { SWAP_ORCA, SWAP_SABER } from "./commands";
 
@@ -409,9 +410,22 @@ export const LP_SWAP_METAS  = {
     rewardTokenAuthority:   new PublicKey("5YGvg6mfuvJtHdVWDXTs4sYy6GwQAUduK8qurDcL111S"),
     feeAccount:             new PublicKey("B4RNxMJGRzKFQyTq2Uwkmpyjtew13n7KtdqZy6qgENTu"),
 
-    pdaFarmTokenAccount:    new PublicKey("4WBjH6U8xXoycDMtuEdMRx35R3ZBtE9z5vBP2YravvUk"),
-    pdaFarmState:           new PublicKey("7jpHoqo8pw5EZD4gEBBhicZmKp3tcMH6Qp2e7WK7xVXV"),
-    pdaRewardTokenAccount:  new PublicKey("14m3NvUVx7o1ctTXaPKpVeUWT6ThrMR2U2tQC3Yu2DUt"),
+    getPdaKeys: async (ownerKey: PublicKey) => {
+      const smeta = SWAP_METAS[SWAP_ORCA];
+      const smetalp = LP_SWAP_METAS[TokenID.USDC_USDT_ORCA];
+      const pdaFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, smetalp.farmTokenMint, true);
+      const pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey,MINTS[TokenID.ORCA], true);
+      const pdaFarmState = (await PublicKey.findProgramAddress(
+        [smetalp.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
+        smeta.farmProgramPubkey
+      ))[0];
+
+      return {
+        pdaFarmTokenAccount,
+        pdaRewardTokenAccount,
+        pdaFarmState
+      };
+    },
 
     getLpDepositKeys: async (_ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
@@ -438,18 +452,19 @@ export const LP_SWAP_METAS  = {
         { pubkey: smetalp.feeAccount,         isSigner: false, isWritable: true }
       ];
     },
-    getLpStakeKeys: async (_ownerKey: PublicKey) => {
+    getLpStakeKeys: async (ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
       const smetalp = LP_SWAP_METAS[TokenID.USDC_USDT_ORCA];
+      const pdaKeys = await smetalp.getPdaKeys(ownerKey);
       return [
         { pubkey: smeta.farmProgramPubkey,        isSigner: false, isWritable: false },
         { pubkey: smetalp.globalLpVault,          isSigner: false, isWritable: true },
         { pubkey: smetalp.farmTokenMint,          isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaFarmTokenAccount,    isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaFarmTokenAccount,    isSigner: false, isWritable: true },
         { pubkey: smetalp.globalFarmState,        isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaFarmState,           isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaFarmState,           isSigner: false, isWritable: true },
         { pubkey: smetalp.globalRewardTokenVault, isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
         { pubkey: smetalp.rewardTokenAuthority,   isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID,               isSigner: false, isWritable: false }
       ];
@@ -713,9 +728,22 @@ export const LP_SWAP_METAS  = {
     rewardTokenAuthority:   new PublicKey("MDcWkwPqr5HrA91g4GGax7bVP1NDDetnR12nGhoAdYj"),
     feeAccount:             new PublicKey("8JnSiuvQq3BVuCU3n4DrSTw9chBSPvEMswrhtifVkr1o"),
 
-    pdaFarmTokenAccount:    new PublicKey("7wcuDci59QqVaLPe85adCTc9HgVffCmTobjYb2r9zGHF"),
-    pdaFarmState:           new PublicKey("5B5ERKN7S563N7F2QruHcbdxsCsjuDtyHXokJhCc4LuC"),
-    pdaRewardTokenAccount:  new PublicKey("14m3NvUVx7o1ctTXaPKpVeUWT6ThrMR2U2tQC3Yu2DUt"),
+    getPdaKeys: async (ownerKey: PublicKey) => {
+      const smeta = SWAP_METAS[SWAP_ORCA];
+      const smetalp = LP_SWAP_METAS[TokenID.SOL_USDC_ORCA];
+      const pdaFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, smetalp.farmTokenMint, true);
+      const pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey, MINTS[TokenID.ORCA], true);
+      const pdaFarmState = (await PublicKey.findProgramAddress(
+        [smetalp.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
+        smeta.farmProgramPubkey
+      ))[0];
+
+      return {
+        pdaFarmTokenAccount,
+        pdaRewardTokenAccount,
+        pdaFarmState
+      };
+    },
 
     getLpDepositKeys: async (_ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
@@ -742,18 +770,19 @@ export const LP_SWAP_METAS  = {
         { pubkey: smetalp.feeAccount,         isSigner: false, isWritable: true }
       ];
     },
-    getLpStakeKeys: async (_ownerKey: PublicKey) => {
+    getLpStakeKeys: async (ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
       const smetalp = LP_SWAP_METAS[TokenID.SOL_USDC_ORCA];
+      const pdaKeys = await smetalp.getPdaKeys(ownerKey);
       return [
         { pubkey: smeta.farmProgramPubkey,        isSigner: false, isWritable: false },
         { pubkey: smetalp.globalLpVault,          isSigner: false, isWritable: true },
         { pubkey: smetalp.farmTokenMint,          isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaFarmTokenAccount,    isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaFarmTokenAccount,    isSigner: false, isWritable: true },
         { pubkey: smetalp.globalFarmState,        isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaFarmState,           isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaFarmState,           isSigner: false, isWritable: true },
         { pubkey: smetalp.globalRewardTokenVault, isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
         { pubkey: smetalp.rewardTokenAuthority,   isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID,               isSigner: false, isWritable: false }
       ];
@@ -779,9 +808,22 @@ export const LP_SWAP_METAS  = {
     rewardTokenAuthority:   new PublicKey("CtXKDXJ4wzgto48QQFANestEgtov5dJRrs9qpRw7BV1h"),
     feeAccount:             new PublicKey("6j2tt2UVYMQwqG3hRtyydW3odzBFwy3pN33tyB3xCKQ6"),
 
-    pdaFarmTokenAccount:    new PublicKey("BGrazoXgVQqvCUnZtp1awXGvao9W6XozUQDxFUu6Yu1L"),
-    pdaFarmState:           new PublicKey("G9SoHxQioYf2kn8DTKYqbncidDfsV5ET4z5pbExhwmfo"),
-    pdaRewardTokenAccount:  new PublicKey("14m3NvUVx7o1ctTXaPKpVeUWT6ThrMR2U2tQC3Yu2DUt"),
+    getPdaKeys: async (ownerKey: PublicKey) => {
+      const smeta = SWAP_METAS[SWAP_ORCA];
+      const smetalp = LP_SWAP_METAS[TokenID.mSOL_SOL_ORCA];
+      const pdaFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, smetalp.farmTokenMint, true);
+      const pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey,MINTS[TokenID.ORCA], true);
+      const pdaFarmState = (await PublicKey.findProgramAddress(
+        [smetalp.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
+        smeta.farmProgramPubkey
+      ))[0];
+
+      return {
+        pdaFarmTokenAccount,
+        pdaRewardTokenAccount,
+        pdaFarmState
+      };
+    },
 
     getLpDepositKeys: async (_ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
@@ -808,18 +850,19 @@ export const LP_SWAP_METAS  = {
         { pubkey: smetalp.feeAccount,         isSigner: false, isWritable: true }
       ];
     },
-    getLpStakeKeys: async (_ownerKey: PublicKey) => {
+    getLpStakeKeys: async (ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
       const smetalp = LP_SWAP_METAS[TokenID.mSOL_SOL_ORCA];
+      const pdaKeys = await smetalp.getPdaKeys(ownerKey);
       return [
         { pubkey: smeta.farmProgramPubkey,        isSigner: false, isWritable: false },
         { pubkey: smetalp.globalLpVault,          isSigner: false, isWritable: true },
         { pubkey: smetalp.farmTokenMint,          isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaFarmTokenAccount,    isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaFarmTokenAccount,    isSigner: false, isWritable: true },
         { pubkey: smetalp.globalFarmState,        isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaFarmState,           isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaFarmState,           isSigner: false, isWritable: true },
         { pubkey: smetalp.globalRewardTokenVault, isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
         { pubkey: smetalp.rewardTokenAuthority,   isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID,               isSigner: false, isWritable: false }
       ];
@@ -845,9 +888,22 @@ export const LP_SWAP_METAS  = {
     rewardTokenAuthority:   new PublicKey("66xaEjFoYfRcspc18oDj61mXDyznr9zam6tFNeqvs2jK"),
     feeAccount:             new PublicKey("7CXZED4jfRp3qdHB9Py3up6v1C4UhHofFvfT6RXbJLRN"),
 
-    pdaFarmTokenAccount:    new PublicKey("BATjhFf1bqz2e9PKpQBkxtuuwNj1eiPCgPSyWqon61aQ"),
-    pdaFarmState:           new PublicKey("8wbrVuiHzWRujghHNrWmNumfuCJiqRzfihnrKq78B28y"),
-    pdaRewardTokenAccount:  new PublicKey("14m3NvUVx7o1ctTXaPKpVeUWT6ThrMR2U2tQC3Yu2DUt"),
+    getPdaKeys: async (ownerKey: PublicKey) => {
+      const smeta = SWAP_METAS[SWAP_ORCA];
+      const smetalp = LP_SWAP_METAS[TokenID.ORCA_USDC_ORCA];
+      const pdaFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, smetalp.farmTokenMint, true);
+      const pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey, MINTS[TokenID.ORCA], true);
+      const pdaFarmState = (await PublicKey.findProgramAddress(
+        [smetalp.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
+        smeta.farmProgramPubkey
+      ))[0];
+
+      return {
+        pdaFarmTokenAccount,
+        pdaRewardTokenAccount,
+        pdaFarmState
+      };
+    },
 
     getLpDepositKeys: async (_ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
@@ -874,18 +930,19 @@ export const LP_SWAP_METAS  = {
         { pubkey: smetalp.feeAccount,         isSigner: false, isWritable: true }
       ];
     },
-    getLpStakeKeys: async (_ownerKey: PublicKey) => {
+    getLpStakeKeys: async (ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
       const smetalp = LP_SWAP_METAS[TokenID.ORCA_USDC_ORCA];
+      const pdaKeys = await smetalp.getPdaKeys(ownerKey);
       return [
         { pubkey: smeta.farmProgramPubkey,        isSigner: false, isWritable: false },
         { pubkey: smetalp.globalLpVault,          isSigner: false, isWritable: true },
         { pubkey: smetalp.farmTokenMint,          isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaFarmTokenAccount,    isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaFarmTokenAccount,    isSigner: false, isWritable: true },
         { pubkey: smetalp.globalFarmState,        isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaFarmState,           isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaFarmState,           isSigner: false, isWritable: true },
         { pubkey: smetalp.globalRewardTokenVault, isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
         { pubkey: smetalp.rewardTokenAuthority,   isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID,               isSigner: false, isWritable: false }
       ];
@@ -911,9 +968,22 @@ export const LP_SWAP_METAS  = {
     rewardTokenAuthority:   new PublicKey("98RAHBKRTTC87nNwug1GEAnLVgouk9nRaa3u14jrp6Zz"),
     feeAccount:             new PublicKey("4Zc4kQZhRQeGztihvcGSWezJE1k44kKEgPCAkdeBfras"),
 
-    pdaFarmTokenAccount:    new PublicKey("6knL6Q4TvXCWNddBV15jNuWsmYDvSsSDQkZ9dmQmUqYC"), // lp 2
-    pdaFarmState:           new PublicKey("GUut9DS6tn9P536ny7ocCXUqvsA1j4ah9ou7JaBsq4jg"),
-    pdaRewardTokenAccount:  new PublicKey("14m3NvUVx7o1ctTXaPKpVeUWT6ThrMR2U2tQC3Yu2DUt"),
+    getPdaKeys: async (ownerKey: PublicKey) => {
+      const smeta = SWAP_METAS[SWAP_ORCA];
+      const smetalp = LP_SWAP_METAS[TokenID.ORCA_SOL_ORCA];
+      const pdaFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, smetalp.farmTokenMint, true);
+      const pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey, MINTS[TokenID.ORCA], true);
+      const pdaFarmState = (await PublicKey.findProgramAddress(
+        [smetalp.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
+        smeta.farmProgramPubkey
+      ))[0];
+
+      return {
+        pdaFarmTokenAccount,
+        pdaRewardTokenAccount,
+        pdaFarmState
+      };
+    },
 
     getLpDepositKeys: async (_ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
@@ -940,18 +1010,19 @@ export const LP_SWAP_METAS  = {
         { pubkey: smetalp.feeAccount,         isSigner: false, isWritable: true }
       ];
     },
-    getLpStakeKeys: async (_ownerKey: PublicKey) => {
+    getLpStakeKeys: async (ownerKey: PublicKey) => {
       const smeta = SWAP_METAS[SWAP_ORCA];
       const smetalp = LP_SWAP_METAS[TokenID.ORCA_SOL_ORCA];
+      const pdaKeys = await smetalp.getPdaKeys(ownerKey);
       return [
         { pubkey: smeta.farmProgramPubkey,        isSigner: false, isWritable: false },
         { pubkey: smetalp.globalLpVault,          isSigner: false, isWritable: true },
         { pubkey: smetalp.farmTokenMint,          isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaFarmTokenAccount,    isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaFarmTokenAccount,    isSigner: false, isWritable: true },
         { pubkey: smetalp.globalFarmState,        isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaFarmState,           isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaFarmState,           isSigner: false, isWritable: true },
         { pubkey: smetalp.globalRewardTokenVault, isSigner: false, isWritable: true },
-        { pubkey: smetalp.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
+        { pubkey: pdaKeys.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
         { pubkey: smetalp.rewardTokenAuthority,   isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID,               isSigner: false, isWritable: false }
       ];
