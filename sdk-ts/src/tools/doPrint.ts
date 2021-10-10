@@ -1,9 +1,13 @@
-import { ALPHA_CONFIG } from "../constants";
+import { ALPHA_CONFIG, PUBLIC_CONFIG } from "../constants";
 import { Addresses } from "../addresses";
+import invariant from "tiny-invariant";
+
+const [,,production] = process.argv;
+invariant(['alpha', 'public'].includes(production))
 
 
 async function printAddresses() {
-  const config = ALPHA_CONFIG;
+  const config = production === 'alpha' ? ALPHA_CONFIG : PUBLIC_CONFIG;
   const consts = new Addresses(config);
   const [base_pda, bbump] = await consts.getBasePda();
   const [price_pda, pbump] = await consts.getPricePda();

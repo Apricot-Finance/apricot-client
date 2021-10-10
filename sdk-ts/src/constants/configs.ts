@@ -1015,16 +1015,16 @@ export const ALPHA_CONFIG = new AppConfig(
 // public mainnet is where the real thing is
 export const PUBLIC_CONFIG = new AppConfig(
   // not added yet
-  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
-  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
-  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
-  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
+  new PublicKey("6UeJYTLU1adaoHWeApWsoj1xNEDbWA2RhM2DLc8CrDDi"),
+  new PublicKey("6L2QoTpr8WUd76eLAGnvow8i3WQzRP36C1qdUna9iwMn"),
+  new PublicKey("F5m8gNjC6pjynywcbw9kK1miSNJMw1nQGeviWykfCCXd"),
+  new PublicKey("FsSq4dqugLgZbsyLNt7bngtBkDApXaHUFXVQ6od5TeQ3"),
   MINTS,
   DECIMAL_MULT,
   CATEGORY,
-  { },
+  POOL_IDS,
   LIQUIDATION_DISCOUNT,
-  { },
+  LTVS,
   LP_TO_LR,
   LP_TO_DEX,
   LP_TO_TARGET_SWAP,
