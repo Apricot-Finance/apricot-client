@@ -102,11 +102,13 @@ async function doTransaction() {
     const tokenId = TokenID[remainingArgs[0] as keyof typeof TokenID];
     const [leftId, rightId] = LP_TO_LR[tokenId]!;
     const amount = parseFloat(remainingArgs[1]);
+    const amountLeft = parseFloat(remainingArgs[2]);
+    const amountRight = parseFloat(remainingArgs[3]);
     const result = await wrapper.lpRedeem(
       keypair, 
       tokenId,
-      amount * 0.4 * DECIMAL_MULT[leftId],
-      amount * 0.4 * DECIMAL_MULT[rightId],
+      amountLeft * DECIMAL_MULT[leftId],
+      amountRight * DECIMAL_MULT[rightId],
       amount * DECIMAL_MULT[tokenId],
     );
     console.log(result);
