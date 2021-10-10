@@ -122,6 +122,7 @@ export class TransactionBuilder {
     const assetPoolKey = await this.addresses.getAssetPoolKey(basePda, mintKeyStr);
     const assetPoolSplKey = await this.addresses.getAssetPoolSplKey(basePda, mintKeyStr);
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
+    const priceSummariesKey = await this.addresses.getPriceSummariesKey(basePda);
     const buffer = new ArrayBuffer(8);
     AccountParser.setBigUint64(buffer, 0, amount);
     const payload = Array.from(new Uint8Array(buffer));
@@ -136,6 +137,7 @@ export class TransactionBuilder {
         { pubkey: assetPoolKey,     isSigner: false, isWritable: true },  // AssetPool
         { pubkey: assetPoolSplKey,  isSigner: false, isWritable: true },  // AssetPool's spl account
         { pubkey: poolSummariesKey, isSigner: false, isWritable: true },  // PoolSummaries
+        { pubkey: priceSummariesKey,isSigner: false, isWritable: false }, // PriceSummaries
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // spl-token program account
       ],
       data: Buffer.from([CMD_DEPOSIT].concat(payload).concat(poolIdArray)),
