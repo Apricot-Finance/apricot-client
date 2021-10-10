@@ -1,8 +1,8 @@
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { AccountMeta, PublicKey, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
+import { PublicKey, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
 import invariant from "tiny-invariant";
 import { SWAP_RAYDIUM } from ".";
-import { TokenID, TokenCategory, AppConfig, Dex, PoolId } from "../types";
+import { TokenID, TokenCategory, AppConfig, Dex, PoolId, LpSwapKeyInfo } from "../types";
 import { SWAP_ORCA, SWAP_SABER } from "./commands";
 
 export const MINTS: { [key in TokenID]: PublicKey } = {
@@ -254,13 +254,6 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.ORCA_SOL_ORCA]: Dex.Orca,
 };
 
-
-interface LpSwapKeyInfo {
-  getLpDepositKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
-  getLpWithdrawKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
-  getLpStakeKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
-  getLRVaults: () => [PublicKey, PublicKey];
-}
 
 // meta-info used by Addresses to compute keys needed when interacting with various Solana swaps
 // check out Addresses to see how they are used
@@ -1010,6 +1003,7 @@ export const ALPHA_CONFIG = new AppConfig(
   SWITCHBOARD_PRICE,
   INTEREST_RATES,
   FEES,
+  LP_SWAP_INFO,
 );
 
 // public mainnet is where the real thing is
@@ -1031,4 +1025,5 @@ export const PUBLIC_CONFIG = new AppConfig(
   SWITCHBOARD_PRICE,
   INTEREST_RATES,
   FEES,
+  LP_SWAP_INFO,
 );

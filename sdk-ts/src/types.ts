@@ -1,5 +1,5 @@
 import { Decimal } from "decimal.js";
-import { PublicKey } from "@solana/web3.js";
+import { AccountMeta, PublicKey } from "@solana/web3.js";
 import invariant from "tiny-invariant";
 import { InterestRate } from "./constants";
 
@@ -35,6 +35,13 @@ export enum TokenCategory {
   Lp = "lp",
 }
 
+export interface LpSwapKeyInfo {
+  getLpDepositKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
+  getLpWithdrawKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
+  getLpStakeKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
+  getLRVaults: () => [PublicKey, PublicKey];
+}
+
 export enum Dex {
   Serum, Raydium, Saber, Mercurial, Orca
 }
@@ -51,6 +58,7 @@ export class PoolConfig {
     public lpLeftRightPoolId: [PoolId, PoolId] | null,
     public lpDex: Dex | null,
     public lpTargetSwap: number | null,
+    public lpSwapKeyInfo: LpSwapKeyInfo | null,
     public interestRate: InterestRate | null,
     public reserveRatio: number,
   ) {
@@ -72,6 +80,7 @@ export class PoolConfig {
       invariant(rTokId, `${tokenId} missing rTokId`);
       invariant(lPoolId >= 0, `${tokenId} missing lPoolId`);
       invariant(rPoolId >= 0, `${tokenId} missing rPoolId`);
+      invariant(lpSwapKeyInfo, `${tokenId} is missing lpSwapKeyInfo`);
     }
     else {
       invariant(interestRate);
@@ -113,6 +122,7 @@ export class AppConfig {
     public switchboardPriceKeys: { [key in TokenID]?: PublicKey; },
     public interestRates: { [key in TokenID]?: InterestRate; },
     public fees: { [key in TokenID]?: number },
+    public lpSwapInfo: { [key in TokenID]?: LpSwapKeyInfo },
   ) {
     this.mints = mints;
     this.tokenIdToPoolId = tokenIdToPoolId;
@@ -133,6 +143,7 @@ export class AppConfig {
         categories[tokId] === TokenCategory.Lp? getLpLRPoolIds(tokId, lpToLR, tokenIdToPoolId) : null,
         categories[tokId] === TokenCategory.Lp? lpToDex[tokId]! : null,
         categories[tokId] === TokenCategory.Lp? lpToTargetSwap[tokId]! : null,
+        lpSwapInfo[tokId]!,
         categories[tokId] === TokenCategory.Lp? null : interestRates[tokId]!,
         fees[tokId]!,
       );
