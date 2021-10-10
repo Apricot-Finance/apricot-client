@@ -190,8 +190,6 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.ORCA_SOL_ORCA]: TokenCategory.Lp,
 };
 
-const LPTokens = 
-
 export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.BTC] : 0.04,
   [TokenID.ETH] : 0.04,
