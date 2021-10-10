@@ -623,7 +623,7 @@ export const LP_SWAP_METAS  = {
       ]
     },
     getLRVaults: (): [PublicKey, PublicKey] => {
-      const smetalp = LP_SWAP_METAS[TokenID.SOL_USDC_RAYDIUM];
+      const smetalp = LP_SWAP_METAS[TokenID.RAY_USDC_RAYDIUM];
       return [smetalp.poolCoinTokenPubkey, smetalp.poolPcTokenPubkey];
     },
   },
@@ -693,7 +693,7 @@ export const LP_SWAP_METAS  = {
       return []
     },
     getLRVaults: (): [PublicKey, PublicKey] => {
-      const smetalp = LP_SWAP_METAS[TokenID.SOL_USDC_RAYDIUM];
+      const smetalp = LP_SWAP_METAS[TokenID.SOL_USDT_RAYDIUM];
       return [smetalp.poolCoinTokenPubkey, smetalp.poolPcTokenPubkey];
     },
   },
@@ -759,7 +759,7 @@ export const LP_SWAP_METAS  = {
       ];
     },
     getLRVaults: (): [PublicKey, PublicKey] => {
-      const smetalp = LP_SWAP_METAS[TokenID.USDC_USDT_ORCA];
+      const smetalp = LP_SWAP_METAS[TokenID.SOL_USDC_ORCA];
       return [smetalp.swapTokenAAccount, smetalp.swapTokenBAccount];
     },
   },
