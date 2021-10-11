@@ -1,6 +1,7 @@
 import { ALPHA_CONFIG, PUBLIC_CONFIG } from "../constants";
 import { Addresses } from "../addresses";
 import invariant from "tiny-invariant";
+import { Dex, OrcaLpSwapInfo } from "..";
 
 const [,,production] = process.argv;
 invariant(['alpha', 'public'].includes(production))
@@ -20,6 +21,19 @@ async function printAddresses() {
   console.log(`Price_summaries : ${(await consts.getPriceSummariesKey(base_pda)).toString()}`);
 
   console.log(config.poolConfigs);
+
+  console.log(`\nPrint orca farm keys:\n`);
+  for (const poolCfg of Object.values(config.poolConfigs)) {
+    if (poolCfg.isLp() === true && poolCfg.lpDex === Dex.Orca) {
+      console.log(`LP ${poolCfg.tokenId}:`);
+      const orcaLpSwapInfo = poolCfg.lpSwapKeyInfo as OrcaLpSwapInfo;
+      const pdaKeys = await orcaLpSwapInfo.getPdaKeys(base_pda);
+      for (const [key, value] of Object.entries(pdaKeys)) {
+        console.log(`${key}: ${value.toBase58()}`);
+      }
+      console.log('\n');
+    }
+  }
 }
 
 printAddresses();

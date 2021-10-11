@@ -435,7 +435,7 @@ type OrcaLpArgs = {
   feeAccount:             PublicKey;
 };
 
-class OrcaLpSwapInfo implements LpSwapKeyInfo {
+export class OrcaLpSwapInfo implements LpSwapKeyInfo {
   lpMintPubkey:           PublicKey;
 
   swapPubkey:             PublicKey;
