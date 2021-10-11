@@ -5,8 +5,11 @@ import { MINTS } from "../constants";
 import { ActionWrapper } from "../utils/ActionWrapper";
 import * as fs from "fs";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import invariant from "tiny-invariant";
 
-const [_nodeStr, _scriptStr, keyLocation, action, ] = process.argv.slice(0, 4);
+const [_nodeStr, _scriptStr, production, keyLocation, action, ] = process.argv.slice(0, 5);
+
+invariant(['alpha', 'public'].includes(production))
 
 async function doTransaction() {
   const keyStr = fs.readFileSync(keyLocation, "utf8");
@@ -16,7 +19,7 @@ async function doTransaction() {
   const conn = new Connection("https://lokidfxnwlabdq.main.genesysgo.net:8899/", "confirmed");
   const wrapper = new ActionWrapper(conn, ALPHA_CONFIG);
 
-  const remainingArgs = process.argv.slice(4);
+  const remainingArgs = process.argv.slice(5);
 
   async function getAssociatedTokAcc(tokenId: TokenID) : Promise<PublicKey> {
     return await Token.getAssociatedTokenAddress(

@@ -1,7 +1,7 @@
 import { AppConfig, TokenID } from "./types";
 import { AccountMeta, PublicKey } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { LP_SWAP_INFO, LP_TO_TARGET_SWAP } from "./constants";
+import { LP_SWAP_METAS, LP_TO_TARGET_SWAP } from "./constants";
 import invariant from "tiny-invariant";
 
 // mostly computes addresses
@@ -80,21 +80,21 @@ export class Addresses {
 
     async getLpDepositKeys(tokenId: TokenID) : Promise<AccountMeta[]> {
       const [ownerKey, _bump] = await this.getBasePda();
-      const lpSwapInfo = LP_SWAP_INFO[tokenId]!;
+      const lpSwapInfo = LP_SWAP_METAS[tokenId]!;
       invariant(lpSwapInfo);
       return await lpSwapInfo.getLpDepositKeys(ownerKey);
     }
 
     async getLpWithdrawKeys(tokenId: TokenID) : Promise<AccountMeta[]> {
       const [ownerKey, _bump] = await this.getBasePda();
-      const lpSwapInfo = LP_SWAP_INFO[tokenId]!;
+      const lpSwapInfo = LP_SWAP_METAS[tokenId]!;
       invariant(lpSwapInfo);
       return await lpSwapInfo.getLpWithdrawKeys(ownerKey);
     }
 
     async getLpStakeKeys(tokenId: TokenID) : Promise<AccountMeta[]> {
       const [ownerKey, _bump] = await this.getBasePda();
-      const lpSwapInfo = LP_SWAP_INFO[tokenId]!;
+      const lpSwapInfo = LP_SWAP_METAS[tokenId]!;
       invariant(lpSwapInfo);
       return await lpSwapInfo.getLpStakeKeys(ownerKey);
     }

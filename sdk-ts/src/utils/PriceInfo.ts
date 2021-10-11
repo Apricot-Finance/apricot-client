@@ -1,7 +1,7 @@
 import { Connection } from '@solana/web3.js';
 import * as switchboard from '@switchboard-xyz/switchboard-api';
 import invariant from 'tiny-invariant';
-import { DECIMAL_MULT, LP_SWAP_INFO } from '../constants';
+import { DECIMAL_MULT, LP_SWAP_METAS } from '../constants';
 import { AppConfig, PoolConfig, TokenID } from '../types';
 import Decimal from "decimal.js";
 
@@ -42,8 +42,8 @@ export class PriceInfo {
     invariant(lpMint);
     invariant(leftTokId);
     invariant(rightTokId);
-    invariant(lpTokId in LP_SWAP_INFO);
-    const [leftVault, rightVault] = LP_SWAP_INFO[lpTokId]?.getLRVaults()!;
+    invariant(lpTokId in LP_SWAP_METAS);
+    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]?.getLRVaults()!;
     const leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
     const rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
     const lpMintData = (await connection.getParsedAccountInfo(lpMint)).value?.data as any;
@@ -63,7 +63,7 @@ export class PriceInfo {
     const [leftTokId, rightTokId] = poolConfig.lpLeftRightTokenId!;
     invariant(leftTokId);
     invariant(rightTokId);
-    const [leftVault, rightVault] = LP_SWAP_INFO[lpTokId]?.getLRVaults()!;
+    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]?.getLRVaults()!;
     const leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
     const rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
     if (!isValue) {
