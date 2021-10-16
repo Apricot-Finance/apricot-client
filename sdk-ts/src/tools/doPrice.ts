@@ -2,6 +2,7 @@ import { ALPHA_CONFIG, PUBLIC_CONFIG } from "../constants/configs";
 import { PriceInfo } from "../utils/PriceInfo";
 import { Connection } from "@solana/web3.js";
 import invariant from "tiny-invariant";
+import { Dex } from "..";
 
 const [,,production] = process.argv;
 
@@ -17,6 +18,9 @@ async function doPrice() {
 
   for (const poolConfig of config.getPoolConfigList()) {
     const tokId = poolConfig.tokenId;
+    if (poolConfig.lpDex !== Dex.Raydium) {
+      continue;
+    }
     console.log(`Fetching price for ${tokId}`);
     const price = await priceInfo.fetchPrice(tokId, conn);
     console.log(`Price for ${tokId}: ${price}`);

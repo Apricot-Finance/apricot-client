@@ -1,9 +1,11 @@
 import { Connection } from '@solana/web3.js';
 import * as switchboard from '@switchboard-xyz/switchboard-api';
 import invariant from 'tiny-invariant';
-import { DECIMAL_MULT, LP_SWAP_METAS } from '../constants';
+import { DECIMAL_MULT, LP_SWAP_METAS, RAYDIUM_LP_METAS } from '../constants';
 import { AppConfig, PoolConfig, TokenID } from '../types';
 import Decimal from "decimal.js";
+import { OpenOrders } from '@project-serum/serum';
+import { Dex } from '..';
 
 export class PriceInfo {
   constructor(
@@ -44,12 +46,21 @@ export class PriceInfo {
     invariant(rightTokId);
     invariant(lpTokId in LP_SWAP_METAS);
     const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]?.getLRVaults()!;
-    const leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
-    const rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
+    let leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
+    let rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
     const lpMintData = (await connection.getParsedAccountInfo(lpMint)).value?.data as any;
     const lpBalanceStr = lpMintData.parsed?.info.supply;
     const decimalMult = DECIMAL_MULT[lpTokId];
     const lpBalance = new Decimal(lpBalanceStr).div(decimalMult).toNumber();
+
+    // raydium has extra balance floating on serum
+    if (poolConfig.lpDex === Dex.Raydium) {
+      const [additionalLeftNative, additionalRightNative] = await this.getRaydiumAdditionalBalance(lpTokId, connection);
+      const additionalLeftBalance = additionalLeftNative / DECIMAL_MULT[leftTokId];
+      const additionalRightBalance = additionalRightNative / DECIMAL_MULT[rightTokId];
+      leftBalance += additionalLeftBalance;
+      rightBalance += additionalRightBalance;
+    }
 
     const leftPrice = await this.fetchPrice(leftTokId, connection);
     const rightPrice = await this.fetchPrice(rightTokId, connection);
@@ -92,5 +103,17 @@ export class PriceInfo {
     const decimalMult = DECIMAL_MULT[lpTokId];
     const lpBalance = new Decimal(lpBalanceStr).div(decimalMult).toNumber();
     return [leftAmt, rightAmt, lpBalance];
+  }
+
+  async getRaydiumAdditionalBalance(lpTokId: TokenID, connection: Connection): Promise<[number, number]> {
+    const raydiumPoolMeta = RAYDIUM_LP_METAS[lpTokId]!;
+    invariant(raydiumPoolMeta);
+    const response = (await connection.getAccountInfo(raydiumPoolMeta.ammOpenOrdersPubkey))!;
+    invariant(response, `failed to fetch ammOpenOrders for ${lpTokId}`);
+    const responseDataBuffer = Buffer.from(response.data);
+    const LAYOUT = OpenOrders.getLayout(raydiumPoolMeta.serumProgramId);
+    const parsedOpenOrders = LAYOUT.decode(responseDataBuffer);
+    const { baseTokenTotal, quoteTokenTotal } = parsedOpenOrders;
+    return [baseTokenTotal, quoteTokenTotal];
   }
 }
