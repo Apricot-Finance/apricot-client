@@ -18,7 +18,7 @@ export class ActionWrapper {
   async getParsedAssetPool(mint: PublicKey) {
     const [base_pda, _] = await this.addresses.getBasePda();
     const poolAccountKey = await this.addresses.getAssetPoolKey(base_pda, mint.toString()); 
-    const response = await this.connection.getAccountInfo(poolAccountKey);
+    const response = await this.connection.getAccountInfo(poolAccountKey, 'confirmed');
     if(response === null) {
       return null;
     }
@@ -29,7 +29,7 @@ export class ActionWrapper {
   async getParsedAssetPrice(mint: PublicKey) {
     const [price_pda, _] = await this.addresses.getPricePda();
     const assetPriceKey = await this.addresses.getAssetPriceKey(price_pda, mint.toString()); 
-    const response = await this.connection.getAccountInfo(assetPriceKey);
+    const response = await this.connection.getAccountInfo(assetPriceKey, 'confirmed');
     if(response === null){
       return null;
     }
@@ -38,7 +38,7 @@ export class ActionWrapper {
 
   async getParsedUserInfo(wallet_key: PublicKey) {
     const userInfoKey = await this.addresses.getUserInfoKey(wallet_key); 
-    const response = await this.connection.getAccountInfo(userInfoKey);
+    const response = await this.connection.getAccountInfo(userInfoKey, 'confirmed');
     if(response === null){
       return null;
     }
@@ -49,7 +49,7 @@ export class ActionWrapper {
   // administrative methods:
   async getParsedUserPagesStats() {
     const statsAccountKey = await this.addresses.getUserPagesStatsKey(); 
-    const response = await this.connection.getAccountInfo(statsAccountKey);
+    const response = await this.connection.getAccountInfo(statsAccountKey, 'confirmed');
     if(response === null){
       return null;
     }
@@ -59,7 +59,7 @@ export class ActionWrapper {
   async getParsedUsersPage(page_id: number) {
     const [base_pda, _] = await this.addresses.getBasePda();
     const usersPageKey = await this.addresses.getUsersPageKey(base_pda, page_id);
-    const response = await this.connection.getAccountInfo(usersPageKey);
+    const response = await this.connection.getAccountInfo(usersPageKey, 'confirmed');
     if(response === null){
       return null;
     }
