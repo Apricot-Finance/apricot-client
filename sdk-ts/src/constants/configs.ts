@@ -901,6 +901,27 @@ export const SWITCHBOARD_PRICE: { [key in TokenID]? : PublicKey} = {
   [TokenID.UST]: new PublicKey("8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61"),
 };
 
+const FIREBASE_READER_CONFIG = {
+  alpha: {
+    apiKey: 'AIzaSyDWBTlo8oeJGnpV0CnQEBpeloMbHgN6xY8',
+    authDomain: 'apricot-website-96904.firebaseapp.com',
+    projectId: 'apricot-website-96904',
+    storageBucket: 'apricot-website-96904.appspot.com',
+    messagingSenderId: '181748660172',
+    appId: '1:181748660172:web:fea7b301ef6a09c3d60f69',
+    measurementId: 'G-W2RX0BF87Q',
+  },
+  public: {
+    apiKey: 'AIzaSyAGpQxt6PUaLf1vhfhxL5hzWcP1QDIeOSc',
+    authDomain: 'apricot-public.firebaseapp.com',
+    projectId: 'apricot-public',
+    storageBucket: 'apricot-public.appspot.com',
+    messagingSenderId: '735163506624',
+    appId: '1:735163506624:web:e6406687d889d993e93225',
+    measurementId: 'G-VBTE0406R3',
+  },
+};
+
 // alpha mainnet is where we deploy tests
 export const ALPHA_CONFIG = new AppConfig(
   new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
@@ -920,6 +941,7 @@ export const ALPHA_CONFIG = new AppConfig(
   INTEREST_RATES,
   FEES,
   LP_SWAP_METAS,
+  FIREBASE_READER_CONFIG.alpha,
 );
 
 // public mainnet is where the real thing is
@@ -942,4 +964,5 @@ export const PUBLIC_CONFIG = new AppConfig(
   INTEREST_RATES,
   FEES,
   LP_SWAP_METAS,
+  FIREBASE_READER_CONFIG.public,
 );

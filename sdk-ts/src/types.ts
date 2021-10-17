@@ -123,6 +123,7 @@ export class AppConfig {
     public interestRates: { [key in TokenID]?: InterestRate; },
     public fees: { [key in TokenID]?: number },
     public lpSwapInfo: { [key in TokenID]?: LpSwapKeyInfo },
+    public firebaseConfig: object,
   ) {
     this.mints = mints;
     this.tokenIdToPoolId = tokenIdToPoolId;
