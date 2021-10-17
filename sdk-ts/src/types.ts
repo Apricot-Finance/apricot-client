@@ -256,6 +256,15 @@ export interface UserInfo {
   assist          : Assist;
 }
 
+export interface JsonUserInfo {
+  page_id         : number;
+  num_assets      : number;
+  user_asset_info : JsonUserAssetInfo[];
+  reward          : unknown;
+  cap             : unknown;
+  assist          : Assist;
+}
+
 export interface UserAssetInfo {
   pool_id               : number;
   use_as_collateral     : number;
@@ -271,6 +280,23 @@ export interface UserAssetInfo {
   borrow_index          : Decimal;
   reward_borrow_amount  : Decimal;
   reward_borrow_index   : Decimal;
+}
+
+export interface JsonUserAssetInfo {
+  pool_id               : number;
+  use_as_collateral     : number;
+
+  deposit_amount        : number;
+  deposit_interests     : number;
+  deposit_index         : number;
+  reward_deposit_amount : number;
+  reward_deposit_index  : number;
+
+  borrow_amount         : number;
+  borrow_interests      : number;
+  borrow_index          : number;
+  reward_borrow_amount  : number;
+  reward_borrow_index   : number;
 }
 
 export interface Assist {
