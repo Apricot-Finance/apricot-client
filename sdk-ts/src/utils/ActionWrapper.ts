@@ -1,4 +1,5 @@
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import invariant from "tiny-invariant";
 import { Addresses } from "../addresses";
 import { AppConfig, TokenID } from "../types";
 import { AccountParser } from "./AccountParser";
@@ -67,6 +68,27 @@ export class ActionWrapper {
   }
 
   // transaction sending
+
+  async addUserAndDeposit(
+    walletAccount: Keypair,
+    userSplKey: PublicKey,
+    mintKeyStr: string,
+    amount: number,
+  ) {
+    const freeSlots = await this.getParsedUserPagesStats()!;
+    invariant(freeSlots);
+    let maxNumFree = 0;
+    let pageId = -1;
+    freeSlots?.map((value, idx) => {
+      if (value > maxNumFree) {
+        pageId = idx;
+        maxNumFree = value;
+      }
+    });
+    invariant(pageId >= 0, `No more free user slots available.`)
+    const tx = await this.builder.addUserAndDeposit(pageId, walletAccount, userSplKey, mintKeyStr, amount);
+    return this.connection.sendTransaction(tx, [walletAccount]);
+  }
 
   async deposit(
     walletAccount: Keypair,

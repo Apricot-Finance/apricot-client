@@ -286,11 +286,9 @@ type SaberLpArgs = {
     quarry:       PublicKey;
     rewarder:     PublicKey;
     mint:         PublicKey;
-    miner:        PublicKey;
-    miner_vault:  PublicKey;
 };
 
-class SaberLpSwapInfo implements LpSwapKeyInfo {
+export class SaberLpSwapInfo implements LpSwapKeyInfo {
   swap:           PublicKey;
   swapAuthority:  PublicKey;
   tokenAVault:    PublicKey;
@@ -302,8 +300,6 @@ class SaberLpSwapInfo implements LpSwapKeyInfo {
   quarry:       PublicKey;
   rewarder:     PublicKey;
   mint:         PublicKey;
-  miner:        PublicKey;
-  miner_vault:  PublicKey;
   constructor(args: SaberLpArgs) {
     this.swap = args.swap;
     this.swapAuthority = args.swapAuthority;
@@ -315,8 +311,6 @@ class SaberLpSwapInfo implements LpSwapKeyInfo {
     this.quarry = args.quarry;
     this.rewarder = args.rewarder;
     this.mint = args.mint;
-    this.miner = args.miner;
-    this.miner_vault = args.miner_vault;
   }
   async getMinerKey(ownerKey: PublicKey): Promise<[PublicKey, number]> {
     const [key, bump] = await PublicKey.findProgramAddress([
@@ -325,6 +319,17 @@ class SaberLpSwapInfo implements LpSwapKeyInfo {
       ownerKey.toBuffer(),
     ], SWAP_METAS[SWAP_SABER].stake_program);
     return [key, bump];
+  }
+
+  async getMinerVault(ownerKey: PublicKey): Promise<PublicKey> {
+    const [minerKey] = await this.getMinerKey(ownerKey);
+    return await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      this.mint,
+      minerKey,
+      true,
+    );
   }
 
   async getLpDepositKeys(_ownerKey: PublicKey) {
@@ -557,7 +562,7 @@ type RaydiumLpArgs = {
   stakeKeys: RaydiumStakeKeys | null;
 };
 
-class RaydiumLpSwapInfo implements LpSwapKeyInfo {
+export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
   lpMintPubkey: PublicKey;
 
   ammIdPubkey: PublicKey;
@@ -675,8 +680,6 @@ export const SABER_LP_METAS: {[key in TokenID]? : SaberLpSwapInfo } = {
     quarry:       new PublicKey("Hs1X5YtXwZACueUtS9azZyXFDWVxAMLvm3tttubpK7ph"),
     rewarder:     new PublicKey("rXhAofQCT7NN9TUqigyEAUzV1uLL4boeD8CRkNBSkYk"),
     mint:         new PublicKey(MINTS[TokenID.USDT_USDC_SABER]),
-    miner:        new PublicKey("ABVss1hKp45vc6mFKe4r1eMgpbg5jhkQQGZzNTa2H7yg"), // computed using getMinerKey(base_pda)
-    miner_vault:  new PublicKey("ADPL7KKvjjQZ7gs7B15VvyqAV6xEP8pM8HNNvpMrb7DP"),
   }),
 }
 

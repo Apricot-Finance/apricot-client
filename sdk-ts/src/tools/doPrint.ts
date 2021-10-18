@@ -1,7 +1,7 @@
 import { ALPHA_CONFIG, PUBLIC_CONFIG } from "../constants";
 import { Addresses } from "../addresses";
 import invariant from "tiny-invariant";
-import { Dex, OrcaLpSwapInfo } from "..";
+import { Dex, OrcaLpSwapInfo, SaberLpSwapInfo } from "..";
 
 const [,,production] = process.argv;
 invariant(['alpha', 'public'].includes(production))
@@ -21,6 +21,20 @@ async function printAddresses() {
   console.log(`Price_summaries : ${(await consts.getPriceSummariesKey(base_pda)).toString()}`);
 
   console.log(config.poolConfigs);
+
+  console.log(`\nPrint saber farm keys:\n`);
+  for (const poolCfg of Object.values(config.poolConfigs)) {
+    if (poolCfg.isLp() === true && poolCfg.lpDex === Dex.Saber) {
+      console.log(`LP ${poolCfg.tokenId}:`);
+      const saberLpSwapInfo = poolCfg.lpSwapKeyInfo as SaberLpSwapInfo;
+      const [owner] = await consts.getBasePda();
+      const [minerKey] = await saberLpSwapInfo.getMinerKey(owner);
+      const minerVault = await saberLpSwapInfo.getMinerVault(owner);
+      console.log(`minerKey: ${minerKey.toBase58()}`);
+      console.log(`minerVault: ${minerVault.toBase58()}`);
+      console.log('\n');
+    }
+  }
 
   console.log(`\nPrint orca farm keys:\n`);
   for (const poolCfg of Object.values(config.poolConfigs)) {
