@@ -471,8 +471,28 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
 
   async getPdaKeys (ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_ORCA];
+    let pdaRewardTokenAccount: PublicKey;
+    const isPublic = ownerKey.toString() === '7Ne6h2w3LpTNTa7CNYcUs7UkjeJT3oW7jcrXWfVScTXW';
+    console.log(isPublic);
+    if (isPublic) {
+      if(this.lpMintPubkey.toString() === MINTS.SOL_USDC_ORCA.toString()) {
+        pdaRewardTokenAccount = new PublicKey('Hr5yQGW35HBP8fJLKfranRbbKzfSPHrhKFf1ZP68LmVp');
+        console.log(`Using temporary reward token acc ${pdaRewardTokenAccount.toString()}`)
+      }
+      else if (this.lpMintPubkey.toString() === MINTS.USDC_USDT_ORCA.toString()) {
+        pdaRewardTokenAccount = new PublicKey('FSQWYCVXiGXRfKd1NmchusEa9wADez9eQGt5RY5eDjiy');
+        console.log(`Using temporary reward token acc ${pdaRewardTokenAccount.toString()}`)
+      }
+      else {
+        pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey,MINTS[TokenID.ORCA], true);
+      }
+    }
+    else {
+      pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey,MINTS[TokenID.ORCA], true);
+    }
+
     const pdaFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, this.farmTokenMint, true);
-    const pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey,MINTS[TokenID.ORCA], true);
+    //const pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey,MINTS[TokenID.ORCA], true);
     const pdaFarmState = (await PublicKey.findProgramAddress(
       [this.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
       smeta.farmProgramPubkey
