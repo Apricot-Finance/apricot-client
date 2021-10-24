@@ -31,6 +31,8 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.mSOL_SOL_ORCA]: new PublicKey("29cdoMgu6MS2VXpcMo1sqRdWEzdUR9tjvoh8fcK8Z87R"),
   [TokenID.ORCA_USDC_ORCA]: new PublicKey("n8Mpu28RjeYD7oUX3LG1tPxzhRZh3YYLRSHcHRdS3Zx"),
   [TokenID.ORCA_SOL_ORCA]: new PublicKey("2uVjAuRXavpM6h1scGQaxqb6HVaNRn6T2X7HHXTabz25"),
+  [TokenID.ETH_USDC_ORCA]: new PublicKey("3e1W6Aqcbuk2DfHUwRiRcyzpyYRRjg6yhZZcyEARydUX"),
+  [TokenID.SOL_USDT_ORCA]: new PublicKey("FZthQCuYHhcfiDma7QrX7buDHwrZEd7vL8SjS6LQa3Tx"),
 };
 
 export const DECIMAL_MULT: { [key in TokenID]: number } = {
@@ -58,6 +60,8 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.mSOL_SOL_ORCA]: 1e6,
   [TokenID.ORCA_USDC_ORCA]: 1e6,
   [TokenID.ORCA_SOL_ORCA]: 1e6,
+  [TokenID.ETH_USDC_ORCA]: 1e6,
+  [TokenID.SOL_USDT_ORCA]: 1e6,
 };
 
 const POOL_IDS: { [key in TokenID]?: PoolId } = {
@@ -80,6 +84,8 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.mSOL_SOL_ORCA]: 16,
   [TokenID.ORCA_USDC_ORCA]: 17,
   [TokenID.ORCA_SOL_ORCA]: 18,
+  [TokenID.ETH_USDC_ORCA]: 19,
+  [TokenID.SOL_USDT_ORCA]: 20,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
@@ -104,6 +110,8 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.mSOL_SOL_ORCA]: 0.8,
   [TokenID.ORCA_USDC_ORCA]: 0.8,
   [TokenID.ORCA_SOL_ORCA]: 0.8,
+  [TokenID.ETH_USDC_ORCA]: 0.8,
+  [TokenID.SOL_USDT_ORCA]: 0.8,
 };
 
 export class InterestRate {
@@ -162,6 +170,8 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.mSOL_SOL_ORCA]: 0.2,
   [TokenID.ORCA_USDC_ORCA]: 0.2,
   [TokenID.ORCA_SOL_ORCA]: 0.2,
+  [TokenID.ETH_USDC_ORCA]: 0.2,
+  [TokenID.SOL_USDT_ORCA]: 0.2,
 };
 
 export const CATEGORY: { [key in TokenID]: TokenCategory } = {
@@ -189,6 +199,8 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.mSOL_SOL_ORCA]: TokenCategory.Lp,
   [TokenID.ORCA_USDC_ORCA]: TokenCategory.Lp,
   [TokenID.ORCA_SOL_ORCA]: TokenCategory.Lp,
+  [TokenID.ETH_USDC_ORCA]: TokenCategory.Lp,
+  [TokenID.SOL_USDT_ORCA]: TokenCategory.Lp,
 };
 
 export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
@@ -214,6 +226,8 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.mSOL_SOL_ORCA]: 0,
   [TokenID.ORCA_USDC_ORCA]: 0,
   [TokenID.ORCA_SOL_ORCA]: 0,
+  [TokenID.ETH_USDC_ORCA]: 0,
+  [TokenID.SOL_USDT_ORCA]: 0,
 };
 
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
@@ -227,6 +241,8 @@ export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.mSOL_SOL_ORCA]: [TokenID.mSOL, TokenID.SOL],
   [TokenID.ORCA_USDC_ORCA]: [TokenID.ORCA, TokenID.USDC],
   [TokenID.ORCA_SOL_ORCA]: [TokenID.ORCA, TokenID.SOL],
+  [TokenID.ETH_USDC_ORCA]: [TokenID.ETH, TokenID.USDC],
+  [TokenID.SOL_USDT_ORCA]: [TokenID.SOL, TokenID.USDT],
 };
 
 export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
@@ -240,6 +256,8 @@ export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.mSOL_SOL_ORCA]: SWAP_ORCA,
   [TokenID.ORCA_USDC_ORCA]: SWAP_ORCA,
   [TokenID.ORCA_SOL_ORCA]: SWAP_ORCA,
+  [TokenID.ETH_USDC_ORCA]: SWAP_ORCA,
+  [TokenID.SOL_USDT_ORCA]: SWAP_ORCA,
 };
 
 export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
@@ -253,6 +271,8 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.mSOL_SOL_ORCA]: Dex.Orca,
   [TokenID.ORCA_USDC_ORCA]: Dex.Orca,
   [TokenID.ORCA_SOL_ORCA]: Dex.Orca,
+  [TokenID.ETH_USDC_ORCA]: Dex.Orca,
+  [TokenID.SOL_USDT_ORCA]: Dex.Orca,
 };
 
 
@@ -791,6 +811,42 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     feeAccount:             new PublicKey("4Zc4kQZhRQeGztihvcGSWezJE1k44kKEgPCAkdeBfras"),
     publicRewardTokAcc:     new PublicKey("2G7ZWG9z6WtKJ5k5B32RTmLFB7hLVEnC5RmYD7gvCpG3"),
     alphaRewardTokAcc:      new PublicKey("8htfap3Gej5t4araQRHioggu2acsG3tQAc38PMtBhBhD"),
+  }),
+  [TokenID.ETH_USDC_ORCA]: new OrcaLpSwapInfo({
+    lpMintPubkey:           new PublicKey(MINTS[TokenID.ETH_USDC_ORCA]),
+
+    swapPubkey:             new PublicKey("FgZut2qVQEyPBibaTJbbX2PxaMZvT1vjDebiVaDp5BWP"),
+    swapAuthority:          new PublicKey("4dfCZR32xXhoTgMRhnViNaTFwiKP9A34TDjHCR3xM5rg"),
+
+    swapTokenAAccount:      new PublicKey("H9h5yTBfCHcb4eRP87fXczzXgNaMzKihr7bf1sjw7iuZ"),
+    swapTokenBAccount:      new PublicKey("JA98RXv2VdxQD8pRQq4dzJ1Bp4nH8nokCGmxvPWKJ3hx"),
+
+    globalLpVault:          new PublicKey("6zoYTvgLd4UAhKSPwirEU9VNNNkpezwq8AM4jXW1Qop9"), // lp 1
+    farmTokenMint:          new PublicKey("HDP2AYFmvLz6sWpoSuNS62JjvW4HjMKp7doXucqpWN56"),
+    globalFarmState:        new PublicKey("FpezTR76RRjgpBb9HhR6ap8BgQfkHyNMQSqJDcoXpjAb"),
+    globalRewardTokenVault: new PublicKey("9MWJmWVAGQ9C9SxwWKidStAA8HjDHpnZ7KfKgVJdrNtj"),
+    rewardTokenAuthority:   new PublicKey("DFTLJrgsn7cLNX9hbqiUwM8C1y6f7AfyvEmbsFSkjQNR"),
+    feeAccount:             new PublicKey("DLWewB12jzGn4wXJmFCddWDeof1Ma4cZYNRv9CP5hTvX"),
+    publicRewardTokAcc:     new PublicKey("CtVJtQHSAcSQ3b4FD3A3Zk8vb2PaC4wn1oTnHtUMS8rf"),
+    alphaRewardTokAcc:      new PublicKey("BSpFLmCAzJp5XMSfVXC2rq4LjJ2NSs2jqFS8agcENAkH"),
+  }),
+  [TokenID.SOL_USDT_ORCA]: new OrcaLpSwapInfo({
+    lpMintPubkey:           new PublicKey(MINTS[TokenID.SOL_USDT_ORCA]),
+
+    swapPubkey:             new PublicKey("Dqk7mHQBx2ZWExmyrR2S8X6UG75CrbbpK2FSBZsNYsw6"),
+    swapAuthority:          new PublicKey("2sxKY7hxVFrY5oNE2DgaPAJFamMzsmFLM2DgVcjK5yTy"),
+
+    swapTokenAAccount:      new PublicKey("DTb8NKsfhEJGY1TrA7RXN6MBiTrjnkdMAfjPEjtmTT3M"),
+    swapTokenBAccount:      new PublicKey("E8erPjPEorykpPjFV9yUYMYigEWKQUxuGfL2rJKLJ3KU"),
+
+    globalLpVault:          new PublicKey("EXxH5tKDHLy68nWXS8w1BRUsiDEHMbKACLUmFWv8Q9tu"), // lp 1
+    farmTokenMint:          new PublicKey("71vZ7Jvu8fTyFzpX399dmoSovoz24rVbipLrRn2wBNzW"),
+    globalFarmState:        new PublicKey("4RRRJkscV2DmwJUxTQgRdYock75GfwYJn7LTxy9rGTmY"),
+    globalRewardTokenVault: new PublicKey("H3ozvCeEwnsqnM2naCnXVxLLwH2XPC5kU8BH97XDpDwS"),
+    rewardTokenAuthority:   new PublicKey("EavNUagNtD7DEdV4atcm3dEBXafARKCNJyNkyfz426m6"),
+    feeAccount:             new PublicKey("BBKgw75FivTYXj85D2AWyVdaTdTWuSuHVXRm1Xu7fipb"),
+    publicRewardTokAcc:     new PublicKey("9AfsnfPwRrJLjcCAasUcaYeVunpmxgev6yCVa6HiLkp7"),
+    alphaRewardTokAcc:      new PublicKey("93xUo4bmSXdGxCNSDvk2xYH7YAY6KqDZ4mPMbwBuiyfm"),
   }),
 }
 
