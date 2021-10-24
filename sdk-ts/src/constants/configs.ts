@@ -438,6 +438,8 @@ type OrcaLpArgs = {
   globalRewardTokenVault: PublicKey;
   rewardTokenAuthority:   PublicKey;
   feeAccount:             PublicKey;
+  publicRewardTokAcc:     PublicKey;
+  alphaRewardTokAcc:      PublicKey;
 };
 
 export class OrcaLpSwapInfo implements LpSwapKeyInfo {
@@ -455,6 +457,8 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
   globalRewardTokenVault: PublicKey;
   rewardTokenAuthority:   PublicKey;
   feeAccount:             PublicKey;
+  publicRewardTokAcc:     PublicKey;
+  alphaRewardTokAcc:      PublicKey;
   constructor(args: OrcaLpArgs) {
     this.lpMintPubkey = args.lpMintPubkey;
     this.swapPubkey = args.swapPubkey;
@@ -467,32 +471,26 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
     this.globalRewardTokenVault = args.globalRewardTokenVault;
     this.rewardTokenAuthority = args.rewardTokenAuthority;
     this.feeAccount = args.feeAccount;
+    this.publicRewardTokAcc = args.publicRewardTokAcc;
+    this.alphaRewardTokAcc = args.alphaRewardTokAcc;
   }
 
   async getPdaKeys (ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_ORCA];
     let pdaRewardTokenAccount: PublicKey;
     const isPublic = ownerKey.toString() === '7Ne6h2w3LpTNTa7CNYcUs7UkjeJT3oW7jcrXWfVScTXW';
-    console.log(isPublic);
+    const isAlpha = ownerKey.toString() === 'GipxmFXdiJaSevu6StymY2aphKVxgYmAmf2dT3fTEASc';
     if (isPublic) {
-      if(this.lpMintPubkey.toString() === MINTS.SOL_USDC_ORCA.toString()) {
-        pdaRewardTokenAccount = new PublicKey('Hr5yQGW35HBP8fJLKfranRbbKzfSPHrhKFf1ZP68LmVp');
-        console.log(`Using temporary reward token acc ${pdaRewardTokenAccount.toString()}`)
-      }
-      else if (this.lpMintPubkey.toString() === MINTS.USDC_USDT_ORCA.toString()) {
-        pdaRewardTokenAccount = new PublicKey('FSQWYCVXiGXRfKd1NmchusEa9wADez9eQGt5RY5eDjiy');
-        console.log(`Using temporary reward token acc ${pdaRewardTokenAccount.toString()}`)
-      }
-      else {
-        pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey,MINTS[TokenID.ORCA], true);
-      }
+      pdaRewardTokenAccount = this.publicRewardTokAcc;
+    }
+    else if (isAlpha) {
+      pdaRewardTokenAccount = this.alphaRewardTokAcc;
     }
     else {
-      pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey,MINTS[TokenID.ORCA], true);
+      throw new Error(`Unknown ownerKey: ${ownerKey.toString()}`);
     }
 
     const pdaFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, this.farmTokenMint, true);
-    //const pdaRewardTokenAccount = await getAssociatedTokenPubkey(ownerKey,MINTS[TokenID.ORCA], true);
     const pdaFarmState = (await PublicKey.findProgramAddress(
       [this.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
       smeta.farmProgramPubkey
@@ -719,6 +717,8 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     globalRewardTokenVault: new PublicKey("AYbtHmuJxXpo91m988UdyTtzC6J72WvMAW7XkXqFhAbz"),
     rewardTokenAuthority:   new PublicKey("5YGvg6mfuvJtHdVWDXTs4sYy6GwQAUduK8qurDcL111S"),
     feeAccount:             new PublicKey("B4RNxMJGRzKFQyTq2Uwkmpyjtew13n7KtdqZy6qgENTu"),
+    publicRewardTokAcc:     new PublicKey("FSQWYCVXiGXRfKd1NmchusEa9wADez9eQGt5RY5eDjiy"),
+    alphaRewardTokAcc:      new PublicKey("GUFm5nznu9B8Anfg3pZDxSofs8pUMjQZdVYnhbdvnkeV"),
   }),
   [TokenID.SOL_USDC_ORCA]: new OrcaLpSwapInfo({
     lpMintPubkey:           new PublicKey(MINTS[TokenID.SOL_USDC_ORCA]),
@@ -735,6 +735,8 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     globalRewardTokenVault: new PublicKey("kjjFC8RAF7GuBQ9iYgyTcPmvsRafJ2Ec2AmoS6DjakJ"),
     rewardTokenAuthority:   new PublicKey("MDcWkwPqr5HrA91g4GGax7bVP1NDDetnR12nGhoAdYj"),
     feeAccount:             new PublicKey("8JnSiuvQq3BVuCU3n4DrSTw9chBSPvEMswrhtifVkr1o"),
+    publicRewardTokAcc:     new PublicKey("Hr5yQGW35HBP8fJLKfranRbbKzfSPHrhKFf1ZP68LmVp"),
+    alphaRewardTokAcc:      new PublicKey("85hb3QUq7M8W3dMxCdxQ9vnezV7fRPBUGbq24XTEaLcg"),
   }),
   [TokenID.mSOL_SOL_ORCA]: new OrcaLpSwapInfo({
     lpMintPubkey:           new PublicKey(MINTS[TokenID.mSOL_SOL_ORCA]),
@@ -751,6 +753,8 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     globalRewardTokenVault: new PublicKey("7dpUACKvEiuq5kyoGtgiA131hYwdxfFhEeD5TMT4mnzG"),
     rewardTokenAuthority:   new PublicKey("CtXKDXJ4wzgto48QQFANestEgtov5dJRrs9qpRw7BV1h"),
     feeAccount:             new PublicKey("6j2tt2UVYMQwqG3hRtyydW3odzBFwy3pN33tyB3xCKQ6"),
+    publicRewardTokAcc:     new PublicKey("CA59mFikUhJYLesKAxx8j8unHrxTfXSEPjzoXFyrG9M1"),
+    alphaRewardTokAcc:      new PublicKey("3XNau9dqDSjAARS3cvTjzUv2nRU2FEzaGJd31f6NApUU"),
   }),
   [TokenID.ORCA_USDC_ORCA]: new OrcaLpSwapInfo({
     lpMintPubkey:           new PublicKey(MINTS[TokenID.ORCA_USDC_ORCA]),
@@ -767,6 +771,8 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     globalRewardTokenVault: new PublicKey("DEiqe2Ta9TRMRtWdBqiFV13dhVrqCeG8MMmVwywvXvJo"),
     rewardTokenAuthority:   new PublicKey("66xaEjFoYfRcspc18oDj61mXDyznr9zam6tFNeqvs2jK"),
     feeAccount:             new PublicKey("7CXZED4jfRp3qdHB9Py3up6v1C4UhHofFvfT6RXbJLRN"),
+    publicRewardTokAcc:     new PublicKey("G8cPgn6tiQQAQcTQupEi8fTBfo1RpqTii1hW65L4poTY"),
+    alphaRewardTokAcc:      new PublicKey("8fFHftEm6PJBahCQukV6J27b7xzDeVPFdedjV1f4T36x"),
   }),
   [TokenID.ORCA_SOL_ORCA]: new OrcaLpSwapInfo({
     lpMintPubkey:           new PublicKey(MINTS[TokenID.ORCA_SOL_ORCA]),
@@ -783,6 +789,8 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     globalRewardTokenVault: new PublicKey("CSbYA7Cd65Vis2oqX797zmnWmpgENmqrPdmPbTbRPykd"),
     rewardTokenAuthority:   new PublicKey("98RAHBKRTTC87nNwug1GEAnLVgouk9nRaa3u14jrp6Zz"),
     feeAccount:             new PublicKey("4Zc4kQZhRQeGztihvcGSWezJE1k44kKEgPCAkdeBfras"),
+    publicRewardTokAcc:     new PublicKey("2G7ZWG9z6WtKJ5k5B32RTmLFB7hLVEnC5RmYD7gvCpG3"),
+    alphaRewardTokAcc:      new PublicKey("8htfap3Gej5t4araQRHioggu2acsG3tQAc38PMtBhBhD"),
   }),
 }
 
