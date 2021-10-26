@@ -1,6 +1,6 @@
 {
   "name": "@apricot-lend/sdk-ts",
-  "version": "0.15.52",
+  "version": "0.15.53",
   "description": "TS SDK for Apricot on Solana",
   "repository": {
     "type": "git",
