@@ -15,6 +15,7 @@ export enum TokenID {
   RAY = "RAY",
   MERC = "MERC",
   mSOL = "mSOL",
+  USTv2 = "USTv2",
   USDT_USDC_SABER = "USDT_USDC_SABER",
   USDC_USDT_ORCA = "USDC_USDT_ORCA",
   UST_USDC_SABER = "UST_USDC_SABER",

@@ -20,6 +20,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.USDT]: new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
   [TokenID.USDC]: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
   [TokenID.UST]: new PublicKey("CXLBjMMcwkc17GfJtBos6rQCo1ypeH6eDbB82Kby4MRm"),
+  [TokenID.USTv2]: new PublicKey("9vMJfxuKxXBoEa7rM12mYLMwTacLMLDJqHozw96WQL8i"),
 
   [TokenID.USDT_USDC_SABER]: new PublicKey("2poo1w1DL6yd2WNTCnNTzDqkC6MBXq7axo77P16yrBuf"),
   [TokenID.USDC_USDT_ORCA]: new PublicKey("H2uzgruPvonVpCRhwwdukcpXK8TG17swFNzYFr2rtPxy"),
@@ -49,6 +50,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.USDT]: 1e6,
   [TokenID.USDC]: 1e6,
   [TokenID.UST] : 1e9,
+  [TokenID.USTv2] : 1e6,
 
   [TokenID.USDT_USDC_SABER]: 1e6,
   [TokenID.USDC_USDT_ORCA]: 1e6,
@@ -86,6 +88,7 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.ORCA_SOL_ORCA]: 18,
   [TokenID.ETH_USDC_ORCA]: 19,
   [TokenID.SOL_USDT_ORCA]: 20,
+  [TokenID.USTv2]: 21,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
@@ -100,6 +103,7 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.USDT]: 0.90,
   [TokenID.USDC]: 0.90,
   [TokenID.UST]: 0.8,
+  [TokenID.USTv2]: 0.8,
 
   [TokenID.USDT_USDC_SABER]: 0.8,
   [TokenID.USDC_USDT_ORCA]: 0.8,
@@ -146,6 +150,7 @@ const INTEREST_RATES: {[key in TokenID]?: InterestRate} = {
   [TokenID.USDT]:new InterestRate(0.01, 0.85, 0.08, 1.0),
   [TokenID.USDC]:new InterestRate(0.01, 0.85, 0.08, 1.0),
   [TokenID.UST]: new InterestRate(0.01, 0.85, 0.08, 1.0),
+  [TokenID.USTv2]: new InterestRate(0.01, 0.85, 0.08, 1.0),
 }
 
 const FEES: { [key in TokenID]?: number } = {
@@ -160,6 +165,7 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.USDT]: 0.2,
   [TokenID.USDC]: 0.2,
   [TokenID.UST]: 0.2,
+  [TokenID.USTv2]: 0.2,
 
   [TokenID.USDT_USDC_SABER]: 0.0,   // no farming
   [TokenID.USDC_USDT_ORCA]: 0.2,
@@ -188,6 +194,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.USDT]: TokenCategory.Stable,
   [TokenID.USDC]: TokenCategory.Stable,
   [TokenID.UST] : TokenCategory.Stable,
+  [TokenID.USTv2] : TokenCategory.Stable,
 
   [TokenID.USDT_USDC_SABER]: TokenCategory.Lp,
   [TokenID.USDC_USDT_ORCA]: TokenCategory.Lp,
@@ -215,6 +222,7 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.USDT]: 0.04,
   [TokenID.USDC]: 0.04,
   [TokenID.UST] : 0.04,
+  [TokenID.USTv2] : 0.04,
 
   [TokenID.USDT_USDC_SABER]: 0,
   [TokenID.USDC_USDT_ORCA]: 0,
@@ -986,6 +994,7 @@ export const SWITCHBOARD_PRICE: { [key in TokenID]? : PublicKey} = {
   [TokenID.USDT]: new PublicKey("5mp8kbkTYwWWCsKSte8rURjTuyinsqBpJ9xAQsewPDD"),
   [TokenID.USDC]: new PublicKey("CZx29wKMUxaJDq6aLVQTdViPL754tTR64NAgQBUGxxHb"),
   [TokenID.UST]: new PublicKey("8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61"),
+  [TokenID.USTv2]: new PublicKey("8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61"),
 };
 
 const FIREBASE_READER_CONFIG = {
