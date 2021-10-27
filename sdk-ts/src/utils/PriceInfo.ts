@@ -6,11 +6,22 @@ import { AppConfig, PoolConfig, TokenID } from '../types';
 import Decimal from "decimal.js";
 import { OpenOrders } from '@project-serum/serum';
 import { Dex } from '..';
+import axios from 'axios';
+
+type RaydiumEntry = {
+  lp_mint: string,
+  lp_price: number,
+};
 
 export class PriceInfo {
+  cachedRaydiumContent: RaydiumEntry[] | null;
+  raydiumCacheTime: number;
   constructor(
     public config: AppConfig,
-  ) {}
+  ) {
+    this.cachedRaydiumContent = null;
+    this.raydiumCacheTime = 0;
+  }
 
   async fetchPrice(tokId: TokenID, connection: Connection): Promise<number> {
     if (tokId in this.config.switchboardPriceKeys) {
@@ -20,7 +31,13 @@ export class PriceInfo {
       invariant(tokId in this.config.poolConfigs);
       const poolConfig = this.config.poolConfigs[tokId]!;
       invariant(poolConfig.isLp(), "volatile/stable tokens should be priced through switchboard");
-      return this.computeLpPrice(tokId, poolConfig, connection);
+      // read directly from raydium endpoint if it's raydium LP
+      if (poolConfig.lpDex === Dex.Raydium) {
+        return this.getRaydiumLpPrice(poolConfig);
+      }
+      else {
+        return this.computeLpPrice(tokId, poolConfig, connection);
+      }
     }
   }
 
@@ -34,6 +51,26 @@ export class PriceInfo {
     }
     invariant(price);
     return price;
+  }
+
+  async checkRaydiumCache() {
+    const now = Date.now();
+    // update cache if cached more than 30s
+    if(now - this.raydiumCacheTime > 30 * 1000) {
+      const response = await axios.get("https://api.raydium.io/pairs");
+      const content = response.data as RaydiumEntry[];
+      this.cachedRaydiumContent = content;
+      this.raydiumCacheTime = Date.now();
+    }
+    invariant(this.cachedRaydiumContent);
+    return this.cachedRaydiumContent;
+  }
+
+  async getRaydiumLpPrice(poolConfig: PoolConfig): Promise<number> {
+    const mintStr = poolConfig.mint.toString();
+    const raydiumContent = await this.checkRaydiumCache();
+    const filtered = raydiumContent.filter(entry => entry.lp_mint === mintStr);
+    return filtered[0].lp_price;
   }
 
   async computeLpPrice(lpTokId: TokenID, poolConfig: PoolConfig, connection: Connection): Promise<number> {
