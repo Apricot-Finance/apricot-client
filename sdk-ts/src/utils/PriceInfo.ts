@@ -11,6 +11,9 @@ import axios from 'axios';
 type RaydiumEntry = {
   lp_mint: string,
   lp_price: number,
+  token_amount_coin: number,
+  token_amount_pc: number,
+  token_amount_lp: number,
 };
 
 export class PriceInfo {
@@ -33,7 +36,7 @@ export class PriceInfo {
       invariant(poolConfig.isLp(), "volatile/stable tokens should be priced through switchboard");
       // read directly from raydium endpoint if it's raydium LP
       if (poolConfig.lpDex === Dex.Raydium) {
-        return this.getRaydiumLpPrice(poolConfig);
+        return this.getRaydiumLpPrice(poolConfig, connection);
       }
       else {
         return this.computeLpPrice(tokId, poolConfig, connection);
@@ -66,11 +69,18 @@ export class PriceInfo {
     return this.cachedRaydiumContent;
   }
 
-  async getRaydiumLpPrice(poolConfig: PoolConfig): Promise<number> {
+  async getRaydiumLpPrice(poolConfig: PoolConfig, connection: Connection): Promise<number> {
+    const [leftTokId, rightTokId] = poolConfig.lpLeftRightTokenId!;
+    const leftPrice = await this.fetchPrice(leftTokId, connection);
+    const rightPrice = await this.fetchPrice(rightTokId, connection);
     const mintStr = poolConfig.mint.toString();
     const raydiumContent = await this.checkRaydiumCache();
     const filtered = raydiumContent.filter(entry => entry.lp_mint === mintStr);
-    return filtered[0].lp_price;
+    const entry = filtered[0];
+    const price = (leftPrice * entry.token_amount_coin + rightPrice * entry.token_amount_pc) / entry.token_amount_lp;
+    //console.log(`Raydium reported price: ${entry.lp_price}`);
+    //console.log(`Our computed price: ${price}`)
+    return price;
   }
 
   async computeLpPrice(lpTokId: TokenID, poolConfig: PoolConfig, connection: Connection): Promise<number> {
