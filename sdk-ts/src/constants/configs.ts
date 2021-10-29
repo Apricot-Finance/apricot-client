@@ -1,10 +1,12 @@
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { PublicKey, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
+import { PublicKey, SystemProgram, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
 import invariant from "tiny-invariant";
 import { SWAP_RAYDIUM } from ".";
 import { getAssociatedTokenPubkey } from "..";
 import { TokenID, TokenCategory, AppConfig, Dex, PoolId, LpSwapKeyInfo } from "../types";
 import { SWAP_ORCA, SWAP_SABER } from "./commands";
+
+export const FAKE_KEY = SystemProgram.programId;
 
 export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.BTC]: new PublicKey("9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E"),
@@ -902,8 +904,8 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     globalDoubleDipFarmState: new PublicKey('2SciNw7cEsKJc1PMRDzWCcEzvuScmEaUgmrJXCi9UFxY'),
     globalDoubleDipRewardTokenVault: new PublicKey('DCHpFt1bCk9mTudj6VsKbADvUPT3tAJvJ2rcBZQry8Wz'),
     doubleDipRewardTokenAuthority: new PublicKey('5uk8F4MaFSu1pF9Q7k8xcyWgqyo9q2dqr3Kb4Esvd1n3'),
-    publicDoubleDipRewardAcc: new PublicKey('xxxx'),
-    alphaDoubleDipRewardAcc: new PublicKey('yyyy'),
+    publicDoubleDipRewardAcc: new PublicKey("5U5uowAVYyggB6DvVZE12cLZE7EjxkdKGt8VpvbsNbAy"),
+    alphaDoubleDipRewardAcc: new PublicKey("GfSzQknESVecnF5z9G1gpEtcaxZkcT742uUdbhJoU5Ap"),
   }),
   [TokenID.ORCA_USDC_ORCA]: new OrcaLpSwapInfo({
     lpMintPubkey:           new PublicKey(MINTS[TokenID.ORCA_USDC_ORCA]),

@@ -3,7 +3,7 @@ import { Keypair, AccountMeta, PublicKey, SystemProgram, Transaction, Transactio
 import invariant from "tiny-invariant";
 import { Addresses } from "../addresses";
 import { CMD_ADD_USER_AND_DEPOSIT, CMD_BORROW, CMD_DEPOSIT, CMD_EXTERN_LIQUIDATE, CMD_LP_CREATE, CMD_LP_OP_CHECK, CMD_LP_OP_ENDCHECK, CMD_LP_REDEEM, CMD_LP_STAKE, CMD_LP_UNSTAKE, CMD_LP_UNSTAKE_SECOND, CMD_REFRESH_USER, CMD_REPAY, CMD_UPDATE_USER_CONFIG, CMD_WITHDRAW, CMD_WITHDRAW_AND_REMOVE_USER } from "../constants/commands";
-import { LP_SWAP_METAS, LP_TO_LR, MINTS, OrcaLpSwapInfo } from "../constants/configs";
+import { LP_TO_LR, MINTS } from "../constants/configs";
 import { UserInfo, TokenID } from "../types";
 import { AccountParser } from "./AccountParser";
 
