@@ -142,9 +142,9 @@ export class AccountParser {
       reward_multiplier       : AccountParser.parseFloat64(data.buffer, offsets[27]),
       reward_deposit_intra    : AccountParser.parseFloat64(data.buffer, offsets[28]),
 
-      reward_per_year         : AccountParser.parseFloat64(data.buffer, offsets[29]),
-      reward_per_year_deposit : AccountParser.parseFloat64(data.buffer, offsets[30]),
-      reward_per_year_borrow  : AccountParser.parseFloat64(data.buffer, offsets[31]),
+      reward_per_year         : AccountParser.parseBigUint64(data.buffer, offsets[29]),
+      reward_per_year_deposit : AccountParser.parseBigUint64(data.buffer, offsets[30]),
+      reward_per_year_borrow  : AccountParser.parseBigUint64(data.buffer, offsets[31]),
       reward_per_year_per_d   : AccountParser.parseFloat64(data.buffer, offsets[32]),
       reward_per_year_per_b   : AccountParser.parseFloat64(data.buffer, offsets[33]),
 
@@ -217,8 +217,8 @@ export class AccountParser {
     }
     const reward = {
       vesting: reward_vesting,
-      available: AccountParser.parseFloat64(data.buffer, reward_base + 8*8),
-      withdrawn: AccountParser.parseFloat64(data.buffer, reward_base + 8*9),
+      available_apt: AccountParser.parseFloat64(data.buffer, reward_base + 8*8),
+      available_mnde: AccountParser.parseFloat64(data.buffer, reward_base + 8*9),
     };
 
     // pad
