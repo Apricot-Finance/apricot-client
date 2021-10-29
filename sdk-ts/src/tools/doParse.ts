@@ -4,6 +4,7 @@ import { TokenID } from "../types";
 import { MINTS } from "../constants";
 import { ActionWrapper } from "../utils/ActionWrapper";
 import invariant from "tiny-invariant";
+import Decimal from "decimal.js";
 
 const [_nodeStr, _scriptStr, production, action, ] = process.argv.slice(0, 4);
 
@@ -19,7 +20,10 @@ async function doParse() {
     const poolId = TokenID[process.argv[4] as keyof typeof TokenID];
     const poolMint = MINTS[poolId]!;
     const result = await wrapper.getParsedAssetPool(poolMint)!;
+    const time = (result?.last_update_time ?? new Decimal(0)).toNumber();
+    const lastUpdate = new Date(time * 1000);
     console.log(result);
+    console.log(`Last update time: ${lastUpdate.toISOString()}`)
 
   }
   else if(action === "price") {
