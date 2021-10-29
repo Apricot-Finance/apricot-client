@@ -2,8 +2,8 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Keypair, AccountMeta, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import invariant from "tiny-invariant";
 import { Addresses } from "../addresses";
-import { CMD_ADD_USER_AND_DEPOSIT, CMD_BORROW, CMD_DEPOSIT, CMD_EXTERN_LIQUIDATE, CMD_LP_CREATE, CMD_LP_OP_CHECK, CMD_LP_OP_ENDCHECK, CMD_LP_REDEEM, CMD_LP_STAKE, CMD_LP_UNSTAKE, CMD_REFRESH_USER, CMD_REPAY, CMD_UPDATE_USER_CONFIG, CMD_WITHDRAW, CMD_WITHDRAW_AND_REMOVE_USER } from "../constants/commands";
-import { LP_TO_LR, MINTS } from "../constants/configs";
+import { CMD_ADD_USER_AND_DEPOSIT, CMD_BORROW, CMD_DEPOSIT, CMD_EXTERN_LIQUIDATE, CMD_LP_CREATE, CMD_LP_OP_CHECK, CMD_LP_OP_ENDCHECK, CMD_LP_REDEEM, CMD_LP_STAKE, CMD_LP_UNSTAKE, CMD_LP_UNSTAKE_SECOND, CMD_REFRESH_USER, CMD_REPAY, CMD_UPDATE_USER_CONFIG, CMD_WITHDRAW, CMD_WITHDRAW_AND_REMOVE_USER } from "../constants/commands";
+import { LP_SWAP_METAS, LP_TO_LR, MINTS, OrcaLpSwapInfo } from "../constants/configs";
 import { UserInfo, TokenID } from "../types";
 import { AccountParser } from "./AccountParser";
 
@@ -670,6 +670,67 @@ export class TransactionBuilder {
     });
   }
 
+  async buildLpStake2ndStepIx(
+    lpMintStr: string,
+    stakeTableKey: PublicKey,
+    floatingLpSplKey: PublicKey,
+    stake2ndStepKeys: AccountMeta[],
+  ) {
+    const [base_pda,] = await this.addresses.getBasePda();
+    // const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
+    const adminPubkey = this.addresses.getAdminKey();
+    const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
+
+    const keys = [
+      { pubkey: adminPubkey, isSigner: true, isWritable: true },
+      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: stakeTableKey, isSigner: false, isWritable: true },
+      { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
+      { pubkey: base_pda, isSigner: false, isWritable: false },
+    ].concat(stake2ndStepKeys);
+
+    const data = [CMD_LP_STAKE];
+    return new TransactionInstruction({
+      programId: this.addresses.getProgramKey(),
+      keys: keys,
+      data: Buffer.from(data),
+    });
+  }
+
+  async buildLpUnstake2ndStepIx(
+    userWalletKey: PublicKey,
+    lpMintStr: string,
+    stakeTableKey: PublicKey,
+    floatingLpSplKey: PublicKey,
+    doubleDipStakeKeys: AccountMeta[],
+    amount: number,
+  ) {
+    const [base_pda,] = await this.addresses.getBasePda();
+    const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
+    const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
+
+    const keys = [
+      { pubkey: userWalletKey, isSigner: true, isWritable: true },
+      { pubkey: userInfoKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: stakeTableKey, isSigner: false, isWritable: true },
+      { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
+      { pubkey: base_pda, isSigner: false, isWritable: false },
+    ].concat(doubleDipStakeKeys);
+
+    const buffer = new ArrayBuffer(8);
+    AccountParser.setBigUint64(buffer, 0, amount);
+    const payload = Array.from(new Uint8Array(buffer));
+
+    const data = [CMD_LP_UNSTAKE_SECOND].concat(payload);
+
+    return new TransactionInstruction({
+      programId: this.addresses.getProgramKey(),
+      keys: keys,
+      data: Buffer.from(data),
+    });
+  }
+
   async buildLpUnstakeIx(
     lpMintStr: string,
     targetSwap: number,
@@ -727,6 +788,44 @@ export class TransactionBuilder {
       await this.addresses.getLpDepositKeys(lpTokenId),
       await this.addresses.getLpStakeKeys(lpTokenId),
     );
+    return tx;
+  }
+
+  async lpStake2nd(
+    lpTokenId: TokenID,
+  ) {
+    const lpMint = MINTS[lpTokenId];
+    const floatingLpSplKey = await this.addresses.getFloatingLpTokenAccount(lpTokenId);
+    const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(lpMint.toString());
+
+    const ix = await this.buildLpStake2ndStepIx(
+      lpMint.toString(),
+      stakeTableKey,
+      floatingLpSplKey,
+      await this.addresses.getLp2ndStepStakeKeys(lpTokenId)
+    );
+    const tx = new Transaction().add(ix);
+    return tx;
+  }
+
+  async lpUnstake2nd(
+    walletKey: PublicKey,
+    lpTokenId: TokenID,
+    lpAmount: number,
+  ) {
+    const lpMint = MINTS[lpTokenId];
+    const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(lpMint.toString());
+    const floatingLpSplKey = await this.addresses.getFloatingLpTokenAccount(lpTokenId);
+
+    const ix = await this.buildLpUnstake2ndStepIx(
+      walletKey,
+      lpMint.toString(),
+      stakeTableKey,
+      floatingLpSplKey,
+      await this.addresses.getLp2ndStepStakeKeys(lpTokenId),
+      lpAmount,
+    );
+    const tx = new Transaction().add(ix);
     return tx;
   }
 

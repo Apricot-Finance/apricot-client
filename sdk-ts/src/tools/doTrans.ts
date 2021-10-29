@@ -114,6 +114,30 @@ async function doTransaction() {
     )!;
     console.log(result);
   }
+  else if(action === "lp-create-2step") {
+    // node doTrans.js keyLocation repay BTC 0.1
+    if (remainingArgs.length < 1) {
+      throw new Error(`Invalid argvs`);
+    }
+    const tokenId = TokenID[remainingArgs[0] as keyof typeof TokenID];
+    const result = await wrapper.lpStake2ndStep(
+      keypair,
+      tokenId,
+    );
+    console.log(result);
+  }
+  else if(action === "lp-redeem-2step") {
+    // node doTrans.js keyLocation repay BTC 0.1
+    const tokenId = TokenID[remainingArgs[0] as keyof typeof TokenID];
+    const amount = parseFloat(remainingArgs[1]);
+    
+    const result = await wrapper.lpUnstake2ndStep(
+      keypair, 
+      tokenId,
+      amount * DECIMAL_MULT[tokenId],
+    );
+    console.log(result);
+  }
   else if(action === "lp-redeem") {
     // node doTrans.js keyLocation repay BTC 0.1
     const tokenId = TokenID[remainingArgs[0] as keyof typeof TokenID];

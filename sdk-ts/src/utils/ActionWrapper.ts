@@ -150,6 +150,29 @@ export class ActionWrapper {
     return this.connection.sendTransaction(tx, [walletAccount]);
   }
 
+  async lpStake2ndStep(
+    adminAccount: Keypair,
+    lpTokenId: TokenID,
+  ) {
+    const tx = await this.builder.lpStake2nd(
+      lpTokenId,
+    );
+    return this.connection.sendTransaction(tx, [adminAccount]);
+  }
+
+  async lpUnstake2ndStep(
+    walletAccount: Keypair,
+    lpTokenId: TokenID,
+    lpAmount: number,
+  ) {
+    const tx = await this.builder.lpUnstake2nd(
+      walletAccount.publicKey,
+      lpTokenId,
+      lpAmount,
+    );
+    return this.connection.sendTransaction(tx, [walletAccount]);
+  }
+
   async lpRedeem(
     walletAccount: Keypair,
     lpTokenId: TokenID,

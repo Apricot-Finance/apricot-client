@@ -1,7 +1,7 @@
 import { AppConfig, TokenID } from "./types";
 import { AccountMeta, PublicKey } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { LP_SWAP_METAS, LP_TO_TARGET_SWAP } from "./constants";
+import { LP_SWAP_METAS, LP_TO_TARGET_SWAP, OrcaLpSwapInfo } from "./constants";
 import invariant from "tiny-invariant";
 
 // mostly computes addresses
@@ -113,5 +113,21 @@ export class Addresses {
       invariant(lpSwapInfo);
       const keys = await lpSwapInfo.getLpStakeKeys(ownerKey);
       return keys;
+    }
+
+    async getLp2ndStepStakeKeys(tokenId: TokenID): Promise<AccountMeta[]> {
+      const [ownerKey, _bump] = await this.getBasePda();
+      const lpSwapInfo = LP_SWAP_METAS[tokenId]! as OrcaLpSwapInfo;
+      invariant(lpSwapInfo);
+      invariant(lpSwapInfo.isDoubleDipSupported);
+      return await lpSwapInfo.getDoubleDipLpStakeKeys(ownerKey);
+    }
+
+    async getFloatingLpTokenAccount(tokenId: TokenID) {
+      const lpSwapInfo = LP_SWAP_METAS[tokenId] as OrcaLpSwapInfo;
+      invariant(lpSwapInfo instanceof OrcaLpSwapInfo);
+      const [ownerKey] = await this.getBasePda();
+      const { pdaFarmTokenAccount: floatingLpSplKey } = await lpSwapInfo.getPdaKeys(ownerKey);
+      return floatingLpSplKey;
     }
 }

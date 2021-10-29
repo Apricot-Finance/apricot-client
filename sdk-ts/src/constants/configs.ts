@@ -494,6 +494,15 @@ type OrcaLpArgs = {
   feeAccount:             PublicKey;
   publicRewardTokAcc:     PublicKey;
   alphaRewardTokAcc:      PublicKey;
+
+  isDoubleDipSupported?:  boolean;
+  globalLp3Vault?:        PublicKey;
+  farmTokenLp3Mint?:      PublicKey;
+  globalDoubleDipFarmState?: PublicKey;
+  globalDoubleDipRewardTokenVault?: PublicKey;
+  doubleDipRewardTokenAuthority?: PublicKey;
+  publicDoubleDipRewardAcc?: PublicKey;
+  alphaDoubleDipRewardAcc?: PublicKey;
 };
 
 export class OrcaLpSwapInfo implements LpSwapKeyInfo {
@@ -513,6 +522,15 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
   feeAccount:             PublicKey;
   publicRewardTokAcc:     PublicKey;
   alphaRewardTokAcc:      PublicKey;
+  
+  isDoubleDipSupported = false;
+  globalLp3Vault?:        PublicKey;
+  farmTokenLp3Mint?:      PublicKey;
+  globalDoubleDipFarmState?: PublicKey;
+  globalDoubleDipRewardTokenVault?: PublicKey;
+  doubleDipRewardTokenAuthority?: PublicKey;
+  publicDoubleDipRewardAcc?: PublicKey;
+  alphaDoubleDipRewardAcc?: PublicKey;
   constructor(args: OrcaLpArgs) {
     this.lpMintPubkey = args.lpMintPubkey;
     this.swapPubkey = args.swapPubkey;
@@ -527,6 +545,25 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
     this.feeAccount = args.feeAccount;
     this.publicRewardTokAcc = args.publicRewardTokAcc;
     this.alphaRewardTokAcc = args.alphaRewardTokAcc;
+
+    this.isDoubleDipSupported = !!args.isDoubleDipSupported;
+    this.globalLp3Vault = args.globalLp3Vault;
+    this.farmTokenLp3Mint = args.farmTokenLp3Mint;
+    this.globalDoubleDipFarmState = args.globalDoubleDipFarmState;
+    this.globalDoubleDipRewardTokenVault = args.globalDoubleDipRewardTokenVault;
+    this.doubleDipRewardTokenAuthority = args.doubleDipRewardTokenAuthority;
+    this.publicDoubleDipRewardAcc = args.publicDoubleDipRewardAcc;
+    this.alphaDoubleDipRewardAcc = args.alphaDoubleDipRewardAcc;
+    if (this.isDoubleDipSupported) {
+      invariant(
+        this.globalLp3Vault &&
+        this.farmTokenLp3Mint &&
+        this.globalDoubleDipFarmState &&
+        this.globalDoubleDipRewardTokenVault &&
+        this.doubleDipRewardTokenAuthority &&
+        this.publicDoubleDipRewardAcc &&
+        this.alphaDoubleDipRewardAcc)
+    }
   }
 
   async getPdaKeys (ownerKey: PublicKey) {
@@ -554,6 +591,37 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
       pdaFarmTokenAccount,
       pdaRewardTokenAccount,
       pdaFarmState
+    };
+  }
+
+  async getPdaDoubleDipKeys (ownerKey: PublicKey) {
+    if (!this.isDoubleDipSupported) {
+      throw new Error('Double dip not supported for getting pda keys');
+    }
+    const smeta = SWAP_METAS[SWAP_ORCA];
+    let pdaDoubleDipRewardTokenAccount: PublicKey;
+    const isPublic = ownerKey.toString() === '7Ne6h2w3LpTNTa7CNYcUs7UkjeJT3oW7jcrXWfVScTXW';
+    const isAlpha = ownerKey.toString() === 'GipxmFXdiJaSevu6StymY2aphKVxgYmAmf2dT3fTEASc';
+    if (isPublic) {
+      pdaDoubleDipRewardTokenAccount = this.publicDoubleDipRewardAcc!;
+    }
+    else if (isAlpha) {
+      pdaDoubleDipRewardTokenAccount = this.alphaDoubleDipRewardAcc!;
+    }
+    else {
+      throw new Error(`Unknown ownerKey: ${ownerKey.toString()}`);
+    }
+
+    const pdaDoubleDipFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, this.farmTokenLp3Mint!, true);
+    const pdaDoubleDipFarmState = (await PublicKey.findProgramAddress(
+      [this.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
+      smeta.farmProgramPubkey
+    ))[0];
+
+    return {
+      pdaDoubleDipFarmTokenAccount,
+      pdaDoubleDipRewardTokenAccount,
+      pdaDoubleDipFarmState,
     };
   }
 
@@ -598,6 +666,24 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
       { pubkey: TOKEN_PROGRAM_ID,               isSigner: false, isWritable: false }
     ];
   }
+
+  async getDoubleDipLpStakeKeys(ownerKey: PublicKey) {
+    const smeta = SWAP_METAS[SWAP_ORCA];
+    const pdaKeys = await this.getPdaDoubleDipKeys(ownerKey);
+    return [
+      { pubkey: smeta.farmProgramPubkey, isSigner: false, isWritable: false },
+      { pubkey: this.globalLp3Vault!, isSigner: false, isWritable: true },
+      { pubkey: this.farmTokenLp3Mint!, isSigner: false, isWritable: true },
+      { pubkey: pdaKeys.pdaDoubleDipFarmTokenAccount!, isSigner: false, isWritable: true },
+      { pubkey: this.globalDoubleDipFarmState!, isSigner: false, isWritable: true },
+      { pubkey: pdaKeys.pdaDoubleDipFarmState!, isSigner: false, isWritable: true },
+      { pubkey: this.globalDoubleDipRewardTokenVault!, isSigner: false, isWritable: true },
+      { pubkey: pdaKeys.pdaDoubleDipRewardTokenAccount!, isSigner: false, isWritable: true },
+      { pubkey: this.doubleDipRewardTokenAuthority!, isSigner: false, isWritable: false },
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+    ];
+  }
+
   getLRVaults(): [PublicKey, PublicKey] {
     return [this.swapTokenAAccount, this.swapTokenBAccount];
   }
@@ -809,6 +895,15 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     feeAccount:             new PublicKey("6j2tt2UVYMQwqG3hRtyydW3odzBFwy3pN33tyB3xCKQ6"),
     publicRewardTokAcc:     new PublicKey("CA59mFikUhJYLesKAxx8j8unHrxTfXSEPjzoXFyrG9M1"),
     alphaRewardTokAcc:      new PublicKey("3XNau9dqDSjAARS3cvTjzUv2nRU2FEzaGJd31f6NApUU"),
+
+    isDoubleDipSupported:   LP_TO_NEED_2ND_STAKE[TokenID.mSOL_SOL_ORCA],
+    globalLp3Vault:         new PublicKey('AEZpFdJ5hA7MwVS7AReBbS9pMhoYRhLXgDyc1GWbSoXc'),
+    farmTokenLp3Mint:       new PublicKey('576ABEdvLG1iFU3bLC8AMJ3mo5LhfgPPhMtTeVAGG6u7'),
+    globalDoubleDipFarmState: new PublicKey('2SciNw7cEsKJc1PMRDzWCcEzvuScmEaUgmrJXCi9UFxY'),
+    globalDoubleDipRewardTokenVault: new PublicKey('DCHpFt1bCk9mTudj6VsKbADvUPT3tAJvJ2rcBZQry8Wz'),
+    doubleDipRewardTokenAuthority: new PublicKey('5uk8F4MaFSu1pF9Q7k8xcyWgqyo9q2dqr3Kb4Esvd1n3'),
+    publicDoubleDipRewardAcc: new PublicKey('xxxx'),
+    alphaDoubleDipRewardAcc: new PublicKey('yyyy'),
   }),
   [TokenID.ORCA_USDC_ORCA]: new OrcaLpSwapInfo({
     lpMintPubkey:           new PublicKey(MINTS[TokenID.ORCA_USDC_ORCA]),

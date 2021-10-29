@@ -19,6 +19,8 @@ export const CMD_LP_OP_CHECK = 0x21;
 export const CMD_LP_OP_ENDCHECK = 0x22;
 export const CMD_LP_STAKE = 0x23;
 export const CMD_LP_UNSTAKE = 0x24;
+export const CMD_LP_STAKE_SECOND = 0x81;
+export const CMD_LP_UNSTAKE_SECOND = 0x82;
 
 // other trivia
 // swap identifiers
