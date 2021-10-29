@@ -522,10 +522,18 @@ export class TransactionBuilder {
       .add(inst);
 
     if(stakeKeys.length > 0) {
+      const poolConfig = this.addresses.config.getPoolConfigByPoolId(lpPoolId);
+      invariant(poolConfig);
+      // if need second staking, we need to write an entry into this pool's StakeTable
+      const updatedStakeKeys = Array.from(stakeKeys);
+      if (poolConfig.lpNeedSndStake) {
+        const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(poolConfig.mint.toString());
+        updatedStakeKeys.push({ pubkey: stakeTableKey,  isSigner: false, isWritable: true });
+      }
       const stake_ix = await this.buildLpStakeIx(
         lpMintStr,
         targetSwap,
-        stakeKeys,
+        updatedStakeKeys,
       );
       tx.add(stake_ix);
     }
@@ -596,6 +604,14 @@ export class TransactionBuilder {
       {pubkey: priceSummariesKey,     isSigner: false,        isWritable: false},
       {pubkey: TOKEN_PROGRAM_ID,    isSigner: false,        isWritable: false},
     ].concat(swap_account_keys);
+
+    const poolId = this.mintKeyStrToPoolId(lpMintStr);
+
+    const poolConfig = this.addresses.config.getPoolConfigByPoolId(poolId);
+    if (poolConfig.lpNeedSndStake) {
+      const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(poolConfig.mint.toString());
+      keys.push({ pubkey: stakeTableKey,  isSigner: false, isWritable: true });
+    }
 
     const data = this.buildMarginLpRedeemParam(
       leftMintStr, minLeftAmount, rightMintStr, min_rightAmount, lpMintStr, lpAmount, targetSwap,

@@ -60,6 +60,11 @@ export class Addresses {
       const poolSeedStr = this.mintKeyStrToPoolSeedStr(mintKeyStr);
       return PublicKey.createWithSeed(basePda, poolSeedStr, TOKEN_PROGRAM_ID);
     }
+    async getAssetPoolStakeTableKey(mintKeyStr: string) {
+      const [basePda] = await this.getBasePda();
+      const stakeSeedStr = this.mintKeyStrToStakeTableSeedStr(mintKeyStr);
+      return PublicKey.createWithSeed(basePda, stakeSeedStr, this.config.programPubkey);
+    }
     getUserInfoKey(walletKey: PublicKey) {
       return PublicKey.createWithSeed(walletKey, "UserInfo", this.config.programPubkey);
     }
@@ -68,10 +73,20 @@ export class Addresses {
       const char2 = String.fromCharCode(pool_id % 16 + "a".charCodeAt(0));
       return "POOL__" + char1 + char2;
     }
+    poolIdToStakeTableSeedStr(pool_id: number) {
+      const char1 = String.fromCharCode(pool_id / 16 + "a".charCodeAt(0));
+      const char2 = String.fromCharCode(pool_id % 16 + "a".charCodeAt(0));
+      return "STAK__" + char1 + char2;
+    }
 
     mintKeyStrToPoolSeedStr(mintKeyStr: string) {
       const poolId = this.config.mintKeyStrToPoolId(mintKeyStr);
       return this.poolIdToSeedStr(poolId);
+    }
+
+    mintKeyStrToStakeTableSeedStr(mintKeyStr: string) {
+      const poolId = this.config.mintKeyStrToPoolId(mintKeyStr);
+      return this.poolIdToStakeTableSeedStr(poolId);
     }
 
     getLpTargetSwap(tokenId: TokenID) : number {
@@ -96,6 +111,7 @@ export class Addresses {
       const [ownerKey, _bump] = await this.getBasePda();
       const lpSwapInfo = LP_SWAP_METAS[tokenId]!;
       invariant(lpSwapInfo);
-      return await lpSwapInfo.getLpStakeKeys(ownerKey);
+      const keys = await lpSwapInfo.getLpStakeKeys(ownerKey);
+      return keys;
     }
 }

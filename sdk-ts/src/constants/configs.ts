@@ -293,6 +293,22 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.mSOL_SOL_RAYDIUM]: Dex.Raydium,
 };
 
+export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
+  [TokenID.USDT_USDC_SABER] : false,
+  [TokenID.USDC_USDT_ORCA] : false,
+  [TokenID.UST_USDC_SABER] : false,
+  [TokenID.SOL_USDC_RAYDIUM]: false,
+  [TokenID.RAY_USDC_RAYDIUM]: true,
+  [TokenID.SOL_USDT_RAYDIUM]: false,
+  [TokenID.SOL_USDC_ORCA]: false,
+  [TokenID.mSOL_SOL_ORCA]: true,
+  [TokenID.ORCA_USDC_ORCA]: false,
+  [TokenID.ORCA_SOL_ORCA]: false,
+  [TokenID.ETH_USDC_ORCA]: false,
+  [TokenID.SOL_USDT_ORCA]: false,
+  [TokenID.mSOL_SOL_RAYDIUM]: false,
+};
+
 
 // meta-info used by Addresses to compute keys needed when interacting with various Solana swaps
 // check out Addresses to see how they are used
@@ -1070,6 +1086,7 @@ export const ALPHA_CONFIG = new AppConfig(
   LP_TO_LR,
   LP_TO_DEX,
   LP_TO_TARGET_SWAP,
+  LP_TO_NEED_2ND_STAKE,
   SWITCHBOARD_PRICE,
   INTEREST_RATES,
   FEES,
@@ -1093,6 +1110,7 @@ export const PUBLIC_CONFIG = new AppConfig(
   LP_TO_LR,
   LP_TO_DEX,
   LP_TO_TARGET_SWAP,
+  LP_TO_NEED_2ND_STAKE,
   SWITCHBOARD_PRICE,
   INTEREST_RATES,
   FEES,
