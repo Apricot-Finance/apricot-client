@@ -707,12 +707,12 @@ export class TransactionBuilder {
   ) {
     const [base_pda,] = await this.addresses.getBasePda();
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
-    const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
+    const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
 
     const keys = [
       { pubkey: userWalletKey, isSigner: true, isWritable: true },
       { pubkey: userInfoKey, isSigner: false, isWritable: true },
-      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
       { pubkey: stakeTableKey, isSigner: false, isWritable: true },
       { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
