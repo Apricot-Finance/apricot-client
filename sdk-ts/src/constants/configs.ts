@@ -616,7 +616,7 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
 
     const pdaDoubleDipFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, this.farmTokenLp3Mint!, true);
     const pdaDoubleDipFarmState = (await PublicKey.findProgramAddress(
-      [this.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
+      [this.globalDoubleDipFarmState!.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
       smeta.farmProgramPubkey
     ))[0];
 

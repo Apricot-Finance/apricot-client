@@ -45,6 +45,10 @@ async function printAddresses() {
       for (const [key, value] of Object.entries(pdaKeys)) {
         console.log(`${key}: ${value.toBase58()}`);
       }
+      if (poolCfg.lpNeedSndStake) {
+        const stakeTableKey = await consts.getAssetPoolStakeTableKey(poolCfg.mint.toString());
+        console.log(`StakeTable: ${stakeTableKey.toString()}`);
+      }
       console.log('\n');
     }
   }
