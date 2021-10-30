@@ -2,7 +2,7 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Keypair, AccountMeta, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import invariant from "tiny-invariant";
 import { Addresses } from "../addresses";
-import { CMD_ADD_USER_AND_DEPOSIT, CMD_BORROW, CMD_DEPOSIT, CMD_EXTERN_LIQUIDATE, CMD_LP_CREATE, CMD_LP_OP_CHECK, CMD_LP_OP_ENDCHECK, CMD_LP_REDEEM, CMD_LP_STAKE, CMD_LP_UNSTAKE, CMD_LP_UNSTAKE_SECOND, CMD_REFRESH_USER, CMD_REPAY, CMD_UPDATE_USER_CONFIG, CMD_WITHDRAW, CMD_WITHDRAW_AND_REMOVE_USER } from "../constants/commands";
+import { CMD_ADD_USER_AND_DEPOSIT, CMD_BORROW, CMD_DEPOSIT, CMD_EXTERN_LIQUIDATE, CMD_LP_CREATE, CMD_LP_OP_CHECK, CMD_LP_OP_ENDCHECK, CMD_LP_REDEEM, CMD_LP_STAKE, CMD_LP_STAKE_SECOND, CMD_LP_UNSTAKE, CMD_LP_UNSTAKE_SECOND, CMD_REFRESH_USER, CMD_REPAY, CMD_UPDATE_USER_CONFIG, CMD_WITHDRAW, CMD_WITHDRAW_AND_REMOVE_USER } from "../constants/commands";
 import { LP_TO_LR, MINTS } from "../constants/configs";
 import { UserInfo, TokenID } from "../types";
 import { AccountParser } from "./AccountParser";
@@ -679,17 +679,17 @@ export class TransactionBuilder {
     const [base_pda,] = await this.addresses.getBasePda();
     // const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
     const adminPubkey = this.addresses.getAdminKey();
-    const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
+    const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
 
     const keys = [
-      { pubkey: adminPubkey, isSigner: true, isWritable: true },
-      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: adminPubkey, isSigner: true, isWritable: false },
+      { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
       { pubkey: stakeTableKey, isSigner: false, isWritable: true },
       { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
     ].concat(stake2ndStepKeys);
 
-    const data = [CMD_LP_STAKE];
+    const data = [CMD_LP_STAKE_SECOND];
     return new TransactionInstruction({
       programId: this.addresses.getProgramKey(),
       keys: keys,
