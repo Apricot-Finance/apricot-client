@@ -505,6 +505,7 @@ type OrcaLpArgs = {
   doubleDipRewardTokenAuthority?: PublicKey;
   publicDoubleDipRewardAcc?: PublicKey;
   alphaDoubleDipRewardAcc?: PublicKey;
+  doubleDipRewardMint?:   PublicKey;
 };
 
 export class OrcaLpSwapInfo implements LpSwapKeyInfo {
@@ -533,6 +534,7 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
   doubleDipRewardTokenAuthority?: PublicKey;
   publicDoubleDipRewardAcc?: PublicKey;
   alphaDoubleDipRewardAcc?: PublicKey;
+  doubleDipRewardMint?:   PublicKey;
   constructor(args: OrcaLpArgs) {
     this.lpMintPubkey = args.lpMintPubkey;
     this.swapPubkey = args.swapPubkey;
@@ -556,6 +558,7 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
     this.doubleDipRewardTokenAuthority = args.doubleDipRewardTokenAuthority;
     this.publicDoubleDipRewardAcc = args.publicDoubleDipRewardAcc;
     this.alphaDoubleDipRewardAcc = args.alphaDoubleDipRewardAcc;
+    this.doubleDipRewardMint = args.doubleDipRewardMint;
     if (this.isDoubleDipSupported) {
       invariant(
         this.globalLp3Vault &&
@@ -564,7 +567,8 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
         this.globalDoubleDipRewardTokenVault &&
         this.doubleDipRewardTokenAuthority &&
         this.publicDoubleDipRewardAcc &&
-        this.alphaDoubleDipRewardAcc)
+        this.alphaDoubleDipRewardAcc &&
+        this.doubleDipRewardMint)
     }
   }
 
@@ -906,6 +910,7 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     doubleDipRewardTokenAuthority: new PublicKey('5uk8F4MaFSu1pF9Q7k8xcyWgqyo9q2dqr3Kb4Esvd1n3'),
     publicDoubleDipRewardAcc: new PublicKey("5U5uowAVYyggB6DvVZE12cLZE7EjxkdKGt8VpvbsNbAy"),
     alphaDoubleDipRewardAcc: new PublicKey("GfSzQknESVecnF5z9G1gpEtcaxZkcT742uUdbhJoU5Ap"),
+    doubleDipRewardMint:    new PublicKey("MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey"),
   }),
   [TokenID.ORCA_USDC_ORCA]: new OrcaLpSwapInfo({
     lpMintPubkey:           new PublicKey(MINTS[TokenID.ORCA_USDC_ORCA]),

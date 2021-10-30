@@ -47,7 +47,11 @@ async function printAddresses() {
       }
       if (poolCfg.lpNeedSndStake) {
         const stakeTableKey = await consts.getAssetPoolStakeTableKey(poolCfg.mint.toString());
+        const ddKeys = await orcaLpSwapInfo.getPdaDoubleDipKeys(base_pda);
         console.log(`StakeTable: ${stakeTableKey.toString()}`);
+        console.log(`DD userFarmState: ${ddKeys.pdaDoubleDipFarmState.toString()}`);
+        console.log(`DD rewardTokAcc: ${ddKeys.pdaDoubleDipRewardTokenAccount.toString()}`);
+        console.log(`DD LP3 token account: ${ddKeys.pdaDoubleDipFarmTokenAccount.toString()}`);
       }
       console.log('\n');
     }
