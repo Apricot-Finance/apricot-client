@@ -682,10 +682,12 @@ export class TransactionBuilder {
     // const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
     const adminPubkey = this.addresses.getAdminKey();
     const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
+    const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
 
     const keys = [
       { pubkey: adminPubkey, isSigner: true, isWritable: false },
       { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
       { pubkey: stakeTableKey, isSigner: false, isWritable: true },
       { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
@@ -712,12 +714,14 @@ export class TransactionBuilder {
     const [base_pda,] = await this.addresses.getBasePda();
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
     const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
+    const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
 
     const keys = [
       { pubkey: unstakeIdentity, isSigner: true, isWritable: false },
       { pubkey: userWalletKey, isSigner: false, isWritable: false },
       { pubkey: userInfoKey, isSigner: false, isWritable: false },
       { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
       { pubkey: stakeTableKey, isSigner: false, isWritable: true },
       { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
