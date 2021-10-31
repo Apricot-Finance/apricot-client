@@ -657,6 +657,17 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
   }
 
   async getLpStakeKeys(ownerKey: PublicKey) {
+    /*
+    For double-dipped transactions, we have removed staking instruction out of the corresponding lp-create and lp-redeem
+    transaction, and all into the second stake operation
+    */
+    if (this.isDoubleDipSupported) {
+      return [];
+    }
+    return await this.getFirstStakeKeys(ownerKey);
+  }
+
+  async getFirstStakeKeys(ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_ORCA];
     const pdaKeys = await this.getPdaKeys(ownerKey);
     return [
@@ -669,11 +680,11 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
       { pubkey: this.globalRewardTokenVault,    isSigner: false, isWritable: true },
       { pubkey: pdaKeys.pdaRewardTokenAccount,  isSigner: false, isWritable: true },
       { pubkey: this.rewardTokenAuthority,      isSigner: false, isWritable: false },
-      { pubkey: TOKEN_PROGRAM_ID,               isSigner: false, isWritable: false }
+      { pubkey: TOKEN_PROGRAM_ID,               isSigner: false, isWritable: false },
     ];
   }
 
-  async getDoubleDipLpStakeKeys(ownerKey: PublicKey) {
+  async getSecondStakeKeys(ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_ORCA];
     const pdaKeys = await this.getPdaDoubleDipKeys(ownerKey);
     return [

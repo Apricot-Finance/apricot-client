@@ -495,6 +495,16 @@ export class TransactionBuilder {
       {pubkey: TOKEN_PROGRAM_ID,      isSigner: false,    isWritable: false},
     ].concat(swap_account_keys);
 
+    const lpPoolId = this.mintKeyStrToPoolId(lpMintStr);
+
+    // if this one involves stakeTable, add stakeTableKey
+    const poolConfig = this.addresses.config.getPoolConfigByPoolId(lpPoolId);
+    invariant(poolConfig);
+    if (poolConfig.lpNeedSndStake) {
+      const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(poolConfig.mint.toString());
+      keys.push({ pubkey: stakeTableKey,  isSigner: false, isWritable: true });
+    }
+
     const buffer = new ArrayBuffer(28);
     AccountParser.setBigUint64(buffer, 0, leftAmount);
     AccountParser.setBigUint64(buffer, 8, rightAmount);
@@ -503,7 +513,6 @@ export class TransactionBuilder {
     AccountParser.setUint8(buffer, 24, leftPoolId);
     const rightPoolId = this.mintKeyStrToPoolId(rightMintStr);
     AccountParser.setUint8(buffer, 25, rightPoolId);
-    const lpPoolId = this.mintKeyStrToPoolId(lpMintStr);
     AccountParser.setUint8(buffer, 26, lpPoolId);
     AccountParser.setUint8(buffer, 27, targetSwap);
     const payload = Array.from(new Uint8Array(buffer));
@@ -522,18 +531,10 @@ export class TransactionBuilder {
       .add(inst);
 
     if(stakeKeys.length > 0) {
-      const poolConfig = this.addresses.config.getPoolConfigByPoolId(lpPoolId);
-      invariant(poolConfig);
-      // if need second staking, we need to write an entry into this pool's StakeTable
-      const updatedStakeKeys = Array.from(stakeKeys);
-      if (poolConfig.lpNeedSndStake) {
-        const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(poolConfig.mint.toString());
-        updatedStakeKeys.push({ pubkey: stakeTableKey,  isSigner: false, isWritable: true });
-      }
       const stake_ix = await this.buildLpStakeIx(
         lpMintStr,
         targetSwap,
-        updatedStakeKeys,
+        stakeKeys,
       );
       tx.add(stake_ix);
     }
@@ -674,7 +675,8 @@ export class TransactionBuilder {
     lpMintStr: string,
     stakeTableKey: PublicKey,
     floatingLpSplKey: PublicKey,
-    stake2ndStepKeys: AccountMeta[],
+    firstStakeKeys: AccountMeta[],
+    secondStakeKeys: AccountMeta[],
   ) {
     const [base_pda,] = await this.addresses.getBasePda();
     // const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
@@ -687,7 +689,7 @@ export class TransactionBuilder {
       { pubkey: stakeTableKey, isSigner: false, isWritable: true },
       { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
-    ].concat(stake2ndStepKeys);
+    ].concat(firstStakeKeys).concat(secondStakeKeys);
 
     const data = [CMD_LP_STAKE_SECOND];
     return new TransactionInstruction({
@@ -698,11 +700,13 @@ export class TransactionBuilder {
   }
 
   async buildLpUnstake2ndStepIx(
+    unstakeIdentity: PublicKey,
     userWalletKey: PublicKey,
     lpMintStr: string,
     stakeTableKey: PublicKey,
     floatingLpSplKey: PublicKey,
-    doubleDipStakeKeys: AccountMeta[],
+    firstStakeKeys: AccountMeta[],
+    secondStakeKeys: AccountMeta[],
     amount: number,
   ) {
     const [base_pda,] = await this.addresses.getBasePda();
@@ -710,13 +714,14 @@ export class TransactionBuilder {
     const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
 
     const keys = [
-      { pubkey: userWalletKey, isSigner: true, isWritable: true },
-      { pubkey: userInfoKey, isSigner: false, isWritable: true },
+      { pubkey: unstakeIdentity, isSigner: true, isWritable: false },
+      { pubkey: userWalletKey, isSigner: false, isWritable: false },
+      { pubkey: userInfoKey, isSigner: false, isWritable: false },
       { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
       { pubkey: stakeTableKey, isSigner: false, isWritable: true },
       { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
-    ].concat(doubleDipStakeKeys);
+    ].concat(secondStakeKeys).concat(firstStakeKeys);
 
     const buffer = new ArrayBuffer(8);
     AccountParser.setBigUint64(buffer, 0, amount);
@@ -802,13 +807,15 @@ export class TransactionBuilder {
       lpMint.toString(),
       stakeTableKey,
       floatingLpSplKey,
-      await this.addresses.getLp2ndStepStakeKeys(lpTokenId)
+      await this.addresses.getLpFirstStakeKeys(lpTokenId),
+      await this.addresses.getLpSecondStakeKeys(lpTokenId)
     );
     const tx = new Transaction().add(ix);
     return tx;
   }
 
   async lpUnstake2nd(
+    unstakeIdentity: PublicKey,
     walletKey: PublicKey,
     lpTokenId: TokenID,
     lpAmount: number,
@@ -818,11 +825,13 @@ export class TransactionBuilder {
     const floatingLpSplKey = await this.addresses.getFloatingLpTokenAccount(lpTokenId);
 
     const ix = await this.buildLpUnstake2ndStepIx(
+      unstakeIdentity,
       walletKey,
       lpMint.toString(),
       stakeTableKey,
       floatingLpSplKey,
-      await this.addresses.getLp2ndStepStakeKeys(lpTokenId),
+      await this.addresses.getLpFirstStakeKeys(lpTokenId),
+      await this.addresses.getLpSecondStakeKeys(lpTokenId),
       lpAmount,
     );
     const tx = new Transaction().add(ix);

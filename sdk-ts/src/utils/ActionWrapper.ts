@@ -167,6 +167,7 @@ export class ActionWrapper {
   ) {
     const tx = await this.builder.lpUnstake2nd(
       walletAccount.publicKey,
+      walletAccount.publicKey,
       lpTokenId,
       lpAmount,
     );

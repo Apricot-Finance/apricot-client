@@ -115,12 +115,20 @@ export class Addresses {
       return keys;
     }
 
-    async getLp2ndStepStakeKeys(tokenId: TokenID): Promise<AccountMeta[]> {
+    async getLpFirstStakeKeys(tokenId: TokenID): Promise<AccountMeta[]> {
       const [ownerKey, _bump] = await this.getBasePda();
       const lpSwapInfo = LP_SWAP_METAS[tokenId]! as OrcaLpSwapInfo;
       invariant(lpSwapInfo);
       invariant(lpSwapInfo.isDoubleDipSupported);
-      return await lpSwapInfo.getDoubleDipLpStakeKeys(ownerKey);
+      return await lpSwapInfo.getFirstStakeKeys(ownerKey);
+    }
+
+    async getLpSecondStakeKeys(tokenId: TokenID): Promise<AccountMeta[]> {
+      const [ownerKey, _bump] = await this.getBasePda();
+      const lpSwapInfo = LP_SWAP_METAS[tokenId]! as OrcaLpSwapInfo;
+      invariant(lpSwapInfo);
+      invariant(lpSwapInfo.isDoubleDipSupported);
+      return await lpSwapInfo.getSecondStakeKeys(ownerKey);
     }
 
     async getFloatingLpTokenAccount(tokenId: TokenID) {
