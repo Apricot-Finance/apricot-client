@@ -1047,7 +1047,7 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     rewardTokenAuthority:   new PublicKey("HXY2Vvj2XyqiPNXV3PhM9YYKgfjqzXUX4tUFRnvqihdY"),
     feeAccount:             new PublicKey("unxKgWEc71ZiHwMqZs3VLqjcjmZhfTZEg94ZLGvjdMP"),
 
-    publicRewardTokAcc:     FAKE_KEY,
+    publicRewardTokAcc:     new PublicKey("2NYnAKhCwCMoe5unHuaEQEYL1ugLypK8Hrx4Qp5ugSUf"),
     alphaRewardTokAcc:      new PublicKey("6uupGx988A2yiPEhZEayNSewkp45owfbQVrJcbcKoiC6"),
   }),
   [TokenID.BTC_mSOL_ORCA]: new OrcaLpSwapInfo({
@@ -1066,7 +1066,7 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     rewardTokenAuthority:   new PublicKey("8sVCTztvytajkdczYEZVkSmuoRLjnMezwpT46L5w4RWR"),
     feeAccount:             new PublicKey("AqiLHbUAy4UWWKGVVgbHsaUVCMg1zemNkgsYBPSirT92"),
 
-    publicRewardTokAcc:     FAKE_KEY,
+    publicRewardTokAcc:     new PublicKey("7Sfy525w1dpCQqXb2sEKuacV57333VCSCKGuubsxXvCc"),
     alphaRewardTokAcc:      new PublicKey("Bag2RfLUzSXYbnsnVAFeYYzfG6M4EGseUJsmJnC64Vrn"),
 
     isDoubleDipSupported:   LP_TO_NEED_2ND_STAKE[TokenID.BTC_mSOL_ORCA],
@@ -1078,7 +1078,7 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     doubleDipRewardMint:    new PublicKey("MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey"),
 
     alphaDoubleDipRewardAcc: new PublicKey("J5cxhkPf25Ff4NT7WfWhLQzp58dksfhBT1vqprxBY7D3"),
-    publicDoubleDipRewardAcc: FAKE_KEY,
+    publicDoubleDipRewardAcc: new PublicKey("AoeNmMDdDBS7xyvXjtG79pCa8Duf4qFALs4KY49okdx2"),
   }),
   [TokenID.mSOL_USDC_ORCA]: new OrcaLpSwapInfo({
     lpMintPubkey:           new PublicKey(MINTS[TokenID.mSOL_USDC_ORCA]),
@@ -1096,7 +1096,7 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     rewardTokenAuthority:   new PublicKey("9czgZkSxLFtxmvWSb1PEHmUyBuNpAUxj9XAcHKikYnzt"),
     feeAccount:             new PublicKey("3W3Skj2vQsNEMhGRQprFXQy3Q8ZbM6ojdgiDCokVPWno"),
 
-    publicRewardTokAcc:     FAKE_KEY,
+    publicRewardTokAcc:     new PublicKey("B16JMAgpR84Dr6rucq4GYLZV7pdk1uPF533P9KVwNUq4"),
     alphaRewardTokAcc:      new PublicKey("C7L8DS3ytgueAkcFojeshc2SEtePDPDXjv6gajyinGyL"),
 
     isDoubleDipSupported:   LP_TO_NEED_2ND_STAKE[TokenID.mSOL_USDC_ORCA],
@@ -1108,7 +1108,7 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     doubleDipRewardMint:    new PublicKey("MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey"),
 
     alphaDoubleDipRewardAcc: new PublicKey("H6pK9gb58SxvyCRZzgCj4kuX758sjYAcqPJpY1aBJzLv"),
-    publicDoubleDipRewardAcc: FAKE_KEY,
+    publicDoubleDipRewardAcc: new PublicKey("3QaNhP4vT6PG3eoQwg2DRbH9ecmy7pR2f1PBPWCwDBYd"),
   }),
 }
 
