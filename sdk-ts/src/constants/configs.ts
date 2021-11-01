@@ -38,6 +38,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.ETH_USDC_ORCA]: new PublicKey("3e1W6Aqcbuk2DfHUwRiRcyzpyYRRjg6yhZZcyEARydUX"),
   [TokenID.SOL_USDT_ORCA]: new PublicKey("FZthQCuYHhcfiDma7QrX7buDHwrZEd7vL8SjS6LQa3Tx"),
   [TokenID.mSOL_SOL_RAYDIUM]: new PublicKey("5ijRoAHVgd5T5CNtK5KDRUBZ7Bffb69nktMj5n6ks6m4"),
+  [TokenID.ETH_SOL_ORCA]: new PublicKey("71FymgN2ZUf7VvVTLE8jYEnjP3jSK1Frp2XT1nHs8Hob"),
 };
 
 export const DECIMAL_MULT: { [key in TokenID]: number } = {
@@ -70,6 +71,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.ETH_USDC_ORCA]: 1e6,
   [TokenID.SOL_USDT_ORCA]: 1e6,
   [TokenID.mSOL_SOL_RAYDIUM]: 1e9,
+  [TokenID.ETH_SOL_ORCA]: 1e6,
 };
 
 const POOL_IDS: { [key in TokenID]?: PoolId } = {
@@ -96,6 +98,7 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.SOL_USDT_ORCA]: 20,
   [TokenID.USTv2]: 21,
   [TokenID.mSOL_SOL_RAYDIUM]: 22,
+  [TokenID.ETH_SOL_ORCA]: 23,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
@@ -124,6 +127,7 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.ETH_USDC_ORCA]: 0.8,
   [TokenID.SOL_USDT_ORCA]: 0.8,
   [TokenID.mSOL_SOL_RAYDIUM]: 0.8,
+  [TokenID.ETH_SOL_ORCA]: 0.8,
 };
 
 export class InterestRate {
@@ -187,6 +191,7 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.ETH_USDC_ORCA]: 0.2,
   [TokenID.SOL_USDT_ORCA]: 0.2,
   [TokenID.mSOL_SOL_RAYDIUM]: 0.0,
+  [TokenID.ETH_SOL_ORCA]: 0.2,
 };
 
 export const CATEGORY: { [key in TokenID]: TokenCategory } = {
@@ -219,6 +224,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.ETH_USDC_ORCA]: TokenCategory.Lp,
   [TokenID.SOL_USDT_ORCA]: TokenCategory.Lp,
   [TokenID.mSOL_SOL_RAYDIUM]: TokenCategory.Lp,
+  [TokenID.ETH_SOL_ORCA]: TokenCategory.Lp,
 };
 
 export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
@@ -248,6 +254,7 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.ETH_USDC_ORCA]: 0,
   [TokenID.SOL_USDT_ORCA]: 0,
   [TokenID.mSOL_SOL_RAYDIUM]: 0,
+  [TokenID.ETH_SOL_ORCA]: 0,
 };
 
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
@@ -264,6 +271,7 @@ export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.ETH_USDC_ORCA]: [TokenID.ETH, TokenID.USDC],
   [TokenID.SOL_USDT_ORCA]: [TokenID.SOL, TokenID.USDT],
   [TokenID.mSOL_SOL_RAYDIUM]: [TokenID.mSOL, TokenID.SOL],
+  [TokenID.ETH_SOL_ORCA]: [TokenID.ETH, TokenID.SOL],
 };
 
 export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
@@ -280,6 +288,7 @@ export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.ETH_USDC_ORCA]: SWAP_ORCA,
   [TokenID.SOL_USDT_ORCA]: SWAP_ORCA,
   [TokenID.mSOL_SOL_RAYDIUM]: SWAP_RAYDIUM,
+  [TokenID.ETH_SOL_ORCA]: SWAP_ORCA,
 };
 
 export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
@@ -296,6 +305,7 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.ETH_USDC_ORCA]: Dex.Orca,
   [TokenID.SOL_USDT_ORCA]: Dex.Orca,
   [TokenID.mSOL_SOL_RAYDIUM]: Dex.Raydium,
+  [TokenID.ETH_SOL_ORCA]: Dex.Orca,
 };
 
 export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
@@ -312,6 +322,7 @@ export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
   [TokenID.ETH_USDC_ORCA]: false,
   [TokenID.SOL_USDT_ORCA]: false,
   [TokenID.mSOL_SOL_RAYDIUM]: false,
+  [TokenID.ETH_SOL_ORCA]: false,
 };
 
 
@@ -997,6 +1008,25 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     feeAccount:             new PublicKey("BBKgw75FivTYXj85D2AWyVdaTdTWuSuHVXRm1Xu7fipb"),
     publicRewardTokAcc:     new PublicKey("9AfsnfPwRrJLjcCAasUcaYeVunpmxgev6yCVa6HiLkp7"),
     alphaRewardTokAcc:      new PublicKey("93xUo4bmSXdGxCNSDvk2xYH7YAY6KqDZ4mPMbwBuiyfm"),
+  }),
+  [TokenID.ETH_SOL_ORCA]: new OrcaLpSwapInfo({
+    lpMintPubkey:           new PublicKey(MINTS[TokenID.ETH_SOL_ORCA]),
+
+    swapPubkey:             new PublicKey("EuK3xDa4rWuHeMQCBsHf1ETZNiEQb5C476oE9u9kp8Ji"),
+    swapAuthority:          new PublicKey("DffrDbzPiswDJaiicBBo9CjqztKgFLrqXGwNJH4XQefZ"),
+
+    swapTokenAAccount:      new PublicKey("7F2cLdio3i6CCJaypj9VfNDPW2DwT3vkDmZJDEfmxu6A"),
+    swapTokenBAccount:      new PublicKey("5pUTGvN2AA2BEzBDU4CNDh3LHER15WS6J8oJf5XeZFD8"),
+
+    globalLpVault:          new PublicKey("6ckhPnn6tCr88aq9SxhWaAA5G7izuXNKhVk1Xa62zhFD"), // lp 1
+    farmTokenMint:          new PublicKey("CGFTRh4jKLPbS9r4hZtbDfaRuC7qcA8rZpbLnVTzJBer"),
+    globalFarmState:        new PublicKey("3ARgavt1NhqLmJWj3wAJy6XBarG6pJbEKRv1wzzRbbaN"),
+    globalRewardTokenVault: new PublicKey("FYTTVMqWPzbnhTsukgiWmPiNJam4yLTxHM9mpzdan2zo"),
+    rewardTokenAuthority:   new PublicKey("HXY2Vvj2XyqiPNXV3PhM9YYKgfjqzXUX4tUFRnvqihdY"),
+    feeAccount:             new PublicKey("unxKgWEc71ZiHwMqZs3VLqjcjmZhfTZEg94ZLGvjdMP"),
+
+    publicRewardTokAcc:     FAKE_KEY,
+    alphaRewardTokAcc:      new PublicKey("6uupGx988A2yiPEhZEayNSewkp45owfbQVrJcbcKoiC6"),
   }),
 }
 
