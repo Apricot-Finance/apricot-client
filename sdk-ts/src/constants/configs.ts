@@ -18,6 +18,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.ORCA]: new PublicKey("orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE"),
   [TokenID.SBR]: new PublicKey("Saber2gLauYim4Mvftnrasomsv6NvAuncvMEZwcLpD1"),
   [TokenID.MERC]: new PublicKey("MERt85fc5boKw3BW1eYdxonEuJNvXbiMbs6hvheau5K"),
+  [TokenID.MNDE]: new PublicKey("MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey"),
 
   [TokenID.USDT]: new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
   [TokenID.USDC]: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
@@ -49,6 +50,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.ORCA] : 1e6,
   [TokenID.SBR] : 1e6,
   [TokenID.MERC] : 1e6,
+  [TokenID.MNDE] : 1e9,
 
   [TokenID.USDT]: 1e6,
   [TokenID.USDC]: 1e6,
@@ -197,6 +199,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.ORCA] : TokenCategory.Volatile,
   [TokenID.SBR] : TokenCategory.Volatile,
   [TokenID.MERC] : TokenCategory.Volatile,
+  [TokenID.MNDE] : TokenCategory.Volatile,
 
   [TokenID.USDT]: TokenCategory.Stable,
   [TokenID.USDC]: TokenCategory.Stable,
