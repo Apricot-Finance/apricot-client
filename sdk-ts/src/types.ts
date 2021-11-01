@@ -118,6 +118,7 @@ export class AppConfig {
     public adminPubkey: PublicKey,
     public farmerPubkey: PublicKey,
     public assistKey: PublicKey,
+    public refresherKey: PublicKey,
     // maps from TokenID to mint/decimalMult/poolId/ltv
     public mints: { [key in TokenID]: PublicKey; },
     public decimalMults: { [key in TokenID]: number; },

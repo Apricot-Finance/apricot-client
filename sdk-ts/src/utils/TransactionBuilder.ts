@@ -680,7 +680,7 @@ export class TransactionBuilder {
   ) {
     const [base_pda,] = await this.addresses.getBasePda();
     // const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
-    const adminPubkey = this.addresses.getAdminKey();
+    const adminPubkey = this.addresses.config.refresherKey;
     const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
     const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
 
