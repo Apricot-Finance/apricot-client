@@ -39,6 +39,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.SOL_USDT_ORCA]: new PublicKey("FZthQCuYHhcfiDma7QrX7buDHwrZEd7vL8SjS6LQa3Tx"),
   [TokenID.mSOL_SOL_RAYDIUM]: new PublicKey("5ijRoAHVgd5T5CNtK5KDRUBZ7Bffb69nktMj5n6ks6m4"),
   [TokenID.ETH_SOL_ORCA]: new PublicKey("71FymgN2ZUf7VvVTLE8jYEnjP3jSK1Frp2XT1nHs8Hob"),
+  [TokenID.BTC_mSOL_ORCA]: new PublicKey("8nKJ4z9FSw6wrVZKASqBiS9DS1CiNsRnqwCCKVQjqdkB"),
 };
 
 export const DECIMAL_MULT: { [key in TokenID]: number } = {
@@ -72,6 +73,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.SOL_USDT_ORCA]: 1e6,
   [TokenID.mSOL_SOL_RAYDIUM]: 1e9,
   [TokenID.ETH_SOL_ORCA]: 1e6,
+  [TokenID.BTC_mSOL_ORCA]: 1e6,
 };
 
 const POOL_IDS: { [key in TokenID]?: PoolId } = {
@@ -99,6 +101,7 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.USTv2]: 21,
   [TokenID.mSOL_SOL_RAYDIUM]: 22,
   [TokenID.ETH_SOL_ORCA]: 23,
+  [TokenID.BTC_mSOL_ORCA]: 24,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
@@ -128,6 +131,7 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.SOL_USDT_ORCA]: 0.8,
   [TokenID.mSOL_SOL_RAYDIUM]: 0.8,
   [TokenID.ETH_SOL_ORCA]: 0.8,
+  [TokenID.BTC_mSOL_ORCA]: 0.8,
 };
 
 export class InterestRate {
@@ -192,6 +196,7 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.SOL_USDT_ORCA]: 0.2,
   [TokenID.mSOL_SOL_RAYDIUM]: 0.0,
   [TokenID.ETH_SOL_ORCA]: 0.2,
+  [TokenID.BTC_mSOL_ORCA]: 0.2,
 };
 
 export const CATEGORY: { [key in TokenID]: TokenCategory } = {
@@ -225,6 +230,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.SOL_USDT_ORCA]: TokenCategory.Lp,
   [TokenID.mSOL_SOL_RAYDIUM]: TokenCategory.Lp,
   [TokenID.ETH_SOL_ORCA]: TokenCategory.Lp,
+  [TokenID.BTC_mSOL_ORCA]: TokenCategory.Lp,
 };
 
 export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
@@ -255,6 +261,7 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.SOL_USDT_ORCA]: 0,
   [TokenID.mSOL_SOL_RAYDIUM]: 0,
   [TokenID.ETH_SOL_ORCA]: 0,
+  [TokenID.BTC_mSOL_ORCA]: 0,
 };
 
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
@@ -272,6 +279,7 @@ export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.SOL_USDT_ORCA]: [TokenID.SOL, TokenID.USDT],
   [TokenID.mSOL_SOL_RAYDIUM]: [TokenID.mSOL, TokenID.SOL],
   [TokenID.ETH_SOL_ORCA]: [TokenID.ETH, TokenID.SOL],
+  [TokenID.BTC_mSOL_ORCA]: [TokenID.BTC, TokenID.mSOL],
 };
 
 export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
@@ -289,6 +297,7 @@ export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.SOL_USDT_ORCA]: SWAP_ORCA,
   [TokenID.mSOL_SOL_RAYDIUM]: SWAP_RAYDIUM,
   [TokenID.ETH_SOL_ORCA]: SWAP_ORCA,
+  [TokenID.BTC_mSOL_ORCA]: SWAP_ORCA,
 };
 
 export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
@@ -306,6 +315,7 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.SOL_USDT_ORCA]: Dex.Orca,
   [TokenID.mSOL_SOL_RAYDIUM]: Dex.Raydium,
   [TokenID.ETH_SOL_ORCA]: Dex.Orca,
+  [TokenID.BTC_mSOL_ORCA]: Dex.Orca,
 };
 
 export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
@@ -323,6 +333,7 @@ export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
   [TokenID.SOL_USDT_ORCA]: false,
   [TokenID.mSOL_SOL_RAYDIUM]: false,
   [TokenID.ETH_SOL_ORCA]: false,
+  [TokenID.BTC_mSOL_ORCA]: true,
 };
 
 
@@ -1027,6 +1038,36 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
 
     publicRewardTokAcc:     FAKE_KEY,
     alphaRewardTokAcc:      new PublicKey("6uupGx988A2yiPEhZEayNSewkp45owfbQVrJcbcKoiC6"),
+  }),
+  [TokenID.BTC_mSOL_ORCA]: new OrcaLpSwapInfo({
+    lpMintPubkey:           new PublicKey(MINTS[TokenID.BTC_mSOL_ORCA]),
+
+    swapPubkey:             new PublicKey("8DRw5wQE1pyg6RB1UwypGNFgb2Pzp2hpyDDNwo76Lcc8"),
+    swapAuthority:          new PublicKey("3X1aLdyvcQNc8TvBMPiucMsRCnGMBnGsjJHpZEyCf3pn"),
+
+    swapTokenAAccount:      new PublicKey("6D3sxC6yEe84FUnF5Kpbgx6gN57N9poJCKAtrCeCWdJo"),
+    swapTokenBAccount:      new PublicKey("EPoVJLhi9QtVPVo8n31M5k5Knvb48j8zbYyRrUbrHwC5"),
+
+    globalLpVault:          new PublicKey("75gpvckCXk49zTUwG8QrzUSP4NpWh3JXdyELBrnAhimL"),
+    farmTokenMint:          new PublicKey("DzpLz78wuwyFsQToin8iDv6YK6aBEymRqQq82swiFh7r"),
+    globalFarmState:        new PublicKey("GBrpFtiTabs14mc4Hi1RX9YiQY7res6JxrVfMTADfcQV"),
+    globalRewardTokenVault: new PublicKey("CNe5S831UP4YkumU7UsusTkf7uxJnAVdmPe6jhF51k4y"),
+    rewardTokenAuthority:   new PublicKey("8sVCTztvytajkdczYEZVkSmuoRLjnMezwpT46L5w4RWR"),
+    feeAccount:             new PublicKey("AqiLHbUAy4UWWKGVVgbHsaUVCMg1zemNkgsYBPSirT92"),
+
+    publicRewardTokAcc:     FAKE_KEY,
+    alphaRewardTokAcc:      new PublicKey("Bag2RfLUzSXYbnsnVAFeYYzfG6M4EGseUJsmJnC64Vrn"),
+
+    isDoubleDipSupported:   LP_TO_NEED_2ND_STAKE[TokenID.BTC_mSOL_ORCA],
+    globalLp3Vault:         new PublicKey('DuyHVLzsqg6SZeFNbpUWfJf67kvAXPWUdUGJYWJK5vTu'),
+    farmTokenLp3Mint:       new PublicKey('6uA1ADUJbvwYJZpzUn9z9LuyKoRVngBKcQTKdXsSivA8'),
+    globalDoubleDipFarmState: new PublicKey('Cn7QNyosNQ8DyKEeMDPmtg66R7vKMXigcQ561kTkFD8E'),
+    globalDoubleDipRewardTokenVault: new PublicKey('Ea3FYh9RMJxwsyu3xS7BesLMtpX32DURohiEigG2iJCx'),
+    doubleDipRewardTokenAuthority: new PublicKey('9Lg5wBjcYDgY8S2ZAEqjtXAQ4UdHuw65aP1WmmWss4QX'),
+    doubleDipRewardMint:    new PublicKey("MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey"),
+
+    alphaDoubleDipRewardAcc: new PublicKey("J5cxhkPf25Ff4NT7WfWhLQzp58dksfhBT1vqprxBY7D3"),
+    publicDoubleDipRewardAcc: FAKE_KEY,
   }),
 }
 
