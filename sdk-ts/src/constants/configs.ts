@@ -522,7 +522,14 @@ export class SaberLpSwapInfo implements LpSwapKeyInfo {
   }
 
   getLRVaults(): [PublicKey, PublicKey] {
-    return [this.tokenBVault, this.tokenAVault];
+    // only USDT_USDC_SABER has this inverted order
+    const isUSDT_USDC = this.mint.toString() === MINTS.USDT_USDC_SABER.toString();
+    if (isUSDT_USDC) {
+      return [this.tokenBVault, this.tokenAVault];
+    }
+    else {
+      return [this.tokenAVault, this.tokenBVault];
+    }
   }
 }
 
