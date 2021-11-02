@@ -503,13 +503,7 @@ export class SaberLpSwapInfo implements LpSwapKeyInfo {
       */
     const smeta = SWAP_METAS[SWAP_SABER];
     const [minerKey, _minerBump] = await this.getMinerKey(ownerKey);
-    const minerVault = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      MINTS[TokenID.USDT_USDC_SABER],
-      minerKey as PublicKey,
-      true,
-    );
+    const minerVault = await this.getMinerVault(ownerKey);
     return [
       {pubkey: smeta.stake_program,     isSigner: false, isWritable: false},
       {pubkey: minerKey,                isSigner: false, isWritable: true},
