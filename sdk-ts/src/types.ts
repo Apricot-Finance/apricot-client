@@ -33,6 +33,7 @@ export enum TokenID {
   ETH_SOL_ORCA = "ETH_SOL_ORCA",
   BTC_mSOL_ORCA = "BTC_mSOL_ORCA",
   mSOL_USDC_ORCA = "mSOL_USDC_ORCA",
+  USTv2_USDC_SABER = "USTv2_USDC_SABER",
 }
 
 export type PoolId = number;

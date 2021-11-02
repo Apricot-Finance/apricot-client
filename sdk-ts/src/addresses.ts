@@ -136,7 +136,6 @@ export class Addresses {
       invariant(lpSwapInfo instanceof OrcaLpSwapInfo);
       const [ownerKey] = await this.getBasePda();
       const { pdaFarmTokenAccount: floatingLpSplKey } = await lpSwapInfo.getPdaKeys(ownerKey);
-      console.log(`getFloatingLpTokenAccount: ${floatingLpSplKey.toBase58()}`);
       return floatingLpSplKey;
     }
 }
