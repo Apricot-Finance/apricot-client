@@ -58,7 +58,7 @@ export class PriceInfo {
     return price;
   }
 
-  async checkRaydiumCache(requestTimeout = 5000, retries = 2) {
+  async checkRaydiumCache(requestTimeout = 8000, retries = 0) {
     const now = Date.now();
     // update cache if cached more than 30s
     if(now - this.raydiumCacheTime > 30 * 1000) {
