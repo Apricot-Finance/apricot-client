@@ -7,6 +7,8 @@ import Decimal from "decimal.js";
 import { OpenOrders } from '@project-serum/serum';
 import { Dex } from '..';
 import axios from 'axios';
+import * as rax from 'retry-axios';
+rax.attach();
 
 type RaydiumEntry = {
   lp_mint: string,
@@ -56,14 +58,35 @@ export class PriceInfo {
     return price;
   }
 
-  async checkRaydiumCache() {
+  async checkRaydiumCache(requestTimeout = 5000, retries = 2) {
     const now = Date.now();
     // update cache if cached more than 30s
     if(now - this.raydiumCacheTime > 30 * 1000) {
-      const response = await axios.get("https://api.raydium.io/pairs");
-      const content = response.data as RaydiumEntry[];
-      this.cachedRaydiumContent = content;
-      this.raydiumCacheTime = Date.now();
+      try {
+        const response = await axios.get("https://api.raydium.io/pairs", {
+          timeout: requestTimeout,
+          raxConfig: {
+            retry: retries,
+            noResponseRetries: retries,
+            backoffType: 'exponential',
+            statusCodesToRetry: [[100, 199], [400, 429], [500, 599]],
+            onRetryAttempt: err => {
+              const cfg = rax.getConfig(err);
+              console.log(`Raydium pairs request retry attempt #${cfg?.currentRetryAttempt}`);
+            }
+          }
+        });
+        const content = response.data as RaydiumEntry[];
+        this.cachedRaydiumContent = content;
+        this.raydiumCacheTime = Date.now();
+      } catch (error) {
+        if (axios.isAxiosError(error))  {
+          console.log(`Request raydium failed: ${error.message}`);
+        } else {
+          console.log(error);
+        }
+        throw error;
+      }
     }
     invariant(this.cachedRaydiumContent);
     return this.cachedRaydiumContent;

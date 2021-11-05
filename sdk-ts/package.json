@@ -34,6 +34,7 @@
     "@switchboard-xyz/switchboard-api": "^0.2.152",
     "axios": "^0.24.0",
     "decimal.js": "^10.3.1",
+    "retry-axios": "^2.6.0",
     "tiny-invariant": "^1.1.0"
   },
   "devDependencies": {
