@@ -12,7 +12,7 @@ invariant(['alpha', 'public'].includes(production))
 
 async function doParse() {
 
-  const conn = new Connection('https://lokidfxnwlabdq.main.genesysgo.net:8899/', "confirmed");
+  const conn = new Connection('https://apricot.genesysgo.net/', "confirmed");
   const config = production === 'alpha' ? ALPHA_CONFIG : PUBLIC_CONFIG;
   const wrapper = new ActionWrapper(conn, config);
 

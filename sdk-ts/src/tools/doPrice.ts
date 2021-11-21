@@ -13,7 +13,7 @@ async function doPrice() {
 
   const priceInfo = new PriceInfo(config);
 
-  const conn = new Connection("https://lokidfxnwlabdq.main.genesysgo.net:8899/", "confirmed");
+  const conn = new Connection("https://apricot.genesysgo.net/", "confirmed");
 
   for (const poolConfig of config.getPoolConfigList()) {
     const tokId = poolConfig.tokenId;

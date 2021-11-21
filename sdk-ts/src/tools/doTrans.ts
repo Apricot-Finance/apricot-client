@@ -17,7 +17,7 @@ async function doTransaction() {
   const privateKey = JSON.parse(keyStr);
   const keypair = Keypair.fromSecretKey(new Uint8Array(privateKey));
 
-  const conn = new Connection("https://lokidfxnwlabdq.main.genesysgo.net:8899/", "confirmed");
+  const conn = new Connection("https://apricot.genesysgo.net", "confirmed");
   const wrapper = new ActionWrapper(conn, config);
 
   const remainingArgs = process.argv.slice(5);

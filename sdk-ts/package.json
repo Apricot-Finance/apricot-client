@@ -1,6 +1,6 @@
 {
   "name": "@apricot-lend/sdk-ts",
-  "version": "0.15.73",
+  "version": "0.15.74",
   "description": "TS SDK for Apricot on Solana",
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
     "trans": "node dist/tools/doTrans.js",
     "user-stats": "node dist/tools/doParse.js public user-stats",
     "user": "node dist/tools/doParse.js public user",
+    "pool": "node dist/tools/doParse.js public pool",
     "loadjs": "node dist/index.js",
     "lint": "eslint src",
     "fix": "eslint --fix src"
