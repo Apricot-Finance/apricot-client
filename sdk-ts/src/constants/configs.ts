@@ -147,7 +147,7 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.BTC_mSOL_ORCA]: 0.8,
   [TokenID.mSOL_USDC_ORCA]: 0.8,
   [TokenID.USTv2_USDC_SABER]: 0.8,
-  [TokenID.APT_USDC_ORCA]: 0.8,
+  [TokenID.APT_USDC_ORCA]: 0.4,
 };
 
 export class InterestRate {
