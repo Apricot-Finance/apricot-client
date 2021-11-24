@@ -1170,7 +1170,7 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     rewardTokenAuthority:   new PublicKey("53y344S5Cv32ViwajrHxnsgcmam7Mw2nydcRgJEkqdGd"),
     feeAccount:             new PublicKey("41H5mWwsZKewJeV4wWiNjQ3U4VYBnwqCpzvAWt86baHd"),
 
-    publicRewardTokAcc:     new PublicKey("2NYnAKhCwCMoe5unHuaEQEYL1ugLypK8Hrx4Qp5ugSUf"), // todo
+    publicRewardTokAcc:     new PublicKey("EgFva9mEFCV31AkhoZb6rN6zvbNGE1xdaRYAkKTtdNjN"),
     alphaRewardTokAcc:      new PublicKey("Cd5ijQFj1V7V5VwuoSkG6pEaPyeX2D9ZmqS7pE1RVdFX"),
   }),
 }
