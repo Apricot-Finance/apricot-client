@@ -9,6 +9,7 @@ import { SWAP_ORCA, SWAP_SABER } from "./commands";
 export const FAKE_KEY = SystemProgram.programId;
 
 export const MINTS: { [key in TokenID]: PublicKey } = {
+  [TokenID.APT]: new PublicKey("APTtJyaRX5yGTsJU522N4VYWg3vCvSb65eam5GrPT5Rt"),
   [TokenID.BTC]: new PublicKey("9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E"),
   [TokenID.ETH]: new PublicKey("2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk"),
   [TokenID.SOL]: new PublicKey("So11111111111111111111111111111111111111112"),
@@ -45,6 +46,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
 };
 
 export const DECIMAL_MULT: { [key in TokenID]: number } = {
+  [TokenID.APT] : 1e6,
   [TokenID.BTC] : 1e6,
   [TokenID.ETH] : 1e6,
   [TokenID.SOL] : 1e9,
@@ -108,9 +110,11 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.BTC_mSOL_ORCA]: 24,
   [TokenID.mSOL_USDC_ORCA]: 25,
   [TokenID.USTv2_USDC_SABER]: 26,
+  [TokenID.APT]: 27,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
+  [TokenID.APT]: 0,
   [TokenID.BTC]: 0.85,
   [TokenID.ETH]: 0.85,
   [TokenID.mSOL]: 0.8,
@@ -167,6 +171,7 @@ const INTEREST_RATES: {[key in TokenID]?: InterestRate} = {
   [TokenID.SOL]: new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.mSOL]:new InterestRate(0.02, 0.85, 0.20, 2.0),
 
+  [TokenID.APT]: new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.RAY]: new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.ORCA]:new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.SBR]: new InterestRate(0.02, 0.85, 0.20, 2.0),
@@ -183,6 +188,7 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.mSOL]: 0.2,
   [TokenID.SOL]: 0.2,
 
+  [TokenID.APT]: 0.2,
   [TokenID.RAY]: 0.2,
   [TokenID.ORCA]: 0.2,
 
@@ -215,6 +221,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.SOL] : TokenCategory.Volatile,
   [TokenID.mSOL] : TokenCategory.Volatile,
 
+  [TokenID.APT] : TokenCategory.Volatile,
   [TokenID.RAY] : TokenCategory.Volatile,
   [TokenID.ORCA] : TokenCategory.Volatile,
   [TokenID.SBR] : TokenCategory.Volatile,
@@ -252,6 +259,7 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.mSOL] : 0.04,
 
   [TokenID.RAY] : 0.04,
+  [TokenID.APT] : 0.04,
   [TokenID.ORCA] : 0.04,
 
   [TokenID.USDT]: 0.04,
@@ -1292,6 +1300,7 @@ export const SWITCHBOARD_PRICE: { [key in TokenID]? : PublicKey} = {
   [TokenID.SOL]: new PublicKey("AdtRGGhmqvom3Jemp5YNrxd9q9unX36BZk1pujkkXijL"),
   [TokenID.mSOL]: new PublicKey("CEPVH2t11KS4CaL3w4YxT9tRiijoGA4VEbnQ97cEpDmQ"),
 
+  [TokenID.APT]: new PublicKey("CvLZbNUPLkbMuVK9YPqhvLu4UkXmrJbF98odXtPL6VRu"),
   [TokenID.RAY]: new PublicKey("CppyF6264uKZkGua1brTUa2fSVdMFSCszwzDs76HCuzU"),
   [TokenID.ORCA]: new PublicKey("EHwSRkm2ErRjWxCxrTxrmC7sT2kGb5jJcsiindUHAX7W"),
   [TokenID.SBR]: new PublicKey("Lp3VNoRQi699VZe6u59TV8J38ELEUzxkaisoWsDuJgB"),

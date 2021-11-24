@@ -211,14 +211,15 @@ export class AccountParser {
     // reward
     const reward_vesting: Decimal[] = [];
     const reward_base = uai_base + uai_size * 16;
-    for(let i = 0; i < 8; i++) {
+    for(let i = 0; i < 7; i++) {
       const r_offset = reward_base + i * 8;
       reward_vesting.push(AccountParser.parseFloat64(data.buffer, r_offset));
     }
     const reward = {
       vesting: reward_vesting,
-      available_apt: AccountParser.parseFloat64(data.buffer, reward_base + 8*8),
-      available_mnde: AccountParser.parseFloat64(data.buffer, reward_base + 8*9),
+      vesting_apt: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 7),
+      available_apt: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 8),
+      available_mnde: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 9),
     };
 
     // pad

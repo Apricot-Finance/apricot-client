@@ -4,6 +4,7 @@ import invariant from "tiny-invariant";
 import { InterestRate } from "./constants";
 
 export enum TokenID {
+  APT = "APT",
   BTC = "BTC",
   ETH = "ETH",
   USDT = "USDT",
