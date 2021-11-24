@@ -259,7 +259,7 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.mSOL] : 0.04,
 
   [TokenID.RAY] : 0.04,
-  [TokenID.APT] : 0.04,
+  [TokenID.APT] : 0,
   [TokenID.ORCA] : 0.04,
 
   [TokenID.USDT]: 0.04,
