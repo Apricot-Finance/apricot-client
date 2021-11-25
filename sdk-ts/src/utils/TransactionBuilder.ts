@@ -2,7 +2,7 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Keypair, AccountMeta, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import invariant from "tiny-invariant";
 import { Addresses } from "../addresses";
-import { CMD_ADD_USER_AND_DEPOSIT, CMD_BORROW, CMD_DEPOSIT, CMD_EXTERN_LIQUIDATE, CMD_LP_CREATE, CMD_LP_OP_CHECK, CMD_LP_OP_ENDCHECK, CMD_LP_REDEEM, CMD_LP_STAKE, CMD_LP_STAKE_SECOND, CMD_LP_UNSTAKE, CMD_LP_UNSTAKE_SECOND, CMD_REFRESH_USER, CMD_REPAY, CMD_UPDATE_USER_CONFIG, CMD_WITHDRAW, CMD_WITHDRAW_AND_REMOVE_USER } from "../constants/commands";
+import { CMD_ADD_USER_AND_DEPOSIT, CMD_BORROW, CMD_DEPOSIT, CMD_EXTERN_LIQUIDATE, CMD_LP_CREATE, CMD_LP_OP_CHECK, CMD_LP_OP_ENDCHECK, CMD_LP_REDEEM, CMD_LP_STAKE, CMD_LP_STAKE_SECOND, CMD_LP_UNSTAKE, CMD_LP_UNSTAKE_SECOND, CMD_REFRESH_USER, CMD_REPAY, CMD_UPDATE_POOL_FARM_YIELD, CMD_UPDATE_USER_CONFIG, CMD_WITHDRAW, CMD_WITHDRAW_AND_REMOVE_USER } from "../constants/commands";
 import { LP_TO_LR, MINTS } from "../constants/configs";
 import { UserInfo, TokenID } from "../types";
 import { AccountParser } from "./AccountParser";
@@ -870,5 +870,34 @@ export class TransactionBuilder {
       isSigned,
     );
     return tx;
+  }
+  async updatePoolFarmYield(
+    refresher: PublicKey,
+    lpTokenId: TokenID,
+    farm_yield: number,
+  ) {
+    const [base_pda, _] = await this.addresses.getBasePda();
+    const lpMint = MINTS[lpTokenId];
+    const lpMintStr = lpMint.toString();
+    const assetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
+
+    const keys = [
+      { pubkey: refresher,          isSigner: true,   isWritable: false},
+      { pubkey: assetPoolKey,       isSigner: false,  isWritable: true}
+    ];
+
+    const buffer = new ArrayBuffer(8);
+    AccountParser.setFloat64(buffer, 0, farm_yield);
+    const payload = Array.from(new Uint8Array(buffer));
+    const poolIdArray = this.mintKeyStrToPoolIdArray(lpMintStr);
+    const data = [CMD_UPDATE_POOL_FARM_YIELD].concat(poolIdArray).concat(payload);
+
+    const inst = new TransactionInstruction({
+      programId: this.addresses.getProgramKey(),
+      keys: keys,
+      data: Buffer.from(data),
+    });
+    // signer: walletAccount
+    return new Transaction().add(inst);
   }
 }

@@ -262,6 +262,7 @@ export interface AssetPool {
 
   deposit_cap       : Decimal;
   is_disabled       : boolean;
+  farm_yield        : Decimal;
 }
 
 export interface AssetPrice {

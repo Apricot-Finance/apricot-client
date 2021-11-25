@@ -154,6 +154,12 @@ async function doTransaction() {
     );
     console.log(result);
   }
+  else if (action === "farm-yield") {
+    const tokenId = TokenID[remainingArgs[0] as keyof typeof TokenID];
+    const farm_yield = parseFloat(remainingArgs[1]);
+    const result = await wrapper.updateFarmYield(keypair, tokenId, farm_yield);
+    console.log(result);
+  }
   else {
     throw new Error(`Unknown command=${action}`);
   }

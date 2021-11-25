@@ -192,4 +192,16 @@ export class ActionWrapper {
     return this.connection.sendTransaction(tx, [walletAccount]);
   }
 
+  async updateFarmYield(
+    refresher: Keypair,
+    lpTokenId: TokenID,
+    farm_yield: number,
+  ) {
+    const tx = await this.builder.updatePoolFarmYield(
+      refresher.publicKey,
+      lpTokenId,
+      farm_yield
+    );
+    return this.connection.sendTransaction(tx, [refresher]);
+  }
 }

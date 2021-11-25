@@ -99,7 +99,7 @@ export class AccountParser {
       8, 8,
       8, 8, 8, 8, 8, 
       8, 8,
-      8, 1,
+      8, 1, 8,
     ];
     const [offsets, ends] = AccountParser.getOffsets(widths);
     return {
@@ -153,6 +153,7 @@ export class AccountParser {
 
       deposit_cap     : AccountParser.parseBigUint64(data.buffer, offsets[36]),
       is_disabled     : data[offsets[37]] > 0,
+      farm_yield      : AccountParser.parseFloat64(data.buffer, offsets[38]),
     };
   }
 
