@@ -18,6 +18,8 @@ export enum TokenID {
   MNDE = "MNDE",
   mSOL = "mSOL",
   USTv2 = "USTv2",
+  FTT = "FTT",
+  SRM = "SRM",
   USDT_USDC_SABER = "USDT_USDC_SABER",
   USDC_USDT_ORCA = "USDC_USDT_ORCA",
   UST_USDC_SABER = "UST_USDC_SABER",

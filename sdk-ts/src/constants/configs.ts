@@ -20,6 +20,8 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.SBR]: new PublicKey("Saber2gLauYim4Mvftnrasomsv6NvAuncvMEZwcLpD1"),
   [TokenID.MERC]: new PublicKey("MERt85fc5boKw3BW1eYdxonEuJNvXbiMbs6hvheau5K"),
   [TokenID.MNDE]: new PublicKey("MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey"),
+  [TokenID.FTT]: new PublicKey("AGFEad2et2ZJif9jaGpdMixQqvW5i81aBdvKe7PHNfz3"),
+  [TokenID.SRM]: new PublicKey("SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt"),
 
   [TokenID.USDT]: new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
   [TokenID.USDC]: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
@@ -58,6 +60,8 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.SBR] : 1e6,
   [TokenID.MERC] : 1e6,
   [TokenID.MNDE] : 1e9,
+  [TokenID.FTT]: 1e6,
+  [TokenID.SRM]: 1e6,
 
   [TokenID.USDT]: 1e6,
   [TokenID.USDC]: 1e6,
@@ -114,6 +118,8 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.USTv2_USDC_SABER]: 26,
   [TokenID.APT]: 27,
   [TokenID.APT_USDC_ORCA]: 28,
+  [TokenID.FTT]: 29,
+  [TokenID.SRM]: 30,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
@@ -125,6 +131,8 @@ const LTVS: { [key in TokenID]?: number } = {
 
   [TokenID.RAY]: 0.8,
   [TokenID.ORCA]: 0.8,
+  [TokenID.FTT]: 0.8,
+  [TokenID.SRM]: 0.8,
 
   [TokenID.USDT]: 0.90,
   [TokenID.USDC]: 0.90,
@@ -179,6 +187,8 @@ const INTEREST_RATES: {[key in TokenID]?: InterestRate} = {
   [TokenID.RAY]: new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.ORCA]:new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.SBR]: new InterestRate(0.02, 0.85, 0.20, 2.0),
+  [TokenID.FTT]: new InterestRate(0.02, 0.85, 0.20, 2.0),
+  [TokenID.SRM]: new InterestRate(0.02, 0.85, 0.20, 2.0),
 
   [TokenID.USDT]:new InterestRate(0.01, 0.85, 0.08, 1.0),
   [TokenID.USDC]:new InterestRate(0.01, 0.85, 0.08, 1.0),
@@ -195,6 +205,8 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.APT]: 0.2,
   [TokenID.RAY]: 0.2,
   [TokenID.ORCA]: 0.2,
+  [TokenID.FTT]: 0.2,
+  [TokenID.SRM]: 0.2,
 
   [TokenID.USDT]: 0.2,
   [TokenID.USDC]: 0.2,
@@ -232,6 +244,8 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.SBR] : TokenCategory.Volatile,
   [TokenID.MERC] : TokenCategory.Volatile,
   [TokenID.MNDE] : TokenCategory.Volatile,
+  [TokenID.FTT] : TokenCategory.Volatile,
+  [TokenID.SRM] : TokenCategory.Volatile,
 
   [TokenID.USDT]: TokenCategory.Stable,
   [TokenID.USDC]: TokenCategory.Stable,
@@ -267,6 +281,8 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.RAY] : 0.04,
   [TokenID.APT] : 0,
   [TokenID.ORCA] : 0.04,
+  [TokenID.FTT] : 0.04,
+  [TokenID.SRM] : 0.04,
 
   [TokenID.USDT]: 0.04,
   [TokenID.USDC]: 0.04,
@@ -1335,6 +1351,8 @@ export const SWITCHBOARD_PRICE: { [key in TokenID]? : PublicKey} = {
   [TokenID.ORCA]: new PublicKey("EHwSRkm2ErRjWxCxrTxrmC7sT2kGb5jJcsiindUHAX7W"),
   [TokenID.SBR]: new PublicKey("Lp3VNoRQi699VZe6u59TV8J38ELEUzxkaisoWsDuJgB"),
   // [TokenID.MERC]: new PublicKey(""), // MERC not on sb
+  [TokenID.FTT]: new PublicKey("6SqRewrr5f4ycWy7NvLmNgpXJbhwXrtTc1erL9aq2gP3"),
+  [TokenID.SRM]: new PublicKey("BAoygKcKN7wk8yKzLD6sxzUQUqLvhBV1rjMA4UJqfZuH"),
 
   [TokenID.USDT]: new PublicKey("5mp8kbkTYwWWCsKSte8rURjTuyinsqBpJ9xAQsewPDD"),
   [TokenID.USDC]: new PublicKey("CZx29wKMUxaJDq6aLVQTdViPL754tTR64NAgQBUGxxHb"),
