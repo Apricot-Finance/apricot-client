@@ -21,7 +21,6 @@ export const CMD_LP_STAKE = 0x23;
 export const CMD_LP_UNSTAKE = 0x24;
 export const CMD_LP_STAKE_SECOND = 0x81;
 export const CMD_LP_UNSTAKE_SECOND = 0x82;
-export const CMD_UPDATE_POOL_FARM_YIELD = 0x2b
 // other trivia
 // swap identifiers
 export const SWAP_FAKE = 0x00;
