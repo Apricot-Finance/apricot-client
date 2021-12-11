@@ -186,4 +186,35 @@ export class PriceInfo {
     const { baseTokenTotal, quoteTokenTotal } = parsedOpenOrders;
     return [baseTokenTotal, quoteTokenTotal];
   }
+
+  async fetchRaydiumPrice(tokenId: TokenID, timeout = 3000, retries = 3): Promise<number> {
+    try {
+      const response = await axios.get("https://api.raydium.io/coin/price", {
+        timeout: timeout,
+        raxConfig: {
+          retry: retries,
+          noResponseRetries: retries,
+          backoffType: 'exponential',
+          statusCodesToRetry: [[100, 199], [400, 429], [500, 599]],
+          onRetryAttempt: err => {
+            const cfg = rax.getConfig(err);
+            console.log(`Raydium price request retry attempt #${cfg?.currentRetryAttempt}`);
+          }
+        }
+      });
+
+      if (tokenId in response.data) {
+        return response.data[tokenId];
+      }
+      throw new Error(`${tokenId} Price is not available at Raydium`);
+    }
+    catch (error) {
+      if (axios.isAxiosError(error))  {
+        console.log(`Request raydium price failed: ${error.message}`);
+      } else {
+        console.log(error);
+      }
+      throw error;
+    }
+  }
 }

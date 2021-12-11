@@ -1,0 +1,21 @@
+{
+  "name": "sample-ts",
+  "version": "0.0.1",
+  "description": "sample code running sdk-ts api",
+  "main": "src/sample.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "rm -rf dist; tsc -p tsconfig.json",
+    "pool-sample": "ts-node ./src/samplePool.ts",
+    "portfolio-sample": "ts-node ./src/samplePortfolio.ts"
+  },
+  "dependencies": {
+    "@types/node": "^16.11.12",
+    "typescript": "^4.5.3",
+    "@solana/web3.js": "^1.27.0",
+    "decimal.js": "^10.3.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.4.0"
+  }
+}

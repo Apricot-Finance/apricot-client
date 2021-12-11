@@ -48,6 +48,12 @@ export enum TokenCategory {
   Lp = "lp",
 }
 
+export enum PoolFlag {
+  AllowBorrow = 1,
+  IsLp = 2,
+  IsStable = 4,
+}
+
 export interface LpSwapKeyInfo {
   getLpDepositKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
   getLpWithdrawKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
@@ -331,4 +337,57 @@ export interface Assist {
   num_actions           : number;
   num_executed          : number;
   //actions: unknown[];
+}
+
+export interface ApiAssetPool {
+  tokenName: string;
+  mintKey: PublicKey;
+  poolKey: PublicKey;
+  allowBorrow: boolean,
+  isLp: boolean;
+  isStable: boolean;
+  depositAmount: Decimal;
+  depositValue?: Decimal;
+  borrowAmount: Decimal;
+  borrowValue?: Decimal;
+  depositRate: Decimal;
+  depositAptRewardTokenRate: Decimal;
+  depositAptRewardRate?: Decimal;
+  depositMndeRewardTokenRate?: Decimal;
+  depositMndeRewardRate?: Decimal;
+  borrowRate: Decimal;
+  borrowAptRewardTokenRate: Decimal;
+  borrowAptRewardRate?: Decimal;
+  borrowMndeRewardTokenRate?: Decimal;
+  borrowMndeRewardRate?: Decimal;
+  farmYieldRate: Decimal;
+  lastPoolUpdate: Date;
+  lastPriceUpdate?: Date;
+}
+
+export interface ApiBorrowPowerInfo {
+  totalDeposit: Decimal,
+  totalCollateral: Decimal,
+  maxBorrowAllowed: Decimal,
+  totalBorrow: Decimal,
+  collateralRatio: Decimal,
+  safeLimit: Decimal,
+  forceAssistLimit: Decimal,
+  liquidationLimit: Decimal,
+  assistTriggerLimit?: Decimal,
+  assistTargetLimit?: Decimal,
+}
+
+export interface ApiUserAssetInfo {
+  tokenId: TokenID,
+  useAsCollateral: boolean,
+  ltv: Decimal,
+  depositAmount: Decimal;
+  depositValue?: Decimal;
+  borrowAmount: Decimal;
+  borrowValue?: Decimal;
+}
+
+export interface AptUserRewardInfo {
+  // TODO
 }

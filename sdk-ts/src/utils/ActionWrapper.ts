@@ -4,14 +4,18 @@ import { Addresses } from "../addresses";
 import { AppConfig, TokenID } from "../types";
 import { AccountParser } from "./AccountParser";
 import { TransactionBuilder } from "./TransactionBuilder";
+import { PUBLIC_CONFIG } from "../constants"
 
 export class ActionWrapper {
   addresses: Addresses;
   builder: TransactionBuilder;
   constructor(
     public connection: Connection,
-    public config: AppConfig,
+    public config?: AppConfig,
   ) {
+    if (config === undefined) {
+      config = PUBLIC_CONFIG;
+    }
     this.addresses = new Addresses(config);
     this.builder = new TransactionBuilder(this.addresses);
   }

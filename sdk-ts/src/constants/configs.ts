@@ -5,8 +5,14 @@ import { SWAP_RAYDIUM } from ".";
 import { getAssociatedTokenPubkey } from "..";
 import { TokenID, TokenCategory, AppConfig, Dex, PoolId, LpSwapKeyInfo } from "../types";
 import { SWAP_ORCA, SWAP_SABER } from "./commands";
+import { Decimal } from "decimal.js";
 
 export const FAKE_KEY = SystemProgram.programId;
+
+export const LM_MNDE_MULTIPLIER: Decimal = new Decimal(0.195);
+export const SAFE_LIMIT: Decimal = new Decimal(0.9);
+export const FORCE_ASSIST_LIMIT: Decimal = new Decimal(0.99);
+export const LIQUIDATION_LIMIT: Decimal = new Decimal(1);
 
 export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.APT]: new PublicKey("APTtJyaRX5yGTsJU522N4VYWg3vCvSb65eam5GrPT5Rt"),
