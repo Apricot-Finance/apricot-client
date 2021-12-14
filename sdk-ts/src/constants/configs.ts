@@ -382,7 +382,7 @@ export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
   [TokenID.USDT_USDC_SABER] : false,
   [TokenID.USDC_USDT_ORCA] : false,
   [TokenID.UST_USDC_SABER] : false,
-  [TokenID.SOL_USDC_RAYDIUM]: false,
+  [TokenID.SOL_USDC_RAYDIUM]: true,
   [TokenID.RAY_USDC_RAYDIUM]: true,
   [TokenID.SOL_USDT_RAYDIUM]: false,
   [TokenID.SOL_USDC_ORCA]: false,
@@ -415,8 +415,18 @@ export const SWAP_METAS = {
   [SWAP_RAYDIUM]: {
     depositProgramPubkey: new PublicKey("675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"),
     stakeProgramPubkey: new PublicKey("EhhTKczWMGQt46ynNeRX1WfeagwwJd7ufHvCDjRxjo5Q"),
+    stakeProgramV5Pubkey: new PublicKey("9KEPoZmtHUrBbhWN1v1KWLMkkvwY6WLtAVUCPRtRjP4z"),
   }
 };
+
+const isPublicOrAlpha = (ownerKey: PublicKey) => {
+  const isPublic = ownerKey.toString() === '7Ne6h2w3LpTNTa7CNYcUs7UkjeJT3oW7jcrXWfVScTXW';
+  const isAlpha = ownerKey.toString() === 'GipxmFXdiJaSevu6StymY2aphKVxgYmAmf2dT3fTEASc';
+  if (!isAlpha && !isPublic) {
+    throw new Error(`Unknown ownerKey: ${ownerKey.toString()}`);
+  }
+  return { isPublic, isAlpha };
+}
 
 type SaberLpArgs = {
     swap:           PublicKey;
@@ -664,16 +674,12 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
   async getPdaKeys (ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_ORCA];
     let pdaRewardTokenAccount: PublicKey;
-    const isPublic = ownerKey.toString() === '7Ne6h2w3LpTNTa7CNYcUs7UkjeJT3oW7jcrXWfVScTXW';
-    const isAlpha = ownerKey.toString() === 'GipxmFXdiJaSevu6StymY2aphKVxgYmAmf2dT3fTEASc';
+    const { isPublic } = isPublicOrAlpha(ownerKey);
     if (isPublic) {
       pdaRewardTokenAccount = this.publicRewardTokAcc;
     }
-    else if (isAlpha) {
-      pdaRewardTokenAccount = this.alphaRewardTokAcc;
-    }
     else {
-      throw new Error(`Unknown ownerKey: ${ownerKey.toString()}`);
+      pdaRewardTokenAccount = this.alphaRewardTokAcc;
     }
 
     const pdaFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, this.farmTokenMint, true);
@@ -695,16 +701,12 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
     }
     const smeta = SWAP_METAS[SWAP_ORCA];
     let pdaDoubleDipRewardTokenAccount: PublicKey;
-    const isPublic = ownerKey.toString() === '7Ne6h2w3LpTNTa7CNYcUs7UkjeJT3oW7jcrXWfVScTXW';
-    const isAlpha = ownerKey.toString() === 'GipxmFXdiJaSevu6StymY2aphKVxgYmAmf2dT3fTEASc';
+    const { isPublic } = isPublicOrAlpha(ownerKey);
     if (isPublic) {
       pdaDoubleDipRewardTokenAccount = this.publicDoubleDipRewardAcc!;
     }
-    else if (isAlpha) {
-      pdaDoubleDipRewardTokenAccount = this.alphaDoubleDipRewardAcc!;
-    }
     else {
-      throw new Error(`Unknown ownerKey: ${ownerKey.toString()}`);
+      pdaDoubleDipRewardTokenAccount = this.alphaDoubleDipRewardAcc!;
     }
 
     const pdaDoubleDipFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, this.farmTokenLp3Mint!, true);
@@ -798,10 +800,15 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
 type RaydiumStakeKeys = {
   poolIdPubkey: PublicKey;
   poolAuthorityPubkey: PublicKey;
-  poolLpTokenAccountPubkey: PublicKey;
-  poolRewardTokenAccountPubkey: PublicKey;
-  userInfoAccountPubkey: PublicKey;
-  userRewardAccountPubkey: PublicKey;
+
+  poolLPVault: PublicKey;
+}
+
+type RaydiumRewardKeys = {
+  rewardToken: TokenID;
+  userRewardAlphaAccountPubkey: PublicKey;
+  userRewardPublicAccountPubkey: PublicKey;
+  rewardVault: PublicKey;
 }
 
 type RaydiumLpArgs = {
@@ -822,6 +829,9 @@ type RaydiumLpArgs = {
   serumCoinVaultAccount: PublicKey;
   serumPcVaultAccount: PublicKey;
   serumVaultSigner: PublicKey;
+
+  rewardTokensToClaim?: TokenID[];
+  rewardAccounts?: RaydiumRewardKeys[];
 
   stakeKeys: RaydiumStakeKeys | null;
 };
@@ -845,6 +855,9 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
   serumPcVaultAccount: PublicKey;
   serumVaultSigner: PublicKey;
 
+  rewardTokensToClaim?: TokenID[];
+  rewardAccounts?: RaydiumRewardKeys[];
+
   stakeKeys: RaydiumStakeKeys | null;
   constructor(args: RaydiumLpArgs) {
     this.lpMintPubkey = args.lpMintPubkey;
@@ -865,6 +878,8 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
     this.serumPcVaultAccount = args.serumPcVaultAccount;
     this.serumVaultSigner = args.serumVaultSigner;
 
+    this.rewardTokensToClaim = args.rewardTokensToClaim;
+    this.rewardAccounts = args.rewardAccounts;
     this.stakeKeys = args.stakeKeys;
   }
   async getLpDepositKeys (_ownerKey: PublicKey) {
@@ -902,32 +917,60 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
       { pubkey: this.serumVaultSigner,          isSigner: false, isWritable: false },
     ];
   }
-  async getLpStakeKeys (_ownerKey: PublicKey) {
+  async getLpStakeKeys (ownerKey: PublicKey) {
     if (!this.stakeKeys) {
       return []
     }
     else {
       const smeta = SWAP_METAS[SWAP_RAYDIUM];
       const stkeys = this.stakeKeys;
+      const userLedger = await this.getAssociatedLedger(ownerKey);
+      console.log(`user ledger: ${userLedger.toBase58()}`);
+
+      const { isPublic } = isPublicOrAlpha(ownerKey);
+      const userRewardFirstAccount = isPublic ? this.rewardAccounts![0].userRewardPublicAccountPubkey : this.rewardAccounts![0].userRewardAlphaAccountPubkey;
+      const userRewardSecondAccount = isPublic ? this.rewardAccounts![1].userRewardPublicAccountPubkey : this.rewardAccounts![1].userRewardAlphaAccountPubkey;
 
       return [
-        { pubkey: smeta.stakeProgramPubkey,           isSigner: false, isWritable: false, },
+        { pubkey: smeta.stakeProgramV5Pubkey,         isSigner: false, isWritable: false, },
         { pubkey: stkeys.poolIdPubkey,                isSigner: false, isWritable: true },
         { pubkey: stkeys.poolAuthorityPubkey,         isSigner: false, isWritable: false },
+        { pubkey: userLedger,                         isSigner: false, isWritable: true },
   
-        { pubkey: stkeys.userInfoAccountPubkey,       isSigner: false, isWritable: true },
-        { pubkey: stkeys.poolLpTokenAccountPubkey,    isSigner: false, isWritable: true},
-        { pubkey: stkeys.userRewardAccountPubkey,     isSigner: false, isWritable: true},
-        { pubkey: stkeys.poolRewardTokenAccountPubkey, isSigner: false, isWritable: true},
-  
+        { pubkey: stkeys.poolLPVault,                 isSigner: false, isWritable: true },
+
+        { pubkey: userRewardFirstAccount,             isSigner: false, isWritable: true },
+        { pubkey: this.rewardAccounts![0].rewardVault,isSigner: false, isWritable: true },
+
         // Below account are not listed on solscan.io but explorer.solana.com, so you should better check both sites.
         { pubkey: SYSVAR_CLOCK_PUBKEY,                isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID,                   isSigner: false, isWritable: false },
-      ]
+
+        { pubkey: userRewardSecondAccount,            isSigner: false, isWritable: true},
+        { pubkey: this.rewardAccounts![1].rewardVault,isSigner: false, isWritable: true },
+      ];
     }
+  }
+  async getUserRewardAccountsToClaim (ownerKey: PublicKey) {
+    const { isPublic } = isPublicOrAlpha(ownerKey);
+    return this.rewardAccounts!
+      .filter(a => this.rewardTokensToClaim?.includes(a.rewardToken))
+      .map(a => isPublic ? a.userRewardPublicAccountPubkey : a.userRewardAlphaAccountPubkey);
   }
   getLRVaults(): [PublicKey, PublicKey] {
     return [this.poolCoinTokenPubkey, this.poolPcTokenPubkey];
+  }
+  async getAssociatedLedger(
+    owner: PublicKey,
+  ) {
+    const programId = SWAP_METAS[SWAP_RAYDIUM].stakeProgramV5Pubkey;
+    const poolId = this.stakeKeys?.poolIdPubkey;
+    invariant(poolId);
+    const [ publicKey ] = await PublicKey.findProgramAddress(
+      [poolId.toBuffer(), owner.toBuffer(), Buffer.from("staker_info_v2_associated_seed", "utf-8")],
+      programId,
+    );
+    return publicKey;
   }
 }
 
@@ -1223,7 +1266,28 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumPcVaultAccount: new PublicKey('8CFo8bL8mZQK8abbFyypFMwEDd8tVJjHTTojMLgQTUSZ'),
     serumVaultSigner: new PublicKey('F8Vyqk3unwxkXukZFQeYyGmFfTG3CAX4v24iyrjEYBJV'),
 
-    stakeKeys: null,
+    rewardTokensToClaim: [TokenID.SRM],
+
+    rewardAccounts: [
+      {
+        rewardToken: TokenID.RAY,
+        userRewardAlphaAccountPubkey: new PublicKey('3ycsskwZL584nSTikjMR9DhVKRHFpYUbbx4m93kn6Djx'),
+        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        rewardVault: new PublicKey('38YS2N7VUb856QDsXHS1h8zv5556YgEy9zKbbL2mefjf'), // ray
+      }, {
+        rewardToken: TokenID.SRM,
+        userRewardAlphaAccountPubkey: new PublicKey('21rySZr2pQCaoGjdJy6gPx31vi5igVsKFAMRtqhgPgVX'),
+        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        rewardVault: new PublicKey('ANDJUfDryy3jY6DngwGRXVyxCJBT5JfojLDXwZYSpnEL'), // srm
+      }
+    ],
+
+    stakeKeys: {
+      poolIdPubkey: new PublicKey('GUzaohfNuFbBqQTnPgPSNciv3aUvriXYjQduRE3ZkqFw'),
+      poolAuthorityPubkey: new PublicKey('DgbCWnbXg43nmeiAveMCkUUPEpAr3rZo3iop3TyP6S63'),
+
+      poolLPVault: new PublicKey('J6ECnRDZEXcxuruvErXDWsPZn9czowKynUr9eDSQ4QeN'),
+    },
   }),
   [TokenID.RAY_USDC_RAYDIUM]: new RaydiumLpSwapInfo({
     lpMintPubkey: new PublicKey(MINTS[TokenID.RAY_USDC_RAYDIUM]), 
@@ -1251,6 +1315,7 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumVaultSigner: new PublicKey('FmhXe9uG6zun49p222xt3nG1rBAkWvzVz7dxERQ6ouGw'),
 
     // for stake
+    /*
     stakeKeys: {
       poolIdPubkey: new PublicKey('CHYrUBX2RKX8iBg7gYTkccoGNBzP44LdaazMHCLcdEgS'),
       poolAuthorityPubkey: new PublicKey('5KQFnDd33J5NaMC9hQ64P5XzaaSz8Pt7NBCkZFYn1po'),
@@ -1260,6 +1325,8 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
       userInfoAccountPubkey: new PublicKey('5BGkQwXsWzQZBipSho88e6zjFjxYPZnToYD1TrcG31r9'),
       userRewardAccountPubkey: new PublicKey('HEQMdvMvaTBpBPT3hvTxEcLMzbRVeTvrY764dw5dRUz3'),
     }
+    */
+   stakeKeys: null,
   }),
   [TokenID.SOL_USDT_RAYDIUM]: new RaydiumLpSwapInfo({
     lpMintPubkey: new PublicKey(MINTS[TokenID.SOL_USDT_RAYDIUM]),

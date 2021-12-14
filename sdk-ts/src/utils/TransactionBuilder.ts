@@ -1,5 +1,5 @@
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { Keypair, AccountMeta, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { Keypair, AccountMeta, PublicKey, SystemProgram, Transaction, TransactionInstruction, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
 import invariant from "tiny-invariant";
 import { Addresses } from "../addresses";
 import {
@@ -20,6 +20,8 @@ import {
   CMD_UPDATE_USER_CONFIG,
   CMD_WITHDRAW,
   CMD_WITHDRAW_AND_REMOVE_USER,
+  SWAP_ORCA,
+  SWAP_RAYDIUM,
 } from "../constants/commands";
 import { LP_TO_LR, MINTS } from "../constants/configs";
 import { UserInfo, TokenID } from "../types";
@@ -689,7 +691,7 @@ export class TransactionBuilder {
     });
   }
 
-  async buildLpStake2ndStepIx(
+  async buildLpStake2ndStepIxForOrca(
     lpMintStr: string,
     stakeTableKey: PublicKey,
     floatingLpSplKey: PublicKey,
@@ -719,7 +721,32 @@ export class TransactionBuilder {
     });
   }
 
-  async buildLpUnstake2ndStepIx(
+  async buildLpStake2ndStepIxForRaydium(
+    lpMintStr: string,
+    stakeTableKey: PublicKey,
+    stakeKeys: &AccountMeta[],
+  ) {
+    const [base_pda,] = await this.addresses.getBasePda();
+    const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
+    const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
+
+    const keys = [
+      { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false }, // placeholder
+      { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: stakeTableKey, isSigner: false, isWritable: true },
+      { pubkey: base_pda, isSigner: false, isWritable: false },
+    ].concat(stakeKeys);
+
+    const data = [CMD_LP_STAKE_SECOND];
+    return new TransactionInstruction({
+      programId: this.addresses.getProgramKey(),
+      keys: keys,
+      data: Buffer.from(data),
+    });
+  }
+
+  async buildLpUnstake2ndStepIxForOrca(
     unstakeIdentity: PublicKey,
     userWalletKey: PublicKey,
     lpMintStr: string,
@@ -744,6 +771,42 @@ export class TransactionBuilder {
       { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
     ].concat(secondStakeKeys).concat(firstStakeKeys);
+
+    const buffer = new ArrayBuffer(8);
+    AccountParser.setBigUint64(buffer, 0, amount);
+    const payload = Array.from(new Uint8Array(buffer));
+
+    const data = [CMD_LP_UNSTAKE_SECOND].concat(payload);
+
+    return new TransactionInstruction({
+      programId: this.addresses.getProgramKey(),
+      keys: keys,
+      data: Buffer.from(data),
+    });
+  }
+
+  async buildLpUnstake2ndStepIxForRaydium(
+    unstakeIdentity: PublicKey,
+    userWalletKey: PublicKey,
+    lpMintStr: string,
+    stakeTableKey: PublicKey,
+    stakeKeys: AccountMeta[],
+    amount: number,
+  ) {
+    const [base_pda,] = await this.addresses.getBasePda();
+    const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
+    const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
+    const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
+
+    const keys = [
+      { pubkey: unstakeIdentity, isSigner: true, isWritable: false },
+      { pubkey: userWalletKey, isSigner: false, isWritable: false },
+      { pubkey: userInfoKey, isSigner: false, isWritable: false },
+      { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: stakeTableKey, isSigner: false, isWritable: true },
+      { pubkey: base_pda, isSigner: false, isWritable: false },
+    ].concat(stakeKeys);
 
     const buffer = new ArrayBuffer(8);
     AccountParser.setBigUint64(buffer, 0, amount);
@@ -803,6 +866,10 @@ export class TransactionBuilder {
     const leftMint = MINTS[leftId];
     const rightMint = MINTS[rightId];
 
+    const poolConfig = this.addresses.config.poolConfigs[lpTokenId];
+    invariant(poolConfig, 'invalid lp token id for pool config');
+    let stakeKeys = poolConfig.lpNeedSndStake ? [] : await this.addresses.getLpStakeKeys(lpTokenId);
+
     const tx = await this.marginLpCreate(
       walletAccount, 
       leftMint.toString(),
@@ -813,7 +880,7 @@ export class TransactionBuilder {
       minLpAmount,
       this.addresses.getLpTargetSwap(lpTokenId),
       await this.addresses.getLpDepositKeys(lpTokenId),
-      await this.addresses.getLpStakeKeys(lpTokenId),
+      stakeKeys,
     );
     return tx;
   }
@@ -821,18 +888,32 @@ export class TransactionBuilder {
   async lpStake2nd(
     lpTokenId: TokenID,
   ) {
+    const tx = new Transaction();
     const lpMint = MINTS[lpTokenId];
-    const floatingLpSplKey = await this.addresses.getFloatingLpTokenAccount(lpTokenId);
     const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(lpMint.toString());
+    const targetSwap = this.addresses.getLpTargetSwap(lpTokenId);
 
-    const ix = await this.buildLpStake2ndStepIx(
-      lpMint.toString(),
-      stakeTableKey,
-      floatingLpSplKey,
-      await this.addresses.getLpFirstStakeKeys(lpTokenId),
-      await this.addresses.getLpSecondStakeKeys(lpTokenId)
-    );
-    const tx = new Transaction().add(ix);
+    if (targetSwap === SWAP_ORCA) {
+      const floatingLpSplKey = await this.addresses.getFloatingLpTokenAccount(lpTokenId);
+
+      const ix = await this.buildLpStake2ndStepIxForOrca(
+        lpMint.toString(),
+        stakeTableKey,
+        floatingLpSplKey,
+        await this.addresses.getLpFirstStakeKeys(lpTokenId),
+        await this.addresses.getLpSecondStakeKeys(lpTokenId)
+      );
+      tx.add(ix);
+    } else if (targetSwap === SWAP_RAYDIUM) {
+      const ix = await this.buildLpStake2ndStepIxForRaydium(
+          lpMint.toString(),
+          stakeTableKey,
+          await this.addresses.getLpStakeKeys(lpTokenId),
+      ) ;
+      tx.add(ix);
+    } else {
+      throw new Error(`invalid target swap for lp stake 2nd`);
+    }
     return tx;
   }
 
@@ -842,21 +923,37 @@ export class TransactionBuilder {
     lpTokenId: TokenID,
     lpAmount: number,
   ) {
+    const tx = new Transaction();
     const lpMint = MINTS[lpTokenId];
     const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(lpMint.toString());
-    const floatingLpSplKey = await this.addresses.getFloatingLpTokenAccount(lpTokenId);
+    const targetSwap = this.addresses.getLpTargetSwap(lpTokenId);
 
-    const ix = await this.buildLpUnstake2ndStepIx(
-      unstakeIdentity,
-      walletKey,
-      lpMint.toString(),
-      stakeTableKey,
-      floatingLpSplKey,
-      await this.addresses.getLpFirstStakeKeys(lpTokenId),
-      await this.addresses.getLpSecondStakeKeys(lpTokenId),
-      lpAmount,
-    );
-    const tx = new Transaction().add(ix);
+    if (targetSwap === SWAP_ORCA) {
+      const floatingLpSplKey = await this.addresses.getFloatingLpTokenAccount(lpTokenId);
+      const ix = await this.buildLpUnstake2ndStepIxForOrca(
+        unstakeIdentity,
+        walletKey,
+        lpMint.toString(),
+        stakeTableKey,
+        floatingLpSplKey,
+        await this.addresses.getLpFirstStakeKeys(lpTokenId),
+        await this.addresses.getLpSecondStakeKeys(lpTokenId),
+        lpAmount,
+      );
+      tx.add(ix);
+    } else if (targetSwap === SWAP_RAYDIUM) {
+      const ix = await this.buildLpUnstake2ndStepIxForRaydium(
+        unstakeIdentity,
+        walletKey,
+        lpMint.toString(),
+        stakeTableKey,
+        await this.addresses.getLpStakeKeys(lpTokenId),
+        lpAmount,
+      );
+      tx.add(ix);
+    } else {
+      throw new Error(`invalid target swap for lp unstake 2nd`);
+    }
     return tx;
   }
 
@@ -874,6 +971,11 @@ export class TransactionBuilder {
     const lpMint = MINTS[lpTokenId];
     const leftMint = MINTS[leftId];
     const rightMint = MINTS[rightId];
+
+    const poolConfig = this.addresses.config.poolConfigs[lpTokenId];
+    invariant(poolConfig, 'invalid lp token id for pool config');
+    let stakeKeys = poolConfig.lpNeedSndStake ? [] : await this.addresses.getLpStakeKeys(lpTokenId);
+
     const tx = await this.marginLpRedeem(
       walletKey, 
       leftMint.toString(),
@@ -884,7 +986,7 @@ export class TransactionBuilder {
       lpAmount,
       this.addresses.getLpTargetSwap(lpTokenId),
       await this.addresses.getLpWithdrawKeys(lpTokenId),
-      await this.addresses.getLpStakeKeys(lpTokenId),
+      stakeKeys,
       isSigned,
     );
     return tx;
