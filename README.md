@@ -4,6 +4,25 @@ possible.
 
 Consider these snippets for integrating with Apricot at client-side:
 
+Typescrip:
+
+```typescript
+// get shared connection object
+let connection = getConnection();
+
+// pool info
+let tokenId = TokenID.USDC;
+let assetPoolLoader = await createAssetPoolLoader(connection);
+console.log(await assetPoolLoader.getAssetPool(tokenId));
+
+// user portfolio info
+let walletKey = new PublicKey(walletAddress);
+let portfolioLoader = createPortfolioLoader(walletKey, connection);
+await portfolioLoader.refreshPortfolio();
+console.log(await portfolioLoader.getUserInfoAddress());
+console.log(await portfolioLoader.getUserAssetInfoList());
+console.log(await portfolioLoader.getBorrowPowerInfo());
+```
 
 Javascript:
 
@@ -26,8 +45,10 @@ channel on [our discord](https://discord.gg/C6JrtqZF5U)!
 
 
 # Directories:
+- ts: `@apricot-lend/sdk-ts` npm package
 - rust: `apricot-client` rust crate
 - js: `@apricot-lend/apricot` npm package
+- samples-ts: a few examples to fetch pool and user portfolio info
 - samples-rust-client: a rust client that demonstrates deposit/withdraw
 - samples-rust-contract: a single solana contract that uses the `apricot-client` rust crate to invoke Apricot
 - samples-js: a JS sample that uses the `@apricot-lend/apricot` package to deposit/borrow on Apricot
