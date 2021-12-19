@@ -384,7 +384,7 @@ export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
   [TokenID.UST_USDC_SABER] : false,
   [TokenID.SOL_USDC_RAYDIUM]: true,
   [TokenID.RAY_USDC_RAYDIUM]: true,
-  [TokenID.SOL_USDT_RAYDIUM]: false,
+  [TokenID.SOL_USDT_RAYDIUM]: true,
   [TokenID.SOL_USDC_ORCA]: false,
   [TokenID.mSOL_SOL_ORCA]: true,
   [TokenID.ORCA_USDC_ORCA]: false,
@@ -1314,19 +1314,23 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumPcVaultAccount: new PublicKey('22jHt5WmosAykp3LPGSAKgY45p7VGh4DFWSwp21SWBVe'),
     serumVaultSigner: new PublicKey('FmhXe9uG6zun49p222xt3nG1rBAkWvzVz7dxERQ6ouGw'),
 
-    // for stake
-    /*
+   rewardTokensToClaim: [TokenID.RAY],
+
+    rewardAccounts: [
+      {
+        rewardToken: TokenID.RAY,
+        userRewardAlphaAccountPubkey: new PublicKey('496NG3Ym9UAmDoYe1YdJMnEhAGJhfrY4Wz2Poc85VcMZ'),
+        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        rewardVault: new PublicKey('DpRueBHHhrQNvrjZX7CwGitJDJ8eZc3AHcyFMG4LqCQR'), // ray
+      },
+    ],
+
     stakeKeys: {
       poolIdPubkey: new PublicKey('CHYrUBX2RKX8iBg7gYTkccoGNBzP44LdaazMHCLcdEgS'),
       poolAuthorityPubkey: new PublicKey('5KQFnDd33J5NaMC9hQ64P5XzaaSz8Pt7NBCkZFYn1po'),
-      poolLpTokenAccountPubkey: new PublicKey('BNnXLFGva3K8ACruAc1gaP49NCbLkyE6xWhGV4G2HLrs'),
-      poolRewardTokenAccountPubkey: new PublicKey('DpRueBHHhrQNvrjZX7CwGitJDJ8eZc3AHcyFMG4LqCQR'),
 
-      userInfoAccountPubkey: new PublicKey('5BGkQwXsWzQZBipSho88e6zjFjxYPZnToYD1TrcG31r9'),
-      userRewardAccountPubkey: new PublicKey('HEQMdvMvaTBpBPT3hvTxEcLMzbRVeTvrY764dw5dRUz3'),
-    }
-    */
-   stakeKeys: null,
+      poolLPVault: new PublicKey('BNnXLFGva3K8ACruAc1gaP49NCbLkyE6xWhGV4G2HLrs'),
+    },
   }),
   [TokenID.SOL_USDT_RAYDIUM]: new RaydiumLpSwapInfo({
     lpMintPubkey: new PublicKey(MINTS[TokenID.SOL_USDT_RAYDIUM]),
@@ -1353,7 +1357,28 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumPcVaultAccount: new PublicKey('EJwyNJJPbHH4pboWQf1NxegoypuY48umbfkhyfPew4E'),
     serumVaultSigner: new PublicKey('CzZAjoEqA6sjqtaiZiPqDkmxG6UuZWxwRWCenbBMc8Xz'),
 
-    stakeKeys: null,
+    rewardTokensToClaim: [TokenID.SRM],
+
+    rewardAccounts: [
+      {
+        rewardToken: TokenID.RAY,
+        userRewardAlphaAccountPubkey: new PublicKey('BrDvLLjYtTPyaBN2kDxRCSDzoNPdYiozPfggcgEJt3Pd'),
+        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        rewardVault: new PublicKey('Bgj3meVYds8ficJc9xntbjmMBPVUuyn6CvDUm1AD39yq'), // ray
+      }, {
+        rewardToken: TokenID.SRM,
+        userRewardAlphaAccountPubkey: new PublicKey('6Cp9hLDQpbmiXZopk9oJMqGj8nSUbQpGLqm9VxYmZbFB'),
+        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        rewardVault: new PublicKey('DJifNDjNt7iHbkNHs9V6Wm5pdiuddtF9w3o4WEiraKrP'), // srm
+      }
+    ],
+
+    stakeKeys: {
+      poolIdPubkey: new PublicKey('5r878BSWPtoXgnqaeFJi7BCycKZ5CodBB2vS9SeiV8q'),
+      poolAuthorityPubkey: new PublicKey('DimG1WK9N7NdbhddweGTDDBRaBdCmcbPtoWZJ4Fi4rn4'),
+
+      poolLPVault: new PublicKey('jfhZy3B6sqeu95z71GukkxpkDtfHXJiFAMULM6STWxb'),
+    },
   }),
   [TokenID.mSOL_SOL_RAYDIUM]: new RaydiumLpSwapInfo({
     lpMintPubkey: new PublicKey(MINTS[TokenID.mSOL_SOL_RAYDIUM]),

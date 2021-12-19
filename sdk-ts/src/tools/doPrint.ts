@@ -1,7 +1,7 @@
 import { ALPHA_CONFIG, PUBLIC_CONFIG } from "../constants";
 import { Addresses } from "../addresses";
 import invariant from "tiny-invariant";
-import { Dex, OrcaLpSwapInfo, SaberLpSwapInfo } from "..";
+import { Dex, OrcaLpSwapInfo, RaydiumLpSwapInfo, SaberLpSwapInfo } from "..";
 
 const [,,production] = process.argv;
 invariant(['alpha', 'public'].includes(production))
@@ -24,7 +24,7 @@ async function printAddresses() {
 
   console.log(`\nPrint saber farm keys:\n`);
   for (const poolCfg of Object.values(config.poolConfigs)) {
-    if (poolCfg.isLp() === true && poolCfg.lpDex === Dex.Saber) {
+    if (poolCfg.isLp() && poolCfg.lpDex === Dex.Saber) {
       console.log(`LP ${poolCfg.tokenId}:`);
       const saberLpSwapInfo = poolCfg.lpSwapKeyInfo as SaberLpSwapInfo;
       const [owner] = await consts.getBasePda();
@@ -38,7 +38,7 @@ async function printAddresses() {
 
   console.log(`\nPrint orca farm keys:\n`);
   for (const poolCfg of Object.values(config.poolConfigs)) {
-    if (poolCfg.isLp() === true && poolCfg.lpDex === Dex.Orca) {
+    if (poolCfg.isLp() && poolCfg.lpDex === Dex.Orca) {
       console.log(`LP ${poolCfg.tokenId}:`);
       const orcaLpSwapInfo = poolCfg.lpSwapKeyInfo as OrcaLpSwapInfo;
       const pdaKeys = await orcaLpSwapInfo.getPdaKeys(base_pda);
@@ -54,6 +54,20 @@ async function printAddresses() {
         console.log(`DD LP3 token account: ${ddKeys.pdaDoubleDipFarmTokenAccount.toString()}`);
       }
       console.log('\n');
+    }
+  }
+
+  console.log(`\nPrint rayidum farm keys:\n`);
+  for (const poolCfg of Object.values(config.poolConfigs)) {
+    if (poolCfg.isLp() && poolCfg.lpDex === Dex.Raydium) {
+      console.log(`LP ${poolCfg.tokenId}:`);
+      const raydiumLpSwapInfo = poolCfg.lpSwapKeyInfo as RaydiumLpSwapInfo;
+      if (raydiumLpSwapInfo.stakeKeys) {
+        const userLedger = await raydiumLpSwapInfo.getAssociatedLedger(base_pda);
+        console.log(`User ledger: ${userLedger.toBase58()}`);
+        const stakeTableKey = await consts.getAssetPoolStakeTableKey(poolCfg.mint.toString());
+        console.log(`StakeTable: ${stakeTableKey.toString()}`);
+      }
     }
   }
 }

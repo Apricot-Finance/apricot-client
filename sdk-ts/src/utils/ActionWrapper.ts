@@ -9,14 +9,13 @@ import { PUBLIC_CONFIG } from "../constants"
 export class ActionWrapper {
   addresses: Addresses;
   builder: TransactionBuilder;
+  config: AppConfig;
   constructor(
     public connection: Connection,
-    public config?: AppConfig,
+    config: AppConfig | undefined,
   ) {
-    if (config === undefined) {
-      config = PUBLIC_CONFIG;
-    }
-    this.addresses = new Addresses(config);
+    this.config = config || PUBLIC_CONFIG;
+    this.addresses = new Addresses(this.config);
     this.builder = new TransactionBuilder(this.addresses);
   }
 
