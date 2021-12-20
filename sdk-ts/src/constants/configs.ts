@@ -834,6 +834,7 @@ type RaydiumLpArgs = {
   rewardAccounts?: RaydiumRewardKeys[];
 
   stakeKeys: RaydiumStakeKeys | null;
+  stakeProgram?: PublicKey;
 };
 
 export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
@@ -859,6 +860,7 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
   rewardAccounts?: RaydiumRewardKeys[];
 
   stakeKeys: RaydiumStakeKeys | null;
+  stakeProgram: PublicKey;
   constructor(args: RaydiumLpArgs) {
     this.lpMintPubkey = args.lpMintPubkey;
 
@@ -881,6 +883,7 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
     this.rewardTokensToClaim = args.rewardTokensToClaim;
     this.rewardAccounts = args.rewardAccounts;
     this.stakeKeys = args.stakeKeys;
+    this.stakeProgram = args.stakeProgram || SWAP_METAS[SWAP_RAYDIUM].stakeProgramV5Pubkey;
   }
   async getLpDepositKeys (_ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_RAYDIUM];
@@ -922,17 +925,16 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
       return []
     }
     else {
-      const smeta = SWAP_METAS[SWAP_RAYDIUM];
+      invariant(this.rewardAccounts);
       const stkeys = this.stakeKeys;
       const userLedger = await this.getAssociatedLedger(ownerKey);
       console.log(`user ledger: ${userLedger.toBase58()}`);
 
       const { isPublic } = isPublicOrAlpha(ownerKey);
       const userRewardFirstAccount = isPublic ? this.rewardAccounts![0].userRewardPublicAccountPubkey : this.rewardAccounts![0].userRewardAlphaAccountPubkey;
-      const userRewardSecondAccount = isPublic ? this.rewardAccounts![1].userRewardPublicAccountPubkey : this.rewardAccounts![1].userRewardAlphaAccountPubkey;
 
-      return [
-        { pubkey: smeta.stakeProgramV5Pubkey,         isSigner: false, isWritable: false, },
+      const keys = [
+        { pubkey: this.stakeProgram,                  isSigner: false, isWritable: false, },
         { pubkey: stkeys.poolIdPubkey,                isSigner: false, isWritable: true },
         { pubkey: stkeys.poolAuthorityPubkey,         isSigner: false, isWritable: false },
         { pubkey: userLedger,                         isSigner: false, isWritable: true },
@@ -945,10 +947,18 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
         // Below account are not listed on solscan.io but explorer.solana.com, so you should better check both sites.
         { pubkey: SYSVAR_CLOCK_PUBKEY,                isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID,                   isSigner: false, isWritable: false },
-
-        { pubkey: userRewardSecondAccount,            isSigner: false, isWritable: true},
-        { pubkey: this.rewardAccounts![1].rewardVault,isSigner: false, isWritable: true },
       ];
+      if (this.rewardAccounts.length > 1) {
+        for (let i = 1; i < this.rewardAccounts.length; i++) {
+          const userRewardAccount = isPublic ? this.rewardAccounts![i].userRewardPublicAccountPubkey : this.rewardAccounts![i].userRewardAlphaAccountPubkey;
+          keys.push(...[
+            { pubkey: userRewardAccount,                  isSigner: false, isWritable: true},
+            { pubkey: this.rewardAccounts![i].rewardVault,isSigner: false, isWritable: true },
+          ]);
+        }
+      }
+
+      return keys;
     }
   }
   async getUserRewardAccountsToClaim (ownerKey: PublicKey) {
@@ -963,12 +973,11 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
   async getAssociatedLedger(
     owner: PublicKey,
   ) {
-    const programId = SWAP_METAS[SWAP_RAYDIUM].stakeProgramV5Pubkey;
     const poolId = this.stakeKeys?.poolIdPubkey;
     invariant(poolId);
     const [ publicKey ] = await PublicKey.findProgramAddress(
       [poolId.toBuffer(), owner.toBuffer(), Buffer.from("staker_info_v2_associated_seed", "utf-8")],
-      programId,
+      this.stakeProgram,
     );
     return publicKey;
   }
@@ -1331,6 +1340,7 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
 
       poolLPVault: new PublicKey('BNnXLFGva3K8ACruAc1gaP49NCbLkyE6xWhGV4G2HLrs'),
     },
+    stakeProgram: SWAP_METAS[SWAP_RAYDIUM].stakeProgramPubkey,
   }),
   [TokenID.SOL_USDT_RAYDIUM]: new RaydiumLpSwapInfo({
     lpMintPubkey: new PublicKey(MINTS[TokenID.SOL_USDT_RAYDIUM]),

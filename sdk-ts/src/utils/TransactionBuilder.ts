@@ -868,6 +868,7 @@ export class TransactionBuilder {
 
     const poolConfig = this.addresses.config.poolConfigs[lpTokenId];
     invariant(poolConfig, 'invalid lp token id for pool config');
+    // if second stake is needed, all the staking ops are performed in the second-stake tx so no staking keys is needed
     let stakeKeys = poolConfig.lpNeedSndStake ? [] : await this.addresses.getLpStakeKeys(lpTokenId);
 
     const tx = await this.marginLpCreate(
@@ -900,6 +901,7 @@ export class TransactionBuilder {
         lpMint.toString(),
         stakeTableKey,
         floatingLpSplKey,
+        // orca needs to stake both LP1 and LP2
         await this.addresses.getLpFirstStakeKeys(lpTokenId),
         await this.addresses.getLpSecondStakeKeys(lpTokenId)
       );
@@ -936,6 +938,7 @@ export class TransactionBuilder {
         lpMint.toString(),
         stakeTableKey,
         floatingLpSplKey,
+        // orca needs to unstake both LP2 and LP3
         await this.addresses.getLpFirstStakeKeys(lpTokenId),
         await this.addresses.getLpSecondStakeKeys(lpTokenId),
         lpAmount,
@@ -974,6 +977,8 @@ export class TransactionBuilder {
 
     const poolConfig = this.addresses.config.poolConfigs[lpTokenId];
     invariant(poolConfig, 'invalid lp token id for pool config');
+    // When second staking is needed, all the staking/unstaking is performed in the second-staking/unstaking transaction
+    // so this redemption tx itself does not need staking keys
     let stakeKeys = poolConfig.lpNeedSndStake ? [] : await this.addresses.getLpStakeKeys(lpTokenId);
 
     const tx = await this.marginLpRedeem(
