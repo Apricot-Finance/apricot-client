@@ -221,16 +221,16 @@ const FEES: { [key in TokenID]?: number } = {
 
   [TokenID.USDT_USDC_SABER]: 0.0,   // no farming
   [TokenID.USDC_USDT_ORCA]: 0.2,
-  [TokenID.SOL_USDC_RAYDIUM]: 0.0,  // no reward
+  [TokenID.SOL_USDC_RAYDIUM]: 0.2,
   [TokenID.RAY_USDC_RAYDIUM]: 0.2,
-  [TokenID.SOL_USDT_RAYDIUM]: 0.0,  // no reward
+  [TokenID.SOL_USDT_RAYDIUM]: 0.2,
   [TokenID.SOL_USDC_ORCA]: 0.2,
   [TokenID.mSOL_SOL_ORCA]: 0.2,
   [TokenID.ORCA_USDC_ORCA]: 0.2,
   [TokenID.ORCA_SOL_ORCA]: 0.2,
   [TokenID.ETH_USDC_ORCA]: 0.2,
   [TokenID.SOL_USDT_ORCA]: 0.2,
-  [TokenID.mSOL_SOL_RAYDIUM]: 0.0,
+  [TokenID.mSOL_SOL_RAYDIUM]: 0.0, // no reward
   [TokenID.ETH_SOL_ORCA]: 0.2,
   [TokenID.BTC_mSOL_ORCA]: 0.2,
   [TokenID.mSOL_USDC_ORCA]: 0.2,
@@ -1281,12 +1281,12 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
       {
         rewardToken: TokenID.RAY,
         userRewardAlphaAccountPubkey: new PublicKey('3ycsskwZL584nSTikjMR9DhVKRHFpYUbbx4m93kn6Djx'),
-        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        userRewardPublicAccountPubkey: new PublicKey('44tSF4Sisrsy7YXmtSYnFLzQnZeVvwgd5PTMzRvAqtq4'),
         rewardVault: new PublicKey('38YS2N7VUb856QDsXHS1h8zv5556YgEy9zKbbL2mefjf'), // ray
       }, {
         rewardToken: TokenID.SRM,
         userRewardAlphaAccountPubkey: new PublicKey('21rySZr2pQCaoGjdJy6gPx31vi5igVsKFAMRtqhgPgVX'),
-        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        userRewardPublicAccountPubkey: new PublicKey('BzqrcDc7wpciqtsSj7MsDajDdjHuS7XBdqaprSm8GaiB'),
         rewardVault: new PublicKey('ANDJUfDryy3jY6DngwGRXVyxCJBT5JfojLDXwZYSpnEL'), // srm
       }
     ],
@@ -1329,7 +1329,7 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
       {
         rewardToken: TokenID.RAY,
         userRewardAlphaAccountPubkey: new PublicKey('496NG3Ym9UAmDoYe1YdJMnEhAGJhfrY4Wz2Poc85VcMZ'),
-        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        userRewardPublicAccountPubkey: new PublicKey('49i8NSa6z2DcWxBnnsZjyxKvLxEqXGZ833B4jUDNmxnT'),
         rewardVault: new PublicKey('DpRueBHHhrQNvrjZX7CwGitJDJ8eZc3AHcyFMG4LqCQR'), // ray
       },
     ],
@@ -1373,12 +1373,12 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
       {
         rewardToken: TokenID.RAY,
         userRewardAlphaAccountPubkey: new PublicKey('BrDvLLjYtTPyaBN2kDxRCSDzoNPdYiozPfggcgEJt3Pd'),
-        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        userRewardPublicAccountPubkey: new PublicKey('4aryP8pemzEuJjMteEPHFbM1SJdgoahx4AG1ZpdCvJZQ'),
         rewardVault: new PublicKey('Bgj3meVYds8ficJc9xntbjmMBPVUuyn6CvDUm1AD39yq'), // ray
       }, {
         rewardToken: TokenID.SRM,
         userRewardAlphaAccountPubkey: new PublicKey('6Cp9hLDQpbmiXZopk9oJMqGj8nSUbQpGLqm9VxYmZbFB'),
-        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        userRewardPublicAccountPubkey: new PublicKey('HBrRwtFzrL7CyngExF4N3LrKzSEf1ViFRLHJcVEwmphw'),
         rewardVault: new PublicKey('DJifNDjNt7iHbkNHs9V6Wm5pdiuddtF9w3o4WEiraKrP'), // srm
       }
     ],
