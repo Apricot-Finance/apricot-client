@@ -160,7 +160,9 @@ export class ActionWrapper {
     const tx = await this.builder.lpStake2nd(
       lpTokenId,
     );
-    return this.connection.sendTransaction(tx, [adminAccount]);
+    return this.connection.sendTransaction(tx, [adminAccount], {
+      skipPreflight: false,
+    });
   }
 
   async lpUnstake2ndStep(
