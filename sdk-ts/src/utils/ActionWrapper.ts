@@ -12,7 +12,7 @@ export class ActionWrapper {
   config: AppConfig;
   constructor(
     public connection: Connection,
-    config: AppConfig | undefined,
+    config: AppConfig | undefined = undefined,
   ) {
     this.config = config || PUBLIC_CONFIG;
     this.addresses = new Addresses(this.config);
