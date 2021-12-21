@@ -4,7 +4,7 @@ import {
   getConnection,
   ActionWrapper,
   createPortfolioLoader,
-} from "../../sdk-ts"
+} from "@apricot-lend/sdk-ts"
 
 async function sampleRaw(walletAddress: string): Promise<void> {
   console.log("Sample getting raw data.");

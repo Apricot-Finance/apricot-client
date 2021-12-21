@@ -13,7 +13,7 @@ import {
   nativeRateToValueRate,
   tokenRateToNativeRate,
   currentPerPastRateToCurrentPerCurrentRate,
-} from "../../sdk-ts"
+} from "@apricot-lend/sdk-ts"
 
 async function sampleDefaultPricing(tokenId: TokenID): Promise<void> {
   console.log("Sample: get AssetPool with apricot pricing.");
