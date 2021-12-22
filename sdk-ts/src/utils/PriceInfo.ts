@@ -145,8 +145,15 @@ export class PriceInfo {
     invariant(leftTokId);
     invariant(rightTokId);
     const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]?.getLRVaults()!;
-    const leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
-    const rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
+    let leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
+    let rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
+    if (poolConfig.lpDex === Dex.Raydium) {
+      const [additionalLeftNative, additionalRightNative] = await this.getRaydiumAdditionalBalance(lpTokId, connection);
+      const additionalLeftBalance = additionalLeftNative / DECIMAL_MULT[leftTokId];
+      const additionalRightBalance = additionalRightNative / DECIMAL_MULT[rightTokId];
+      leftBalance += additionalLeftBalance;
+      rightBalance += additionalRightBalance;
+    }
     if (!isValue) {
       return [leftBalance, rightBalance];
     }
