@@ -52,6 +52,10 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.mSOL_USDC_ORCA]: new PublicKey("8PSfyiTVwPb6Rr2iZ8F3kNpbg65BCfJM9v8LfB916r44"),
   [TokenID.USTv2_USDC_SABER]: new PublicKey("USTCmQpbUGj5iTsXdnTYHZupY1QpftDZhLokSVk6UWi"),
   [TokenID.APT_USDC_ORCA]: new PublicKey("HNrYngS1eoqkjWro9D3Y5Z9sWBDzPNK2tX4rfV2Up177"),
+  [TokenID.RAY_USDT_RAYDIUM]: new PublicKey("C3sT1R3nsw4AVdepvLTLKr5Gvszr7jufyBWUCvy4TUvT"),
+  [TokenID.RAY_ETH_RAYDIUM]: new PublicKey("mjQH33MqZv5aKAbKHi8dG3g3qXeRQqq1GFcXceZkNSr"),
+  [TokenID.RAY_SOL_RAYDIUM]: new PublicKey("89ZKE4aoyfLBe2RuV6jM3JGNhaV18Nxh8eNtjRcndBip"),
+  [TokenID.SRM_USDC_RAYDIUM]: new PublicKey("9XnZd82j34KxNLgQfz29jGbYdxsYznTWRpvZE3SRE7JG"),
 };
 
 export const DECIMAL_MULT: { [key in TokenID]: number } = {
@@ -92,6 +96,10 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.mSOL_USDC_ORCA]: 1e6,
   [TokenID.USTv2_USDC_SABER]: 1e6,
   [TokenID.APT_USDC_ORCA]: 1e6,
+  [TokenID.RAY_USDT_RAYDIUM]: 1e6,
+  [TokenID.RAY_ETH_RAYDIUM]: 1e6,
+  [TokenID.RAY_SOL_RAYDIUM]: 1e6,
+  [TokenID.SRM_USDC_RAYDIUM]: 1e6,
 };
 
 const POOL_IDS: { [key in TokenID]?: PoolId } = {
@@ -126,6 +134,10 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.APT_USDC_ORCA]: 28,
   [TokenID.FTT]: 29,
   [TokenID.SRM]: 30,
+  [TokenID.RAY_USDT_RAYDIUM]: 31,
+  [TokenID.RAY_ETH_RAYDIUM]: 32,
+  [TokenID.RAY_SOL_RAYDIUM]: 33,
+  [TokenID.SRM_USDC_RAYDIUM]: 34,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
@@ -162,6 +174,10 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.mSOL_USDC_ORCA]: 0.8,
   [TokenID.USTv2_USDC_SABER]: 0.8,
   [TokenID.APT_USDC_ORCA]: 0.4,
+  [TokenID.RAY_USDT_RAYDIUM]: 0.8,
+  [TokenID.RAY_ETH_RAYDIUM]: 0.8,
+  [TokenID.RAY_SOL_RAYDIUM]: 0.8,
+  [TokenID.SRM_USDC_RAYDIUM]: 0.8,
 };
 
 export class InterestRate {
@@ -236,6 +252,10 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.mSOL_USDC_ORCA]: 0.2,
   [TokenID.USTv2_USDC_SABER]: 0.2,
   [TokenID.APT_USDC_ORCA]: 0.2,
+  [TokenID.RAY_USDT_RAYDIUM]: 0.2,
+  [TokenID.RAY_ETH_RAYDIUM]: 0.2,
+  [TokenID.RAY_SOL_RAYDIUM]: 0.2,
+  [TokenID.SRM_USDC_RAYDIUM]: 0.2,
 };
 
 export const CATEGORY: { [key in TokenID]: TokenCategory } = {
@@ -276,6 +296,10 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.mSOL_USDC_ORCA]: TokenCategory.Lp,
   [TokenID.USTv2_USDC_SABER]: TokenCategory.Lp,
   [TokenID.APT_USDC_ORCA]: TokenCategory.Lp,
+  [TokenID.RAY_USDT_RAYDIUM]: TokenCategory.Lp,
+  [TokenID.RAY_ETH_RAYDIUM]: TokenCategory.Lp,
+  [TokenID.RAY_SOL_RAYDIUM]: TokenCategory.Lp,
+  [TokenID.SRM_USDC_RAYDIUM]: TokenCategory.Lp,
 };
 
 export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
@@ -313,6 +337,10 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.mSOL_USDC_ORCA]: 0,
   [TokenID.USTv2_USDC_SABER]: 0,
   [TokenID.APT_USDC_ORCA]: 0,
+  [TokenID.RAY_USDT_RAYDIUM]: 0,
+  [TokenID.RAY_ETH_RAYDIUM]: 0,
+  [TokenID.RAY_SOL_RAYDIUM]: 0,
+  [TokenID.SRM_USDC_RAYDIUM]: 0,
 };
 
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
@@ -334,6 +362,10 @@ export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.mSOL_USDC_ORCA]: [TokenID.mSOL, TokenID.USDC],
   [TokenID.USTv2_USDC_SABER]: [TokenID.USTv2, TokenID.USDC],
   [TokenID.APT_USDC_ORCA]: [TokenID.APT, TokenID.USDC],
+  [TokenID.RAY_USDT_RAYDIUM]: [TokenID.RAY, TokenID.USDT],
+  [TokenID.RAY_ETH_RAYDIUM]: [TokenID.RAY, TokenID.ETH],
+  [TokenID.RAY_SOL_RAYDIUM]: [TokenID.RAY, TokenID.SOL],
+  [TokenID.SRM_USDC_RAYDIUM]: [TokenID.SRM, TokenID.USDC],
 };
 
 export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
@@ -355,6 +387,10 @@ export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.mSOL_USDC_ORCA]: SWAP_ORCA,
   [TokenID.USTv2_USDC_SABER]: SWAP_SABER,
   [TokenID.APT_USDC_ORCA]: SWAP_ORCA,
+  [TokenID.RAY_USDT_RAYDIUM]: SWAP_RAYDIUM,
+  [TokenID.RAY_ETH_RAYDIUM]: SWAP_RAYDIUM,
+  [TokenID.RAY_SOL_RAYDIUM]: SWAP_RAYDIUM,
+  [TokenID.SRM_USDC_RAYDIUM]: SWAP_RAYDIUM,
 };
 
 export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
@@ -376,6 +412,10 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.mSOL_USDC_ORCA]: Dex.Orca,
   [TokenID.USTv2_USDC_SABER]: Dex.Saber,
   [TokenID.APT_USDC_ORCA]: Dex.Orca,
+  [TokenID.RAY_USDT_RAYDIUM]: Dex.Raydium,
+  [TokenID.RAY_ETH_RAYDIUM]: Dex.Raydium,
+  [TokenID.RAY_SOL_RAYDIUM]: Dex.Raydium,
+  [TokenID.SRM_USDC_RAYDIUM]: Dex.Raydium,
 };
 
 export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
@@ -397,6 +437,10 @@ export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
   [TokenID.mSOL_USDC_ORCA]: true,
   [TokenID.USTv2_USDC_SABER]: false,
   [TokenID.APT_USDC_ORCA]: false,
+  [TokenID.RAY_USDT_RAYDIUM]: true,
+  [TokenID.RAY_ETH_RAYDIUM]: true,
+  [TokenID.RAY_SOL_RAYDIUM]: true,
+  [TokenID.SRM_USDC_RAYDIUM]: true,
 };
 
 
@@ -1416,6 +1460,186 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumVaultSigner: new PublicKey('EHMK3DdPiPBd9aBjeRU4aZjD7z568rmwHCSAAxRooPq6'),
 
     stakeKeys: null,
+  }),
+  [TokenID.RAY_USDT_RAYDIUM]: new RaydiumLpSwapInfo({
+    lpMintPubkey: new PublicKey(MINTS[TokenID.RAY_USDT_RAYDIUM]),
+
+    ammIdPubkey: new PublicKey('DVa7Qmb5ct9RCpaU7UTpSaf3GVMYz17vNVU67XpdCRut'),
+    ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
+    ammOpenOrdersPubkey: new PublicKey('7UF3m8hDGZ6bNnHzaT2YHrhp7A7n9qFfBj6QEpHPv5S8'),
+    ammTargetOrderPubkey: new PublicKey(
+      '3K2uLkKwVVPvZuMhcQAPLF8hw95somMeNwJS7vgWYrsJ'
+    ),
+
+    poolCoinTokenPubkey: new PublicKey('3wqhzSB9avepM9xMteiZnbJw75zmTBDVmPFLTQAGcSMN'),
+    poolPcTokenPubkey: new PublicKey('5GtSbKJEPaoumrDzNj4kGkgZtfDyUceKaHrPziazALC1'),
+    poolWithdrawQueue: new PublicKey('8VuvrSWfQP8vdbuMAP9AkfgLxU9hbRR6BmTJ8Gfas9aK'), 
+    poolTempLpTokenAccount: new PublicKey(
+      'FBzqDD1cBgkZ1h6tiZNFpkh4sZyg6AG8K5P9DSuJoS5F'
+    ),
+
+    serumProgramId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+    serumMarketPubkey: new PublicKey('teE55QrL4a4QSfydR9dnHF97jgCfptpuigbb53Lo95g'),
+    serumCoinVaultAccount: new PublicKey(
+      '2kVNVEgHicvfwiyhT2T51YiQGMPFWLMSp8qXc1hHzkpU'
+    ),
+    serumPcVaultAccount: new PublicKey('5AXZV7XfR7Ctr6yjQ9m9dbgycKeUXWnWqHwBTZT6mqC7'),
+    serumVaultSigner: new PublicKey('HzWpBN6ucpsA9wcfmhLAFYqEUmHjE9n2cGHwunG5avpL'),
+
+   rewardTokensToClaim: [TokenID.RAY],
+
+    rewardAccounts: [
+      {
+        rewardToken: TokenID.RAY,
+        userRewardAlphaAccountPubkey: new PublicKey('Bq2M2YHcMVB9RDBjJsra4nP81qvJaAapY6fdCFoDNY61'),
+        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        rewardVault: new PublicKey('HCHNuGzkqSnw9TbwpPv1gTnoqnqYepcojHw9DAToBrUj'), // ray
+      },
+    ],
+
+    stakeKeys: {
+      poolIdPubkey: new PublicKey('AvbVWpBi2e4C9HPmZgShGdPoNydG4Yw8GJvG9HUcLgce'),
+      poolAuthorityPubkey: new PublicKey('8JYVFy3pYsPSpPRsqf43KSJFnJzn83nnRLQgG88XKB8q'),
+
+      poolLPVault: new PublicKey('4u4AnMBHXehdpP5tbD6qzB5Q4iZmvKKR5aUr2gavG7aw'),
+    },
+    stakeProgram: SWAP_METAS[SWAP_RAYDIUM].stakeProgramPubkey,
+  }),
+  [TokenID.RAY_ETH_RAYDIUM]: new RaydiumLpSwapInfo({
+    lpMintPubkey: new PublicKey(MINTS[TokenID.RAY_ETH_RAYDIUM]),
+
+    ammIdPubkey: new PublicKey('8iQFhWyceGREsWnLM8NkG9GC8DvZunGZyMzuyUScgkMK'),
+    ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
+    ammOpenOrdersPubkey: new PublicKey('7iztHknuo7FAXVrrpAjsHBEEjRTaNH4b3hecVApQnSwN'),
+    ammTargetOrderPubkey: new PublicKey(
+      'JChSqhn6yyEWqD95t8UR5DaZZtEZ1RGGjdwgMc8S6UUt'
+    ),
+
+    poolCoinTokenPubkey: new PublicKey('G3Szi8fUqxfZjZoNx17kQbxeMTyXt2ieRvju4f3eJt9j'),
+    poolPcTokenPubkey: new PublicKey('7MgaPPNa7ySdu5XV7ik29Xoav4qcDk4wznXZ2Muq9MnT'),
+    poolWithdrawQueue: new PublicKey('C9aijsE3tLbVyYaXXHi45qneDL5jfyN8befuJh8zzpou'), 
+    poolTempLpTokenAccount: new PublicKey(
+      '3CDnyBsNnexdvfvo6ASde5Q4e72jzMQFHRRkSQr49vEG'
+    ),
+
+    serumProgramId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+    serumMarketPubkey: new PublicKey('6jx6aoNFbmorwyncVP5V5ESKfuFc9oUYebob1iF6tgN4'),
+    serumCoinVaultAccount: new PublicKey(
+      'EVVtYo4AeCbmn2dYS1UnhtfjpzCXCcN26G1HmuHwMo7w'
+    ),
+    serumPcVaultAccount: new PublicKey('6ZT6KwvjLnJLpFdVfiRD9ifVUo4gv4MUie7VvPTuk69v'),
+    serumVaultSigner: new PublicKey('HXbRDLcX2FyqWJY95apnsTgBoRHyp7SWYXcMYod6EBrQ'),
+
+   rewardTokensToClaim: [TokenID.RAY],
+
+    rewardAccounts: [
+      {
+        rewardToken: TokenID.RAY,
+        userRewardAlphaAccountPubkey: new PublicKey('B2LykyWkPGVcqwRgozr4WRst5x9s5pCHhT9CA4NLwtui'),
+        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        rewardVault: new PublicKey('7YfTgYQFGEJ4kb8jCF8cBrrUwEFskLin3EbvE1crqiQh'), // ray
+      },
+    ],
+
+    stakeKeys: {
+      poolIdPubkey: new PublicKey('B6fbnZZ7sbKHR18ffEDD5Nncgp54iKN1GbCgjTRdqhS1'),
+      poolAuthorityPubkey: new PublicKey('6amoZ7YBbsz3uUUbkeEH4vDTNwjvgjxTiu6nGi9z1JGe'),
+
+      poolLPVault: new PublicKey('BjAfXpHTHz2kipraNddS6WwQvGGtbvyobn7MxLEEYfrH'),
+    },
+    stakeProgram: SWAP_METAS[SWAP_RAYDIUM].stakeProgramPubkey,
+  }),
+  [TokenID.RAY_SOL_RAYDIUM]: new RaydiumLpSwapInfo({
+    lpMintPubkey: new PublicKey(MINTS[TokenID.RAY_SOL_RAYDIUM]),
+
+    ammIdPubkey: new PublicKey('AVs9TA4nWDzfPJE9gGVNJMVhcQy3V9PGazuz33BfG2RA'),
+    ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
+    ammOpenOrdersPubkey: new PublicKey('6Su6Ea97dBxecd5W92KcVvv6SzCurE2BXGgFe9LNGMpE'),
+    ammTargetOrderPubkey: new PublicKey(
+      '5hATcCfvhVwAjNExvrg8rRkXmYyksHhVajWLa46iRsmE'
+    ),
+
+    poolCoinTokenPubkey: new PublicKey('Em6rHi68trYgBFyJ5261A2nhwuQWfLcirgzZZYoRcrkX'),
+    poolPcTokenPubkey: new PublicKey('3mEFzHsJyu2Cpjrz6zPmTzP7uoLFj9SbbecGVzzkL1mJ'),
+    poolWithdrawQueue: new PublicKey('FSHqX232PHE4ev9Dpdzrg9h2Tn1byChnX4tuoPUyjjdV'), 
+    poolTempLpTokenAccount: new PublicKey(
+      '87CCkBfthmyqwPuCDwFmyqKWJfjYqPFhm5btkNyoALYZ'
+    ),
+
+    serumProgramId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+    serumMarketPubkey: new PublicKey('C6tp2RVZnxBPFbnAsfTjis8BN9tycESAT4SgDQgbbrsA'),
+    serumCoinVaultAccount: new PublicKey(
+      '6U6U59zmFWrPSzm9sLX7kVkaK78Kz7XJYkrhP1DjF3uF'
+    ),
+    serumPcVaultAccount: new PublicKey('4YEx21yeUAZxUL9Fs7YU9Gm3u45GWoPFs8vcJiHga2eQ'),
+    serumVaultSigner: new PublicKey('7SdieGqwPJo5rMmSQM9JmntSEMoimM4dQn7NkGbNFcrd'),
+
+   rewardTokensToClaim: [TokenID.RAY],
+
+    rewardAccounts: [
+      {
+        rewardToken: TokenID.RAY,
+        userRewardAlphaAccountPubkey: new PublicKey('B7ewVyAG7YMDemDGKQNBxyGAuoN94w4J5K8NZa72A4BM'),
+        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        rewardVault: new PublicKey('6zA5RAQYgazm4dniS8AigjGFtRi4xneqjL7ehrSqCmhr'), // ray
+      },
+    ],
+
+    stakeKeys: {
+      poolIdPubkey: new PublicKey('HUDr9BDaAGqi37xbQHzxCyXvfMCKPTPNF8g9c9bPu1Fu'),
+      poolAuthorityPubkey: new PublicKey('9VbmvaaPeNAke2MAL3h2Fw82VubH1tBCzwBzaWybGKiG'),
+
+      poolLPVault: new PublicKey('A4xQv2BQPB1WxsjiCC7tcMH7zUq255uCBkevFj8qSCyJ'),
+    },
+    stakeProgram: SWAP_METAS[SWAP_RAYDIUM].stakeProgramPubkey,
+  }),
+  [TokenID.SRM_USDC_RAYDIUM]: new RaydiumLpSwapInfo({
+    lpMintPubkey: new PublicKey(MINTS[TokenID.SRM_USDC_RAYDIUM]),
+
+    ammIdPubkey: new PublicKey('8tzS7SkUZyHPQY7gLqsMCXZ5EDCgjESUHcB17tiR1h3Z'),
+    ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
+    ammOpenOrdersPubkey: new PublicKey('GJwrRrNeeQKY2eGzuXGc3KBrBftYbidCYhmA6AZj2Zur'),
+    ammTargetOrderPubkey: new PublicKey(
+      '26LLpo8rscCpMxyAnJsqhqESPnzjMGiFdmXA4eF2Jrk5'
+    ),
+
+    poolCoinTokenPubkey: new PublicKey('zuLDJ5SEe76L3bpFp2Sm9qTTe5vpJL3gdQFT5At5xXG'),
+    poolPcTokenPubkey: new PublicKey('4usvfgPDwXBX2ySX11ubTvJ3pvJHbGEW2ytpDGCSv5cw'),
+    poolWithdrawQueue: new PublicKey('7c1VbXTB7Xqx5eQQeUxAu5o6GHPq3P1ByhDsnRRUWYxB'),
+    poolTempLpTokenAccount: new PublicKey(
+      '2sozAi6zXDUCCkpgG3usphzeCDm4e2jTFngbm5atSdC9'
+    ),
+
+    serumProgramId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+    serumMarketPubkey: new PublicKey('ByRys5tuUWDgL73G8JBAEfkdFf8JWBzPBDHsBVQ5vbQA'),
+    serumCoinVaultAccount: new PublicKey(
+      'Ecfy8et9Mft9Dkavnuh4mzHMa2KWYUbBTA5oDZNoWu84'
+    ),
+    serumPcVaultAccount: new PublicKey('hUgoKy5wjeFbZrXDW4ecr42T4F5Z1Tos31g68s5EHbP'),
+    serumVaultSigner: new PublicKey('GVV4ZT9pccwy9d17STafFDuiSqFbXuRTdvKQ1zJX6ttX'),
+
+    rewardTokensToClaim: [TokenID.SRM],
+
+    rewardAccounts: [
+      {
+        rewardToken: TokenID.RAY,
+        userRewardAlphaAccountPubkey: new PublicKey('4jnfVscrBTf77bjkR2JSHQT6q7N7BWFyufG6YdZCR8re'),
+        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        rewardVault: new PublicKey('9gs6XnKs3RMMSSQAZm3VCbRpoNmPMrGaQQGMmRKjPeSU'), // ray
+      }, {
+        rewardToken: TokenID.SRM,
+        userRewardAlphaAccountPubkey: new PublicKey('6E4seHTUoufVwALGE8XBYEMh5n7t4irwYXD6jtqgqzeM'),
+        userRewardPublicAccountPubkey: new PublicKey('So11111111111111111111111111111111111111112'),
+        rewardVault: new PublicKey('BsuQ3XCCapopam8byEzHzazyxcRn5dCT3UX9kUzozhw'), // srm
+      }
+    ],
+
+    stakeKeys: {
+      poolIdPubkey: new PublicKey('27bysJaX5eu5Urb5kftR66otiVc6DKK7TnifKwnpNzYu'),
+      poolAuthorityPubkey: new PublicKey('HAWwtFc4MFNSXFyQbUZd2GefSwZLntCiumt1D6XM8jfk'),
+
+      poolLPVault: new PublicKey('HVEm5BG4jMHtwgrUtuiC9K17bjp9CjFpgqmzVABmzLxr'),
+    },
   }),
 }
 
