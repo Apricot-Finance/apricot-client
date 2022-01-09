@@ -8,6 +8,7 @@ import { OpenOrders } from '@project-serum/serum';
 import { Dex } from '..';
 import axios from 'axios';
 import * as rax from 'retry-axios';
+import { AMM_INFO_LAYOUT_V4 } from './raydium';
 rax.attach();
 
 type RaydiumEntry = {
@@ -36,13 +37,7 @@ export class PriceInfo {
       invariant(tokId in this.config.poolConfigs);
       const poolConfig = this.config.poolConfigs[tokId]!;
       invariant(poolConfig.isLp(), "volatile/stable tokens should be priced through switchboard");
-      // read directly from raydium endpoint if it's raydium LP
-      if (poolConfig.lpDex === Dex.Raydium) {
-        return this.getRaydiumLpPrice(poolConfig, connection);
-      }
-      else {
-        return this.computeLpPrice(tokId, poolConfig, connection);
-      }
+      return this.computeLpPrice(tokId, poolConfig, connection);
     }
   }
 
@@ -185,13 +180,19 @@ export class PriceInfo {
   async getRaydiumAdditionalBalance(lpTokId: TokenID, connection: Connection): Promise<[number, number]> {
     const raydiumPoolMeta = RAYDIUM_LP_METAS[lpTokId]!;
     invariant(raydiumPoolMeta);
-    const response = (await connection.getAccountInfo(raydiumPoolMeta.ammOpenOrdersPubkey))!;
+    const response = await connection.getAccountInfo(raydiumPoolMeta.ammOpenOrdersPubkey);
     invariant(response, `failed to fetch ammOpenOrders for ${lpTokId}`);
     const responseDataBuffer = Buffer.from(response.data);
     const LAYOUT = OpenOrders.getLayout(raydiumPoolMeta.serumProgramId);
     const parsedOpenOrders = LAYOUT.decode(responseDataBuffer);
     const { baseTokenTotal, quoteTokenTotal } = parsedOpenOrders;
-    return [baseTokenTotal, quoteTokenTotal];
+
+    const ammIdResponse = await connection.getAccountInfo(raydiumPoolMeta.ammIdPubkey);
+    invariant(ammIdResponse, `failed to fetch ammId account for ${lpTokId}`);
+    const ammIdDataBuffer = Buffer.from(ammIdResponse.data);
+    const { needTakePnlCoin, needTakePnlPc } = AMM_INFO_LAYOUT_V4.decode(ammIdDataBuffer);
+
+    return [baseTokenTotal - needTakePnlCoin, quoteTokenTotal - needTakePnlPc];
   }
 
   async fetchRaydiumPrice(tokenId: TokenID, timeout = 3000, retries = 3): Promise<number> {
