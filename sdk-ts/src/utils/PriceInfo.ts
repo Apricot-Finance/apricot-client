@@ -1,4 +1,5 @@
 import { Connection } from '@solana/web3.js';
+import { AccountLayout, MintLayout, u64 } from '@solana/spl-token';
 import * as switchboard from '@switchboard-xyz/switchboard-api';
 import invariant from 'tiny-invariant';
 import { DECIMAL_MULT, LP_SWAP_METAS, RAYDIUM_LP_METAS } from '../constants';
@@ -8,6 +9,7 @@ import { OpenOrders } from '@project-serum/serum';
 import { Dex } from '..';
 import axios from 'axios';
 import * as rax from 'retry-axios';
+import { AMM_INFO_LAYOUT_V4 } from './Layouts';
 rax.attach();
 
 type RaydiumEntry = {
@@ -18,6 +20,7 @@ type RaydiumEntry = {
   token_amount_lp: number,
 };
 
+const bufferToHexStr = (buffer: Buffer) => u64.fromBuffer(buffer).toString();
 export class PriceInfo {
   cachedRaydiumContent: RaydiumEntry[] | null;
   raydiumCacheTime: number;
@@ -28,7 +31,7 @@ export class PriceInfo {
     this.raydiumCacheTime = 0;
   }
 
-  async fetchPrice(tokId: TokenID, connection: Connection): Promise<number> {
+  async fetchPrice(tokId: TokenID, connection: Connection, isForcePriceByChain = false): Promise<number> {
     if (tokId in this.config.switchboardPriceKeys) {
       return this.fetchViaSwitchboard(tokId, connection);
     }
@@ -37,6 +40,9 @@ export class PriceInfo {
       const poolConfig = this.config.poolConfigs[tokId]!;
       invariant(poolConfig.isLp(), "volatile/stable tokens should be priced through switchboard");
       // read directly from raydium endpoint if it's raydium LP
+
+      if (isForcePriceByChain) return await this.computeLpPriceTest(tokId, poolConfig, connection);
+
       if (poolConfig.lpDex === Dex.Raydium) {
         return this.getRaydiumLpPrice(poolConfig, connection);
       }
@@ -104,6 +110,76 @@ export class PriceInfo {
     //console.log(`Raydium reported price: ${entry.lp_price}`);
     //console.log(`Our computed price: ${price}`)
     return price;
+  }
+
+  async computeLpPriceTest(lpTokId: TokenID, poolConfig: PoolConfig, connection: Connection): Promise<number> {
+    invariant(poolConfig.isLp());
+    invariant(poolConfig.tokenId === lpTokId);
+    const lpMint = poolConfig.mint;
+    const [leftTokId, rightTokId] = poolConfig.lpLeftRightTokenId!;
+    invariant(lpMint);
+    invariant(leftTokId);
+    invariant(rightTokId);
+    invariant(lpTokId in LP_SWAP_METAS);
+    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]?.getLRVaults()!;
+
+    const accountKeys = [leftVault, rightVault, lpMint];
+    if (poolConfig.lpDex === Dex.Raydium) {
+      const raydiumPoolMeta = RAYDIUM_LP_METAS[lpTokId]!;
+      invariant(raydiumPoolMeta);
+      accountKeys.push(raydiumPoolMeta.ammOpenOrdersPubkey, raydiumPoolMeta.ammIdPubkey);
+    }
+
+    let leftAmount = new Decimal(0);
+    let rightAmount = new Decimal(0);
+    let lpAmount = new Decimal(0);
+
+    // console.log(`keys: `, accountKeys.map(k => k.toBase58()));
+    console.log(`Is calculating price via getMultipleAccountsInfo ...`);
+    const infos = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
+    infos.forEach((info, i) => {
+      invariant(info, `Fetch multiple account info failed at ${i}`);
+      if (i <= 1) {
+        invariant(info.data.length === AccountLayout.span, 'Invalid token account info data length');
+        const account = AccountLayout.decode(info.data);
+        if (i === 0) leftAmount = leftAmount.plus(bufferToHexStr(account.amount));
+        if (i === 1) rightAmount = rightAmount.plus(bufferToHexStr(account.amount));
+      } else if (i === 2) {
+        invariant(info.data.length === MintLayout.span, 'Invalid mint account info data length');
+        const account = MintLayout.decode(info.data);
+        lpAmount = lpAmount.plus(bufferToHexStr(account.supply));
+      } else if (poolConfig.lpDex === Dex.Raydium) {
+        if (i === 3) {
+          const raydiumPoolMeta = RAYDIUM_LP_METAS[lpTokId];
+          invariant(raydiumPoolMeta);
+          const LAYOUT = OpenOrders.getLayout(raydiumPoolMeta.serumProgramId);
+          invariant(info.data.length === LAYOUT.span, 'Invalid raydium open orders account info data length');
+          const parsedOpenOrders = LAYOUT.decode(info.data);
+          const { baseTokenTotal, quoteTokenTotal } = parsedOpenOrders;
+          leftAmount = leftAmount.plus(baseTokenTotal.toString()); // BN
+          rightAmount = rightAmount.plus(quoteTokenTotal.toString()); // BN
+        } else if (i === 4) {
+          invariant(info.data.length === AMM_INFO_LAYOUT_V4.span, 'invalid raydium amm ID account data length');
+          const { needTakePnlCoin, needTakePnlPc } = AMM_INFO_LAYOUT_V4.decode(info.data);
+          leftAmount = leftAmount.minus(needTakePnlCoin.toString());
+          rightAmount = rightAmount.minus(needTakePnlPc.toString());
+        } else {
+          throw new Error('Invalid multiple accounts info index');
+        }
+      } else {
+        throw new Error('Invalid multiple accounts info index');
+      }
+      // console.log(`l:r:lp`, leftAmount.toString(), rightAmount.toString(), lpAmount.toString());
+    });
+
+    const leftPrice = await this.fetchPrice(leftTokId, connection);
+    const rightPrice = await this.fetchPrice(rightTokId, connection);
+
+    const price =  leftAmount.div(DECIMAL_MULT[leftTokId]).mul(leftPrice)
+      .plus((rightAmount.div(DECIMAL_MULT[rightTokId]).mul(rightPrice)))
+      .div(lpAmount.div(DECIMAL_MULT[lpTokId]));
+
+    return price.toNumber();
   }
 
   async computeLpPrice(lpTokId: TokenID, poolConfig: PoolConfig, connection: Connection): Promise<number> {
