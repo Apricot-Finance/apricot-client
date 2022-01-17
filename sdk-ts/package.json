@@ -1,6 +1,6 @@
 {
   "name": "@apricot-lend/sdk-ts",
-  "version": "0.16.6",
+  "version": "0.16.7",
   "description": "TS SDK for Apricot on Solana",
   "repository": {
     "type": "git",
@@ -31,13 +31,11 @@
     "fix": "eslint --fix src"
   },
   "dependencies": {
-    "@project-serum/borsh": "^0.2.3",
     "@project-serum/serum": "^0.13.60",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.27.0",
     "@switchboard-xyz/switchboard-api": "^0.2.152",
     "axios": "^0.24.0",
-    "buffer-layout": "^1.2.2",
     "decimal.js": "^10.3.1",
     "retry-axios": "^2.6.0",
     "tiny-invariant": "^1.1.0"
