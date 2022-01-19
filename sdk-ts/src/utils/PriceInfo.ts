@@ -20,6 +20,8 @@ type RaydiumEntry = {
   token_amount_lp: number,
 };
 
+const checkIsValidNumber = (n: number) => invariant(typeof n === 'number' && !isNaN(n), 'Invalid number');
+
 const bufferToHexStr = (buffer: Buffer) => u64.fromBuffer(buffer).toString();
 export class PriceInfo {
   cachedRaydiumContent: RaydiumEntry[] | null;
@@ -41,7 +43,7 @@ export class PriceInfo {
       invariant(poolConfig.isLp(), "volatile/stable tokens should be priced through switchboard");
       // read directly from raydium endpoint if it's raydium LP
 
-      if (isForcePriceByChain) return await this.computeLpPriceTest(tokId, poolConfig, connection);
+      if (isForcePriceByChain) return await this.computeLpPriceOnChain(tokId, poolConfig, connection);
 
       if (poolConfig.lpDex === Dex.Raydium) {
         return this.getRaydiumLpPrice(poolConfig, connection);
@@ -107,12 +109,11 @@ export class PriceInfo {
     const filtered = raydiumContent.filter(entry => entry.lp_mint === mintStr);
     const entry = filtered[0];
     const price = (leftPrice * entry.token_amount_coin + rightPrice * entry.token_amount_pc) / entry.token_amount_lp;
-    //console.log(`Raydium reported price: ${entry.lp_price}`);
-    //console.log(`Our computed price: ${price}`)
+    checkIsValidNumber(price);
     return price;
   }
 
-  async computeLpPriceTest(lpTokId: TokenID, poolConfig: PoolConfig, connection: Connection): Promise<number> {
+  async computeLpPriceOnChain(lpTokId: TokenID, poolConfig: PoolConfig, connection: Connection): Promise<number> {
     invariant(poolConfig.isLp());
     invariant(poolConfig.tokenId === lpTokId);
     const lpMint = poolConfig.mint;
@@ -179,7 +180,9 @@ export class PriceInfo {
       .plus((rightAmount.div(DECIMAL_MULT[rightTokId]).mul(rightPrice)))
       .div(lpAmount.div(DECIMAL_MULT[lpTokId]));
 
-    return price.toNumber();
+    const priNum = price.toNumber();
+    checkIsValidNumber(priNum);
+    return priNum;
   }
 
   async computeLpPrice(lpTokId: TokenID, poolConfig: PoolConfig, connection: Connection): Promise<number> {
@@ -211,7 +214,9 @@ export class PriceInfo {
     const leftPrice = await this.fetchPrice(leftTokId, connection);
     const rightPrice = await this.fetchPrice(rightTokId, connection);
 
-    return (leftPrice * leftBalance + rightPrice * rightBalance) / lpBalance;
+    const price = (leftPrice * leftBalance + rightPrice * rightBalance) / lpBalance;
+    checkIsValidNumber(price);
+    return price;
   }
 
   async fetchLRStats(lpTokId: TokenID, connection: Connection, isValue: boolean): Promise<[number, number]> {

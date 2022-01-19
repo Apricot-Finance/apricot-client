@@ -2,7 +2,7 @@ import { ALPHA_CONFIG, PUBLIC_CONFIG } from "../src/constants/configs";
 import { PriceInfo } from "../src/utils/PriceInfo";
 import { Connection } from "@solana/web3.js";
 import invariant from "tiny-invariant";
-import { delay, Dex, TokenID } from "../src";
+import { delay, TokenID } from "../src";
 
 const [,,production] = process.argv;
 invariant(['alpha', 'public'].includes(production));
@@ -62,7 +62,7 @@ async function doPrice() {
   console.log(`\nCurrent time: ${new Date().toLocaleString()}\n`);
 
   for (const poolConfig of config.getPoolConfigList()) {
-    if (poolConfig.lpDex !== Dex.Raydium) continue; // test raydium lp only
+    // if (poolConfig.lpDex !== Dex.Raydium) continue; // test raydium lp only
 
     const tokId = poolConfig.tokenId;
     console.log(`Fetching price for ${tokId}`);
