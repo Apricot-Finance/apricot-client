@@ -9,7 +9,7 @@ export const TAG_EMERGENCY = 'EMERGENCY:';
 export function LogDebug(content: string) {
   // info logging is silenced by default. Requires the APRICOT_LOG_INFO env to be set to actually log
   if (process.env[DEBUG_LOG_ENV] === 'true') {
-    console.log(TAG_INFO + content);
+    console.log(TAG_DEBUG + content);
   }
 }
 
