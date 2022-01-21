@@ -3,6 +3,7 @@ export const INFO_LOG_ENV = 'APRICOT_LOG_INFO';
 export const TAG_DEBUG = 'DEBUG:';
 export const TAG_INFO = 'INFO:';
 export const TAG_WARN = 'WARN:';
+export const TAG_ERROR = 'ERROR:';
 export const TAG_ALERT = 'ALERT:';
 export const TAG_EMERGENCY = 'EMERGENCY:';
 
@@ -25,7 +26,7 @@ export function LogWarning(content: string) {
 }
 
 export function LogError(content: string) {
-  console.log(TAG_WARN + content);
+  console.log(TAG_ERROR + content);
 }
 
 export function LogAlert(content: string) {
