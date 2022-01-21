@@ -6,12 +6,16 @@ export const TAG_EMERGENCY = 'EMERGENCY:';
 
 export function LogInfo(content: string) {
   // info logging is silenced by default. Requires the APRICOT_LOG_INFO env to be set to actually log
-  if (process.env[INFO_LOG_ENV]) {
+  if (process.env[INFO_LOG_ENV] === 'true') {
     console.log(TAG_INFO + content);
   }
 }
 
 export function LogWarning(content: string) {
+  console.log(TAG_WARN + content);
+}
+
+export function LogError(content: string) {
   console.log(TAG_WARN + content);
 }
 
