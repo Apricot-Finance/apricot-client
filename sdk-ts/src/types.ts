@@ -151,6 +151,7 @@ export class AppConfig {
     public lpToTargetSwap: { [key in TokenID]?: number | undefined },
     public lpToNeedSndStake: { [key in TokenID]?: boolean },
     public switchboardPriceKeys: { [key in TokenID]?: PublicKey; },
+    public pythPriceKeys: { [key in TokenID]?: PublicKey; },
     public interestRates: { [key in TokenID]?: InterestRate; },
     public fees: { [key in TokenID]?: number },
     public lpSwapInfo: { [key in TokenID]?: LpSwapKeyInfo },

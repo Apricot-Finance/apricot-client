@@ -1710,6 +1710,27 @@ export const SWITCHBOARD_PRICE: { [key in TokenID]? : PublicKey} = {
   [TokenID.USTv2]: new PublicKey("8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61"),
 };
 
+export const PYTH_PRICE: { [key in TokenID]? : PublicKey} = {
+  [TokenID.BTC]: new PublicKey("GVXRSBjFk6e6J3NbVPXohDJetcTjaeeuykUpbQF8UoMU"),
+  [TokenID.ETH]: new PublicKey("JBu1AL4obBcCMqKBBxhpWCNUt136ijcuMZLFvTP7iWdB"),
+  [TokenID.SOL]: new PublicKey("H6ARHf6YXhGYeQfUzQNGk6rDNnLBQKrenN712K4AQJEG"),
+  [TokenID.mSOL]: new PublicKey("E4v1BBgoso9s64TQvmyownAVJbhbEPGyzA3qn4n46qj9"),
+  [TokenID.stSOL]: new PublicKey("Bt1hEbY62aMriY1SyQqbeZbm8VmSbQVGBFzSzMuVNWzN"),
+  [TokenID.whETH]: new PublicKey("JBu1AL4obBcCMqKBBxhpWCNUt136ijcuMZLFvTP7iWdB"),
+
+  //[TokenID.APT]: new PublicKey(""),
+  [TokenID.RAY]: new PublicKey("AnLf8tVYCM816gmBjiy8n53eXKKEDydT5piYjjQDPgTB"),
+  // [TokenID.ORCA]: new PublicKey(""),
+  [TokenID.SBR]: new PublicKey("8Td9VML1nHxQK6M8VVyzsHo32D7VBk72jSpa9U861z2A"),
+  [TokenID.FTT]: new PublicKey("8JPJJkmDScpcNmBRKGZuPuG2GYAveQgP3t5gFuMymwvF"),
+  [TokenID.SRM]: new PublicKey("3NBReDRTLKMQEKiLD5tGcx4kXbTf88b7f2xLS9UuGjym"),
+
+  [TokenID.USDT]: new PublicKey("3vxLXJqLqF3JG5TCbYycbKWRBbCJQLxQmBGCkyqEEefL"),
+  [TokenID.USDC]: new PublicKey("Gnt27xtC473ZT2Mw5u8wZ68Z3gULkSTb5DuxJy7eJotD"),
+  [TokenID.UST]: new PublicKey("H8DvrfSaRfUyP1Ytse1exGf7VSinLWtmKNNaBhA4as9P"),
+  [TokenID.USTv2]: new PublicKey("H8DvrfSaRfUyP1Ytse1exGf7VSinLWtmKNNaBhA4as9P"),
+};
+
 const FIREBASE_READER_CONFIG = {
   alpha: {
     apiKey: 'AIzaSyDWBTlo8oeJGnpV0CnQEBpeloMbHgN6xY8',
@@ -1751,6 +1772,7 @@ export const ALPHA_CONFIG = new AppConfig(
   LP_TO_TARGET_SWAP,
   LP_TO_NEED_2ND_STAKE,
   SWITCHBOARD_PRICE,
+  PYTH_PRICE,
   INTEREST_RATES,
   FEES,
   LP_SWAP_METAS,
@@ -1778,6 +1800,7 @@ export const PUBLIC_CONFIG = new AppConfig(
   LP_TO_TARGET_SWAP,
   LP_TO_NEED_2ND_STAKE,
   SWITCHBOARD_PRICE,
+  PYTH_PRICE,
   INTEREST_RATES,
   FEES,
   LP_SWAP_METAS,

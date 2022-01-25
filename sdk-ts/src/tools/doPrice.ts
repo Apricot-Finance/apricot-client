@@ -19,7 +19,11 @@ async function doPrice() {
     const tokId = poolConfig.tokenId;
     console.log(`Fetching price for ${tokId}`);
     const price = await priceInfo.fetchPrice(tokId, conn);
-    console.log(`Price for ${tokId}: ${price}`);
+    console.log(`Primary Price for ${tokId}: ${price}`);
+    if (tokId in config.pythPriceKeys) {
+      const pythPrice = await priceInfo.fetchViaPyth(tokId, conn);
+      console.log(`Pyth Price for ${tokId}: ${pythPrice}`);
+    }
     if (poolConfig.isLp()) {
       const amounts = await priceInfo.fetchLRValuets(tokId, conn);
       console.log(amounts);

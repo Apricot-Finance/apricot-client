@@ -1,6 +1,6 @@
 {
   "name": "@apricot-lend/sdk-ts",
-  "version": "0.16.16",
+  "version": "0.16.17",
   "description": "TS SDK for Apricot on Solana",
   "repository": {
     "type": "git",
@@ -33,6 +33,7 @@
   "dependencies": {
     "@project-serum/borsh": "^0.2.3",
     "@project-serum/serum": "^0.13.60",
+    "@pythnetwork/client": "^2.5.1",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.31.0",
     "@switchboard-xyz/switchboard-api": "^0.2.152",

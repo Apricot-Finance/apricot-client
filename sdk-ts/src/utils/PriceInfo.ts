@@ -10,6 +10,7 @@ import { Dex } from '..';
 import axios from 'axios';
 import * as rax from 'retry-axios';
 import { AMM_INFO_LAYOUT_V4 } from './Layouts';
+import { parsePriceData } from '@pythnetwork/client';
 rax.attach();
 
 type RaydiumEntry = {
@@ -64,6 +65,16 @@ export class PriceInfo {
     }
     invariant(price);
     return price;
+  }
+
+  async fetchViaPyth(tokId: TokenID, connection: Connection): Promise<number> {
+    const key = this.config.pythPriceKeys[tokId]!;
+    invariant(key, `${tokId} not available through pyth`);
+    const accountInfo = await connection.getAccountInfo(key, 'confirmed');
+    invariant(accountInfo, `${tokId} PriceData not available through pyth`);
+    const parsedData = parsePriceData(accountInfo.data);
+    invariant(parsedData.price, `${tokId} returned invalid price from pyth`)
+    return parsedData.price;
   }
 
   async checkRaydiumCache(requestTimeout = 8000, retries = 0) {
