@@ -11,8 +11,8 @@ export const FAKE_KEY = SystemProgram.programId;
 
 export const LM_MNDE_MULTIPLIER: Decimal = new Decimal(0.195);
 export const SAFE_LIMIT: Decimal = new Decimal(0.9);
-export const FORCE_ASSIST_LIMIT: Decimal = new Decimal(0.99);
-export const LIQUIDATION_LIMIT: Decimal = new Decimal(1);
+export const FORCE_ASSIST_LIMIT: Decimal = new Decimal(1.00);
+export const LIQUIDATION_LIMIT: Decimal = new Decimal(1.01);
 
 export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.APT]: new PublicKey("APTtJyaRX5yGTsJU522N4VYWg3vCvSb65eam5GrPT5Rt"),
