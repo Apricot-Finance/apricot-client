@@ -21,7 +21,10 @@ type RaydiumEntry = {
   token_amount_lp: number,
 };
 
-const checkIsValidNumber = (n: number) => invariant(typeof n === 'number' && !isNaN(n), 'Invalid number');
+const checkIsValidNumber = (n: number) => invariant(
+  typeof n === 'number' &&
+  !(isNaN(n) || n === Infinity || n === -Infinity) &&
+  Number.isFinite(n) , 'Invalid number');
 
 const bufferToHexStr = (buffer: Buffer) => u64.fromBuffer(buffer).toString();
 export class PriceInfo {
@@ -231,24 +234,17 @@ export class PriceInfo {
   }
 
   async fetchLRStats(lpTokId: TokenID, connection: Connection, isValue: boolean): Promise<[number, number]> {
-    const poolConfig = this.config.poolConfigs[lpTokId]!;
-    invariant(poolConfig.isLp());
-    const [leftTokId, rightTokId] = poolConfig.lpLeftRightTokenId!;
-    invariant(leftTokId);
-    invariant(rightTokId);
-    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]?.getLRVaults()!;
-    let leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
-    let rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
-    if (poolConfig.lpDex === Dex.Raydium) {
-      const [additionalLeftNative, additionalRightNative] = await this.getRaydiumAdditionalBalance(lpTokId, connection);
-      const additionalLeftBalance = additionalLeftNative / DECIMAL_MULT[leftTokId];
-      const additionalRightBalance = additionalRightNative / DECIMAL_MULT[rightTokId];
-      leftBalance += additionalLeftBalance;
-      rightBalance += additionalRightBalance;
-    }
+    const [leftBalance, rightBalance] = await this.fetchLRLpAmounts(lpTokId, connection);
     if (!isValue) {
       return [leftBalance, rightBalance];
     }
+
+    const poolConfig = this.config.poolConfigs[lpTokId]!;
+    invariant(poolConfig.isLp());
+    invariant(poolConfig.tokenId === lpTokId);
+    const [leftTokId, rightTokId] = poolConfig.lpLeftRightTokenId!;
+    invariant(leftTokId);
+    invariant(rightTokId);
     const leftPrice = await this.fetchPrice(leftTokId, connection);
     const rightPrice = await this.fetchPrice(rightTokId, connection);
     return [leftBalance * leftPrice, rightBalance * rightPrice];
@@ -263,15 +259,71 @@ export class PriceInfo {
   }
 
   async fetchLRLpAmounts(lpTokId: TokenID, connection: Connection): Promise<[number, number, number]> {
-    const [leftAmt, rightAmt] = await this.fetchLRStats(lpTokId, connection, false);
     const poolConfig = this.config.poolConfigs[lpTokId]!;
     invariant(poolConfig.isLp());
+    invariant(poolConfig.tokenId === lpTokId);
     const lpMint = poolConfig.mint;
-    const lpMintData = (await connection.getParsedAccountInfo(lpMint)).value?.data as any;
-    const lpBalanceStr = lpMintData.parsed?.info.supply;
-    const decimalMult = DECIMAL_MULT[lpTokId];
-    const lpBalance = new Decimal(lpBalanceStr).div(decimalMult).toNumber();
-    return [leftAmt, rightAmt, lpBalance];
+    const [leftTokId, rightTokId] = poolConfig.lpLeftRightTokenId!;
+    invariant(lpMint);
+    invariant(leftTokId);
+    invariant(rightTokId);
+    invariant(lpTokId in LP_SWAP_METAS);
+    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]?.getLRVaults()!;
+
+    const accountKeys = [leftVault, rightVault, lpMint];
+    if (poolConfig.lpDex === Dex.Raydium) {
+      const raydiumPoolMeta = RAYDIUM_LP_METAS[lpTokId]!;
+      invariant(raydiumPoolMeta);
+      accountKeys.push(raydiumPoolMeta.ammOpenOrdersPubkey, raydiumPoolMeta.ammIdPubkey);
+    }
+
+    let leftAmount = new Decimal(0);
+    let rightAmount = new Decimal(0);
+    let lpAmount = new Decimal(0);
+
+    const infos = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
+    infos.forEach((info, i) => {
+      invariant(info, `Fetch multiple account info failed at ${i}`);
+      if (i <= 1) {
+        invariant(info.data.length === AccountLayout.span, 'Invalid token account info data length');
+        const account = AccountLayout.decode(info.data);
+        if (i === 0) leftAmount = leftAmount.plus(bufferToHexStr(account.amount));
+        if (i === 1) rightAmount = rightAmount.plus(bufferToHexStr(account.amount));
+      } else if (i === 2) {
+        invariant(info.data.length === MintLayout.span, 'Invalid mint account info data length');
+        const account = MintLayout.decode(info.data);
+        lpAmount = lpAmount.plus(bufferToHexStr(account.supply));
+      } else if (poolConfig.lpDex === Dex.Raydium) {
+        if (i === 3) {
+          const raydiumPoolMeta = RAYDIUM_LP_METAS[lpTokId];
+          invariant(raydiumPoolMeta);
+          const LAYOUT = OpenOrders.getLayout(raydiumPoolMeta.serumProgramId);
+          invariant(info.data.length === LAYOUT.span, 'Invalid raydium open orders account info data length');
+          const parsedOpenOrders = LAYOUT.decode(info.data);
+          const { baseTokenTotal, quoteTokenTotal } = parsedOpenOrders;
+          leftAmount = leftAmount.plus(baseTokenTotal.toString()); // BN
+          rightAmount = rightAmount.plus(quoteTokenTotal.toString()); // BN
+        } else if (i === 4) {
+          invariant(info.data.length === AMM_INFO_LAYOUT_V4.span, 'invalid raydium amm ID account data length');
+          const { needTakePnlCoin, needTakePnlPc } = AMM_INFO_LAYOUT_V4.decode(info.data);
+          leftAmount = leftAmount.minus(needTakePnlCoin.toString());
+          rightAmount = rightAmount.minus(needTakePnlPc.toString());
+        } else {
+          throw new Error('Invalid multiple accounts info index');
+        }
+      } else {
+        throw new Error('Invalid multiple accounts info index');
+      }
+    });
+
+    const leftAmt = leftAmount.div(DECIMAL_MULT[leftTokId]).toNumber();
+    checkIsValidNumber(leftAmt);
+    const rightAmt = rightAmount.div(DECIMAL_MULT[rightTokId]).toNumber();
+    checkIsValidNumber(rightAmt);
+    const lpAmt = lpAmount.div(DECIMAL_MULT[lpTokId]).toNumber();
+    checkIsValidNumber(lpAmt);
+
+    return [leftAmt, rightAmt, lpAmt];
   }
 
   async getRaydiumAdditionalBalance(lpTokId: TokenID, connection: Connection): Promise<[number, number]> {
