@@ -395,6 +395,12 @@ export interface ApiUserAssetInfo {
   borrowValue?: Decimal;
 }
 
+export interface ApiUserInfo {
+  userWallet: string;
+  userAssetInfo: ApiUserAssetInfo[];
+  borrowPowerInfo?: ApiBorrowPowerInfo;
+}
+
 export interface AptUserRewardInfo {
   // TODO
 }

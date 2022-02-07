@@ -5,6 +5,7 @@ import {
   ActionWrapper,
   createPortfolioLoader,
 } from "@apricot-lend/sdk-ts"
+import { Argument, Command } from 'commander';
 
 async function sampleRaw(walletAddress: string): Promise<void> {
   console.log("Sample getting raw data.");
@@ -26,16 +27,24 @@ async function sampleDefault(walletAddress: string): Promise<void> {
   await portfolioLoader.refreshPortfolio();
   console.log(await portfolioLoader.getUserInfoAddress());
   console.log(await portfolioLoader.getUserAssetInfoList());
-  console.log(await portfolioLoader.getBorrowPowerInfo());
+  console.log(await portfolioLoader.getUserInfo());
   console.log(portfolioLoader.priceCache);
 }
 
 async function main() : Promise<void> {
+  let program = new Command();
+  program
+    .addArgument(new Argument('walletAddress').argRequired())
+    .addArgument(new Argument("mode").choices(['raw', 'default']).default('default'))
+    .parse();
+
   if (process.argv.length < 4) {
     console.log("Usage: yarn sample-user {walletAddress} {mode: raw|default}");
     exit(1);
   }
-  const [_nodeStr, _scriptStr, walletAddress, mode] = process.argv;
+
+  let walletAddress = program.args[0];
+  let mode = program.args[1];
   if (mode === 'raw') {
     await sampleRaw(walletAddress);
   } else {
