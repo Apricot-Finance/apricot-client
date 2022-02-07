@@ -1,4 +1,4 @@
-import { Connection } from '@solana/web3.js';
+import { AccountInfo, Connection } from '@solana/web3.js';
 import { AccountLayout, MintLayout, u64 } from '@solana/spl-token';
 import * as switchboard from '@switchboard-xyz/switchboard-api';
 import invariant from 'tiny-invariant';
@@ -11,6 +11,7 @@ import axios from 'axios';
 import * as rax from 'retry-axios';
 import { AMM_INFO_LAYOUT_V4 } from './Layouts';
 import { parsePriceData } from '@pythnetwork/client';
+import { Buffer } from 'buffer';
 rax.attach();
 
 type RaydiumEntry = {
@@ -151,7 +152,8 @@ export class PriceInfo {
 
     // console.log(`keys: `, accountKeys.map(k => k.toBase58()));
     console.log(`Is calculating price via getMultipleAccountsInfo ...`);
-    const infos = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
+    let infosRaw = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
+    const infos = infosRaw as AccountInfo<Buffer>[];
     infos.forEach((info, i) => {
       invariant(info, `Fetch multiple account info failed at ${i}`);
       if (i <= 1) {
@@ -281,7 +283,8 @@ export class PriceInfo {
     let rightAmount = new Decimal(0);
     let lpAmount = new Decimal(0);
 
-    const infos = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
+    let infosRaw = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
+    const infos = infosRaw as AccountInfo<Buffer>[];
     infos.forEach((info, i) => {
       invariant(info, `Fetch multiple account info failed at ${i}`);
       if (i <= 1) {

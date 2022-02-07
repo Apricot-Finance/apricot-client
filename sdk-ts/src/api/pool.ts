@@ -1,5 +1,5 @@
-import { Connection } from "@solana/web3.js";
-import { TokenID, ApiAssetPool, AppConfig, PoolFlag } from "../types";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { TokenID, AssetPool, ApiAssetPool, AppConfig, PoolFlag } from "../types";
 import { MINTS, LM_MNDE_MULTIPLIER, PUBLIC_CONFIG } from "../constants";
 import { ActionWrapper } from "../utils/ActionWrapper";
 import { PriceInfo } from "../utils/PriceInfo";
@@ -59,106 +59,123 @@ export class AssetPoolLoader {
     if (assetPoolRaw === null) {
       return undefined;
     }
-    
-    const [base_pda, _] = await this.addresses.getBasePda();
-    let depositAptRewardNativeRate = currentPerPastRateToCurrentPerCurrentRate(
-      assetPoolRaw.reward_per_year_per_d,
-      assetPoolRaw.deposit_index,
-    );
-    let borrowAptRewardNativeRate = currentPerPastRateToCurrentPerCurrentRate(
-      assetPoolRaw.reward_per_year_per_b,
-      assetPoolRaw.borrow_index,
-    );
-    let tokenPrice = await this.fetchPrice(tokenId);
-    let aptPrice = await this.fetchPrice(TokenID.APT);
-    let mndePrice = this.hasMndeReward(tokenId) ? await this.fetchPrice(TokenID.MNDE) : undefined;
-    let lastPriceUpdate = new Date();
-    let mndeAptMultiplierNative = tokenRateToNativeRate(LM_MNDE_MULTIPLIER, TokenID.MNDE, TokenID.APT);
 
-    return {
-      tokenName: assetPoolRaw.coin_name,
-      mintKey: mintKey,
-      poolKey: await this.addresses.getAssetPoolKey(base_pda, mintKey.toString()),
-      allowBorrow: flagsToBool(assetPoolRaw.flags, PoolFlag.AllowBorrow),
-      isLp: flagsToBool(assetPoolRaw.flags, PoolFlag.IsLp),
-      isStable: flagsToBool(assetPoolRaw.flags, PoolFlag.IsStable),
-      depositAmount: nativeAmountToTokenAmount(tokenId, assetPoolRaw.deposit_amount),
-      depositValue: tokenPrice === undefined
-        ? undefined
-        : nativeAmountToValue(tokenId, assetPoolRaw.deposit_amount, tokenPrice),
-      borrowAmount: nativeAmountToTokenAmount(tokenId, assetPoolRaw.borrow_amount),
-      borrowValue: tokenPrice === undefined
-        ? undefined
-        : nativeAmountToValue(tokenId, assetPoolRaw.borrow_amount, tokenPrice),
-      depositRate: assetPoolRaw.deposit_rate,
-      depositAptRewardTokenRate: nativeRateToTokenRate(
+    return normalizePool(
+      tokenId,
+      mintKey,
+      assetPoolRaw,
+      this.addresses,
+      this.fetchPrice);
+  }
+}
+
+export async function normalizePool(
+  tokenId: TokenID,
+  mintKey: PublicKey,
+  assetPoolRaw: AssetPool,
+  addresses: Addresses,
+  fetchPrice: (token: TokenID) => Promise<number | undefined>
+): Promise<ApiAssetPool | undefined> {
+  const [base_pda, _] = await addresses.getBasePda();
+  let depositAptRewardNativeRate = currentPerPastRateToCurrentPerCurrentRate(
+    assetPoolRaw.reward_per_year_per_d,
+    assetPoolRaw.deposit_index,
+  );
+  let borrowAptRewardNativeRate = currentPerPastRateToCurrentPerCurrentRate(
+    assetPoolRaw.reward_per_year_per_b,
+    assetPoolRaw.borrow_index,
+  );
+  let tokenPrice = await fetchPrice(tokenId);
+  let aptPrice = await fetchPrice(TokenID.APT);
+  let mndePrice = hasMndeReward(tokenId) ? await fetchPrice(TokenID.MNDE) : undefined;
+  let lastPriceUpdate = new Date();
+  let mndeAptMultiplierNative = tokenRateToNativeRate(LM_MNDE_MULTIPLIER, TokenID.MNDE, TokenID.APT);
+
+  return {
+    tokenName: assetPoolRaw.coin_name,
+    mintKey: mintKey,
+    poolKey: await addresses.getAssetPoolKey(base_pda, mintKey.toString()),
+    allowBorrow: flagsToBool(assetPoolRaw.flags, PoolFlag.AllowBorrow),
+    isLp: flagsToBool(assetPoolRaw.flags, PoolFlag.IsLp),
+    isStable: flagsToBool(assetPoolRaw.flags, PoolFlag.IsStable),
+    depositAmount: nativeAmountToTokenAmount(tokenId, assetPoolRaw.deposit_amount),
+    depositValue: tokenPrice === undefined
+      ? undefined
+      : nativeAmountToValue(tokenId, assetPoolRaw.deposit_amount, tokenPrice),
+    borrowAmount: nativeAmountToTokenAmount(tokenId, assetPoolRaw.borrow_amount),
+    borrowValue: tokenPrice === undefined
+      ? undefined
+      : nativeAmountToValue(tokenId, assetPoolRaw.borrow_amount, tokenPrice),
+    depositRate: assetPoolRaw.deposit_rate,
+    depositAptRewardTokenRate: nativeRateToTokenRate(
+      depositAptRewardNativeRate,
+      TokenID.APT,
+      tokenId,
+    ),
+    depositAptRewardRate: aptPrice === undefined || tokenPrice === undefined
+      ? undefined
+      : nativeRateToValueRate(
         depositAptRewardNativeRate,
         TokenID.APT,
         tokenId,
+        aptPrice,
+        tokenPrice,
       ),
-      depositAptRewardRate: aptPrice === undefined || tokenPrice === undefined
-        ? undefined
-        : nativeRateToValueRate(
-          depositAptRewardNativeRate,
-          TokenID.APT,
-          tokenId,
-          aptPrice,
-          tokenPrice,
-        ),
-      depositMndeRewardTokenRate: this.hasMndeReward(tokenId)
-        ? nativeRateToTokenRate(
-          depositAptRewardNativeRate.mul(mndeAptMultiplierNative),
-          TokenID.MNDE,
-          tokenId,
-        )
-        : undefined,
-      depositMndeRewardRate: !this.hasMndeReward(tokenId) || mndePrice === undefined || tokenPrice === undefined
-        ? undefined
-        : nativeRateToValueRate(
-          depositAptRewardNativeRate.mul(mndeAptMultiplierNative),
-          TokenID.MNDE,
-          tokenId,
-          mndePrice,
-          tokenPrice,
-        ),
-      borrowRate: assetPoolRaw.borrow_rate,
-      borrowAptRewardTokenRate: nativeRateToTokenRate(
+    depositMndeRewardTokenRate: hasMndeReward(tokenId)
+      ? nativeRateToTokenRate(
+        depositAptRewardNativeRate.mul(mndeAptMultiplierNative),
+        TokenID.MNDE,
+        tokenId,
+      )
+      : undefined,
+    depositMndeRewardRate:
+      !hasMndeReward(tokenId) || mndePrice === undefined || tokenPrice === undefined
+      ? undefined
+      : nativeRateToValueRate(
+        depositAptRewardNativeRate.mul(mndeAptMultiplierNative),
+        TokenID.MNDE,
+        tokenId,
+        mndePrice,
+        tokenPrice,
+      ),
+    borrowRate: assetPoolRaw.borrow_rate,
+    borrowAptRewardTokenRate: nativeRateToTokenRate(
+      borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
+      TokenID.APT,
+      tokenId,
+    ),
+    borrowAptRewardRate: aptPrice === undefined || tokenPrice === undefined
+      ? undefined
+      : nativeRateToValueRate(
         borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
         TokenID.APT,
         tokenId,
+        aptPrice,
+        tokenPrice,
       ),
-      borrowAptRewardRate: aptPrice === undefined || tokenPrice === undefined
-        ? undefined
-        : nativeRateToValueRate(
-          borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
-          TokenID.APT,
-          tokenId,
-          aptPrice,
-          tokenPrice,
-        ),
-      borrowMndeRewardTokenRate: this.hasMndeReward(tokenId)
-        ? nativeRateToTokenRate(
-          borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
-          TokenID.MNDE,
-          tokenId,
-        )
-        : undefined,
-      borrowMndeRewardRate: !this.hasMndeReward(tokenId) || mndePrice === undefined || tokenPrice === undefined
-        ? undefined
-        : nativeRateToValueRate(
-          borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
-          TokenID.MNDE,
-          tokenId,
-          mndePrice,
-          tokenPrice,
-        ),
-      farmYieldRate: assetPoolRaw.farm_yield,
-      lastPoolUpdate: epochToDate(assetPoolRaw.last_update_time),
-      lastPriceUpdate: lastPriceUpdate
-    };
-  }
+    borrowMndeRewardTokenRate: hasMndeReward(tokenId)
+      ? nativeRateToTokenRate(
+        borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
+        TokenID.MNDE,
+        tokenId,
+      )
+      : undefined,
+    borrowMndeRewardRate:
+      !hasMndeReward(tokenId) || mndePrice === undefined || tokenPrice === undefined
+      ? undefined
+      : nativeRateToValueRate(
+        borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
+        TokenID.MNDE,
+        tokenId,
+        mndePrice,
+        tokenPrice,
+      ),
+    farmYieldRate: assetPoolRaw.farm_yield,
+    lastPoolUpdate: epochToDate(assetPoolRaw.last_update_time),
+    lastPriceUpdate: lastPriceUpdate
+  };
+}
 
-  private hasMndeReward(tokenId: TokenID) {
-    return tokenId === TokenID.mSOL;
-  }
+export function hasMndeReward(tokenId: TokenID) {
+  return tokenId === TokenID.mSOL;
 }

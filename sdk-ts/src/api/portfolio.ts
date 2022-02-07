@@ -7,6 +7,7 @@ import {
   UserAssetInfo,
   ApiUserAssetInfo,
   ApiBorrowPowerInfo,
+  ApiUserInfo,
 } from "../types";
 import {
   MINTS,
@@ -47,14 +48,6 @@ export function createPortfolioLoader(
   return portfolioLoader;
 }
 
-export function fastForwardPositionAmount(
-  lastAmount: Decimal,
-  lastIndex: Decimal,
-  currentIndex: Decimal
-) {
-  return fastForwardAmount(rewindAmount(lastAmount, lastIndex), currentIndex);
-}
-
 export class PortfolioLoader {
   userInfoCache: UserInfo | undefined;
   assetPoolsCache: {[key in TokenID]?: AssetPool};
@@ -88,111 +81,158 @@ export class PortfolioLoader {
     };
   }
 
+  async getUserInfo(): Promise<ApiUserInfo | undefined> {
+    return {
+      userWallet: this.userWalletKey.toString(),
+      userAssetInfo: await this.getUserAssetInfoList(),
+      borrowPowerInfo: await this.getBorrowPowerInfo()
+    }
+  }
+
   async getUserInfoAddress(): Promise<PublicKey> {
     return await this.addresses.getUserInfoKey(this.userWalletKey);
   }
 
-  getBorrowPowerInfo(): ApiBorrowPowerInfo | undefined {
-    let userAssetInfoList = this.getUserAssetInfoList();
-    if (userAssetInfoList === undefined) {
-      return undefined;
-    }
-
-    if (userAssetInfoList.some(uai => uai.depositValue == undefined || uai.borrowValue === undefined)) {
-      return undefined;
-    }
-
-    let totalDeposit = userAssetInfoList.reduce(
-      (acc, uai) => acc.add(uai.depositValue!),
-      Decimal.abs(0)
-    );
-    let totalCollateral = userAssetInfoList.reduce(
-      (acc, uai) => acc.add(uai.ltv.mul(uai.depositValue!)),
-      Decimal.abs(0)
-    );
-    let totalBorrow = userAssetInfoList.reduce(
-      (acc, uai) => acc.add(uai.borrowValue!),
-      Decimal.abs(0)
-    );
-    return {
-      totalDeposit: totalDeposit,
-      totalCollateral: totalCollateral,
-      maxBorrowAllowed: SAFE_LIMIT.mul(totalCollateral),
-      totalBorrow: totalBorrow,
-      collateralRatio: totalCollateral.isZero() ? new Decimal(Infinity): totalBorrow.div(totalCollateral),
-      safeLimit: SAFE_LIMIT,
-      forceAssistLimit: FORCE_ASSIST_LIMIT,
-      liquidationLimit: LIQUIDATION_LIMIT,
-      assistTriggerLimit: this.userInfoCache!.assist.assist_mode === 0
-        ? undefined
-        : new Decimal(this.userInfoCache!.assist.self_deleverage_factor),
-      assistTargetLimit:  this.userInfoCache!.assist.assist_mode === 0
-      ? undefined
-      : new Decimal(this.userInfoCache!.assist.post_deleverage_factor),
-    };
-  }
-
-  getUserAssetInfo(tokenId: TokenID): ApiUserAssetInfo | undefined {
-    let userAssetInfoRaw = this.userInfoCache
-      ?.user_asset_info
-      .filter(uai => uai.pool_id == this.config.tokenIdToPoolId[tokenId])[0];
-    
-    let assetPoolRaw = this.assetPoolsCache[tokenId];
-    if (userAssetInfoRaw === undefined || assetPoolRaw === undefined) {
-      return undefined;
-    }
-
-    let price = this.priceCache[tokenId];
-    return this.fastForwardUserAssetInfo(userAssetInfoRaw, assetPoolRaw, price);
-  }
-
-  getUserAssetInfoList(): ApiUserAssetInfo[] | undefined {
+  async getBorrowPowerInfo(): Promise<ApiBorrowPowerInfo | undefined> {
     if (this.userInfoCache === undefined) {
       return undefined;
     }
 
-    let userAssetInfoList = [];
-    for (const userAssetInfoRaw of this.userInfoCache?.user_asset_info) {
-      let tokenId = this.config.getTokenIdByPoolId(userAssetInfoRaw.pool_id);
-
-      let apiUserAssetInfo = this.getUserAssetInfo(tokenId);
-      if (apiUserAssetInfo === undefined) {
-        continue;
-      }
-      userAssetInfoList.push(apiUserAssetInfo);
-    }
-
-    return userAssetInfoList;
+    return getBorrowPowerInfo(
+      this.userInfoCache,
+      this.config,
+      (tokenId) => Promise.resolve(this.assetPoolsCache[tokenId]),
+      (tokenId) => Promise.resolve(this.priceCache[tokenId]));
   }
 
-  private fastForwardUserAssetInfo(
-    userAssetInfoRaw: UserAssetInfo,
-    assetPoolRaw: AssetPool,
-    price: number | undefined,
-  ): ApiUserAssetInfo {
-    let tokenId = this.config.getTokenIdByPoolId(userAssetInfoRaw.pool_id);
-    let currentDepositAmount = fastForwardPositionAmount(
-      userAssetInfoRaw.deposit_amount,
-      userAssetInfoRaw.deposit_index,
-      assetPoolRaw.deposit_index,
-    );
-    let currentBorrowAmount = fastForwardPositionAmount(
-      userAssetInfoRaw.borrow_amount,
-      userAssetInfoRaw.borrow_index,
-      assetPoolRaw.borrow_index,
-    );
-    return {
-      tokenId: tokenId,
-      useAsCollateral: userAssetInfoRaw.use_as_collateral === 1,
-      ltv: assetPoolRaw.ltv,
-      depositAmount: nativeAmountToTokenAmount(tokenId, currentDepositAmount),
-      depositValue: price === undefined
-        ? undefined
-        : nativeAmountToValue(tokenId, currentDepositAmount, price),
-      borrowAmount: nativeAmountToTokenAmount(tokenId,currentBorrowAmount),
-      borrowValue: price === undefined
-        ? undefined
-        : nativeAmountToValue(tokenId, currentBorrowAmount, price),
+  async getUserAssetInfoList(): Promise<ApiUserAssetInfo[]> {
+    if (this.userInfoCache === undefined) {
+      return [];
     }
+
+    return getUserAssetInfoList(
+      this.userInfoCache,
+      this.config,
+      (tokenId) => Promise.resolve(this.assetPoolsCache[tokenId]),
+      (tokenId) => Promise.resolve(this.priceCache[tokenId]));
   }
+}
+
+export async function getBorrowPowerInfo(
+  userInfoRaw: UserInfo,
+  appConfig: AppConfig,
+  fetchPool: (tokenId: TokenID) => Promise<AssetPool | undefined>,
+  fetchPrice: (tokenId: TokenID) => Promise<number | undefined>,
+): Promise<ApiBorrowPowerInfo | undefined> {
+  let userAssetInfoList = await getUserAssetInfoList(userInfoRaw, appConfig, fetchPool, fetchPrice);
+  if (userAssetInfoList === undefined) {
+    return undefined;
+  }
+
+  if (userAssetInfoList.some(uai => uai.depositValue == undefined || uai.borrowValue === undefined)) {
+    return undefined;
+  }
+
+  let totalDeposit = userAssetInfoList.reduce(
+    (acc, uai) => acc.add(uai.depositValue!),
+    Decimal.abs(0)
+  );
+  let totalCollateral = userAssetInfoList.reduce(
+    (acc, uai) => acc.add(uai.ltv.mul(uai.depositValue!)),
+    Decimal.abs(0)
+  );
+  let totalBorrow = userAssetInfoList.reduce(
+    (acc, uai) => acc.add(uai.borrowValue!),
+    Decimal.abs(0)
+  );
+  return {
+    totalDeposit: totalDeposit,
+    totalCollateral: totalCollateral,
+    maxBorrowAllowed: SAFE_LIMIT.mul(totalCollateral),
+    totalBorrow: totalBorrow,
+    collateralRatio: totalCollateral.isZero() ? new Decimal(Infinity): totalBorrow.div(totalCollateral),
+    safeLimit: SAFE_LIMIT,
+    forceAssistLimit: FORCE_ASSIST_LIMIT,
+    liquidationLimit: LIQUIDATION_LIMIT,
+    assistTriggerLimit: userInfoRaw.assist.assist_mode === 0
+      ? undefined
+      : new Decimal(userInfoRaw.assist.self_deleverage_factor),
+    assistTargetLimit: userInfoRaw.assist.assist_mode === 0
+    ? undefined
+    : new Decimal(userInfoRaw.assist.post_deleverage_factor),
+  };
+}
+
+export async function getUserAssetInfoList(
+  userInfoRaw: UserInfo,
+  appConfig: AppConfig,
+  fetchPool: (tokenId: TokenID) => Promise<AssetPool | undefined>,
+  fetchPrice: (tokenId: TokenID) => Promise<number | undefined>,
+): Promise<ApiUserAssetInfo[]> {
+  let userAssetInfoList = [];
+  for (const userAssetInfoRaw of userInfoRaw.user_asset_info) {
+    let tokenId = appConfig.getTokenIdByPoolId(userAssetInfoRaw.pool_id);
+    let assetPoolRaw = await fetchPool(tokenId);
+    let price = await fetchPrice(tokenId);
+    if (assetPoolRaw === undefined) {
+      continue;
+    };
+    let apiUserAssetInfo = getUserAssetInfo(tokenId, userAssetInfoRaw, assetPoolRaw, price);
+    if (apiUserAssetInfo === undefined) {
+      continue;
+    }
+    userAssetInfoList.push(apiUserAssetInfo);
+  }
+  return userAssetInfoList;
+}
+
+export function getUserAssetInfo(
+  tokenId: TokenID,
+  userAssetInfoRaw: UserAssetInfo,
+  assetPoolRaw: AssetPool | undefined,
+  price: number | undefined,
+): ApiUserAssetInfo | undefined {
+  if (userAssetInfoRaw === undefined || assetPoolRaw === undefined) {
+    return undefined;
+  }
+  return fastForwardUserAssetInfo(tokenId, userAssetInfoRaw, assetPoolRaw, price);
+}
+
+export function fastForwardUserAssetInfo(
+  tokenId: TokenID,
+  userAssetInfoRaw: UserAssetInfo,
+  assetPoolRaw: AssetPool,
+  price: number | undefined,
+): ApiUserAssetInfo {
+  let currentDepositAmount = fastForwardPositionAmount(
+    userAssetInfoRaw.deposit_amount,
+    userAssetInfoRaw.deposit_index,
+    assetPoolRaw.deposit_index,
+  );
+  let currentBorrowAmount = fastForwardPositionAmount(
+    userAssetInfoRaw.borrow_amount,
+    userAssetInfoRaw.borrow_index,
+    assetPoolRaw.borrow_index,
+  );
+  return {
+    tokenId: tokenId,
+    useAsCollateral: userAssetInfoRaw.use_as_collateral === 1,
+    ltv: assetPoolRaw.ltv,
+    depositAmount: nativeAmountToTokenAmount(tokenId, currentDepositAmount),
+    depositValue: price === undefined
+      ? undefined
+      : nativeAmountToValue(tokenId, currentDepositAmount, price),
+    borrowAmount: nativeAmountToTokenAmount(tokenId,currentBorrowAmount),
+    borrowValue: price === undefined
+      ? undefined
+      : nativeAmountToValue(tokenId, currentBorrowAmount, price),
+  }
+}
+
+export function fastForwardPositionAmount(
+  lastAmount: Decimal,
+  lastIndex: Decimal,
+  currentIndex: Decimal
+) {
+  return fastForwardAmount(rewindAmount(lastAmount, lastIndex), currentIndex);
 }
