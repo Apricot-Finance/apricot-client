@@ -890,7 +890,6 @@ type RaydiumLpArgs = {
   serumPcVaultAccount: PublicKey;
   serumVaultSigner: PublicKey;
 
-  rewardTokensToClaim?: TokenID[];
   rewardAccounts?: RaydiumRewardKeys[];
 
   stakeKeys: RaydiumStakeKeys | null;
@@ -916,7 +915,6 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
   serumPcVaultAccount: PublicKey;
   serumVaultSigner: PublicKey;
 
-  rewardTokensToClaim?: TokenID[];
   rewardAccounts?: RaydiumRewardKeys[];
 
   stakeKeys: RaydiumStakeKeys | null;
@@ -940,7 +938,6 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
     this.serumPcVaultAccount = args.serumPcVaultAccount;
     this.serumVaultSigner = args.serumVaultSigner;
 
-    this.rewardTokensToClaim = args.rewardTokensToClaim;
     this.rewardAccounts = args.rewardAccounts;
     this.stakeKeys = args.stakeKeys;
     this.stakeProgram = args.stakeProgram || SWAP_METAS[SWAP_RAYDIUM].stakeProgramV5Pubkey;
@@ -1024,8 +1021,10 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
   async getUserRewardAccountsToClaim (ownerKey: PublicKey) {
     const { isPublic } = isPublicOrAlpha(ownerKey);
     return this.rewardAccounts!
-      .filter(a => this.rewardTokensToClaim?.includes(a.rewardToken))
-      .map(a => isPublic ? a.userRewardPublicAccountPubkey : a.userRewardAlphaAccountPubkey);
+      .reduce((pre, cur) => {
+        pre[cur.rewardToken] = isPublic ? cur.userRewardPublicAccountPubkey : cur.userRewardAlphaAccountPubkey;
+        return pre;
+      }, {} as Record<TokenID, PublicKey>);
   }
   getLRVaults(): [PublicKey, PublicKey] {
     return [this.poolCoinTokenPubkey, this.poolPcTokenPubkey];
@@ -1335,8 +1334,6 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumPcVaultAccount: new PublicKey('8CFo8bL8mZQK8abbFyypFMwEDd8tVJjHTTojMLgQTUSZ'),
     serumVaultSigner: new PublicKey('F8Vyqk3unwxkXukZFQeYyGmFfTG3CAX4v24iyrjEYBJV'),
 
-    rewardTokensToClaim: [TokenID.SRM],
-
     rewardAccounts: [
       {
         rewardToken: TokenID.RAY,
@@ -1383,8 +1380,6 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumPcVaultAccount: new PublicKey('22jHt5WmosAykp3LPGSAKgY45p7VGh4DFWSwp21SWBVe'),
     serumVaultSigner: new PublicKey('FmhXe9uG6zun49p222xt3nG1rBAkWvzVz7dxERQ6ouGw'),
 
-   rewardTokensToClaim: [TokenID.RAY],
-
     rewardAccounts: [
       {
         rewardToken: TokenID.RAY,
@@ -1426,8 +1421,6 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     ),
     serumPcVaultAccount: new PublicKey('EJwyNJJPbHH4pboWQf1NxegoypuY48umbfkhyfPew4E'),
     serumVaultSigner: new PublicKey('CzZAjoEqA6sjqtaiZiPqDkmxG6UuZWxwRWCenbBMc8Xz'),
-
-    rewardTokensToClaim: [TokenID.SRM],
 
     rewardAccounts: [
       {
@@ -1502,8 +1495,6 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumPcVaultAccount: new PublicKey('5AXZV7XfR7Ctr6yjQ9m9dbgycKeUXWnWqHwBTZT6mqC7'),
     serumVaultSigner: new PublicKey('HzWpBN6ucpsA9wcfmhLAFYqEUmHjE9n2cGHwunG5avpL'),
 
-   rewardTokensToClaim: [TokenID.RAY],
-
     rewardAccounts: [
       {
         rewardToken: TokenID.RAY,
@@ -1545,8 +1536,6 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     ),
     serumPcVaultAccount: new PublicKey('6ZT6KwvjLnJLpFdVfiRD9ifVUo4gv4MUie7VvPTuk69v'),
     serumVaultSigner: new PublicKey('HXbRDLcX2FyqWJY95apnsTgBoRHyp7SWYXcMYod6EBrQ'),
-
-   rewardTokensToClaim: [TokenID.RAY],
 
     rewardAccounts: [
       {
@@ -1590,8 +1579,6 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumPcVaultAccount: new PublicKey('4YEx21yeUAZxUL9Fs7YU9Gm3u45GWoPFs8vcJiHga2eQ'),
     serumVaultSigner: new PublicKey('7SdieGqwPJo5rMmSQM9JmntSEMoimM4dQn7NkGbNFcrd'),
 
-   rewardTokensToClaim: [TokenID.RAY],
-
     rewardAccounts: [
       {
         rewardToken: TokenID.RAY,
@@ -1633,8 +1620,6 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     ),
     serumPcVaultAccount: new PublicKey('hUgoKy5wjeFbZrXDW4ecr42T4F5Z1Tos31g68s5EHbP'),
     serumVaultSigner: new PublicKey('GVV4ZT9pccwy9d17STafFDuiSqFbXuRTdvKQ1zJX6ttX'),
-
-    rewardTokensToClaim: [TokenID.SRM],
 
     rewardAccounts: [
       {
