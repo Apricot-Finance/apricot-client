@@ -287,7 +287,8 @@ export interface UserInfo {
   num_assets      : number;
   user_asset_info : UserAssetInfo[];
   reward          : unknown;
-  cap             : unknown;
+  last_vest_cutoff_time : Decimal;
+  last_update_time: Decimal;
   assist          : Assist;
 }
 
@@ -296,7 +297,8 @@ export interface JsonUserInfo {
   num_assets      : number;
   user_asset_info : JsonUserAssetInfo[];
   reward          : unknown;
-  cap             : unknown;
+  last_vest_cutoff_time : number;
+  last_update_time: number;
   assist          : Assist;
 }
 
