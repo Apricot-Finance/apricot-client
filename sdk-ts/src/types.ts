@@ -22,6 +22,7 @@ export enum TokenID {
   SRM = "SRM",
   stSOL = "stSOL",
   whETH = "whETH",
+  wLDO = "wLDO",
   USDT_USDC_SABER = "USDT_USDC_SABER",
   USTv2_USDC_SABER = "USTv2_USDC_SABER",
   UST_USDC_SABER = "UST_USDC_SABER",

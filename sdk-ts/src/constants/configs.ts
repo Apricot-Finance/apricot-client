@@ -30,6 +30,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.MNDE]: new PublicKey("MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey"),
   [TokenID.FTT]: new PublicKey("AGFEad2et2ZJif9jaGpdMixQqvW5i81aBdvKe7PHNfz3"),
   [TokenID.SRM]: new PublicKey("SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt"),
+  [TokenID.wLDO]: new PublicKey("HZRCwxP2Vq9PCpPXooayhJ2bxTpo5xfpQrwB1svh332p"),
 
   [TokenID.USDT]: new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
   [TokenID.USDC]: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
@@ -76,6 +77,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.MNDE] : 1e9,
   [TokenID.FTT]: 1e6,
   [TokenID.SRM]: 1e6,
+  [TokenID.wLDO]: 1e8,
 
   [TokenID.USDT]: 1e6,
   [TokenID.USDC]: 1e6,
@@ -286,6 +288,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.MNDE] : TokenCategory.Volatile,
   [TokenID.FTT] : TokenCategory.Volatile,
   [TokenID.SRM] : TokenCategory.Volatile,
+  [TokenID.wLDO] : TokenCategory.Volatile,
 
   [TokenID.USDT]: TokenCategory.Stable,
   [TokenID.USDC]: TokenCategory.Stable,
