@@ -210,34 +210,44 @@ export class AccountParser {
     }
 
     // reward
+
     const reward_vesting: Decimal[] = [];
     const reward_base = uai_base + uai_size * 16;
-    for(let i = 0; i < 7; i++) {
+    for (let i = 0; i < 4; i++) {
       const r_offset = reward_base + i * 8;
       reward_vesting.push(AccountParser.parseFloat64(data.buffer, r_offset));
     }
     const reward = {
       vesting: reward_vesting,
+      prev_week_apt: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 4),
       vesting_apt: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 7),
       available_apt: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 8),
       available_mnde: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 9),
     };
 
     // pad
-    const pad_offset = reward_base + 8 * 10;
+    const pad_base = reward_base + 8 * 10;
 
-    // cap
-    const cap_offset = pad_offset + 32;
-    const cap =AccountParser.parseBigInt128(data.buffer, cap_offset);
+    // last_vest_cutoff_time
+    const last_vest_cutoff_base = pad_base + 32;
+    const last_vest_cutoff_time = AccountParser.parseBigUint64(
+      data.buffer,
+      last_vest_cutoff_base
+    );
+
+    // last_update_time
+    const last_update_base = last_vest_cutoff_base + 8;
+    const last_update_time = AccountParser.parseBigUint64(data.buffer, last_update_base);
 
     // assist
-    const assist_base = cap_offset + 16;
+    const assist_base = last_update_base + 8;
     const assist = AccountParser.parseAssist(data, assist_base);
     return {
       page_id         : page_id,
       num_assets      : num_assets,
       reward          : reward,
-      cap             : cap,
+      last_vest_cutoff_time: last_vest_cutoff_time,
+      last_update_time: last_update_time,
       user_asset_info : user_asset_info,
       assist          : assist,
     };
