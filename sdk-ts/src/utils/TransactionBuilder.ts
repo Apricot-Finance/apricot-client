@@ -644,9 +644,11 @@ export class TransactionBuilder {
       data: Buffer.from(data),
     });
 
-    const tx = new Transaction()
-      .add(await this.buildLpOpCheckIx(
+    const tx = new Transaction();
+    if (targetSwap !== SWAP_RAYDIUM) {
+      tx.add(await this.buildLpOpCheckIx(
         walletKey, leftMintStr, minLeftAmount, rightMintStr, min_rightAmount, lpMintStr, lpAmount, targetSwap, false, is_signed));
+    }
 
     if(unstakeKeys.length > 0) {
       const unstake_ix = await this.buildLpUnstakeIx(
@@ -659,8 +661,11 @@ export class TransactionBuilder {
     }
 
     tx.add(inst);
+    if (targetSwap !== SWAP_RAYDIUM) {
+      tx.add(await this.buildLpOpEndcheckIx(walletKey));
+    }
 
-    return tx.add(await this.buildLpOpEndcheckIx(walletKey));
+    return tx;
   }
 
   async buildLpStakeIx(

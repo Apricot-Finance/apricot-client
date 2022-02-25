@@ -897,6 +897,10 @@ type RaydiumLpArgs = {
 
   stakeKeys: RaydiumStakeKeys | null;
   stakeProgram?: PublicKey;
+
+  serumEventQueueAccount?: PublicKey;
+  serumBidsAccount?: PublicKey;
+  serumAsksAccount?: PublicKey;
 };
 
 export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
@@ -922,6 +926,10 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
 
   stakeKeys: RaydiumStakeKeys | null;
   stakeProgram: PublicKey;
+
+  serumEventQueueAccount?: PublicKey;
+  serumBidsAccount?: PublicKey;
+  serumAsksAccount?: PublicKey;
   constructor(args: RaydiumLpArgs) {
     this.lpMintPubkey = args.lpMintPubkey;
 
@@ -944,6 +952,10 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
     this.rewardAccounts = args.rewardAccounts;
     this.stakeKeys = args.stakeKeys;
     this.stakeProgram = args.stakeProgram || SWAP_METAS[SWAP_RAYDIUM].stakeProgramV5Pubkey;
+
+    this.serumEventQueueAccount = args.serumEventQueueAccount;
+    this.serumBidsAccount = args.serumBidsAccount;
+    this.serumAsksAccount = args.serumAsksAccount;
   }
   async getLpDepositKeys (_ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_RAYDIUM];
@@ -965,7 +977,7 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
       { pubkey: smeta.depositProgramPubkey,     isSigner: false, isWritable: false },
       { pubkey: this.ammIdPubkey,               isSigner: false, isWritable: true },
       { pubkey: this.ammAuthPubkey,             isSigner: false, isWritable: false },
-      { pubkey: this.ammOpenOrdersPubkey,       isSigner: false, isWritable: false },
+      { pubkey: this.ammOpenOrdersPubkey,       isSigner: false, isWritable: true },
       { pubkey: this.ammTargetOrderPubkey,      isSigner: false, isWritable: true },
       { pubkey: this.lpMintPubkey,              isSigner: false, isWritable: true },
       { pubkey: this.poolCoinTokenPubkey,       isSigner: false, isWritable: true },
@@ -978,6 +990,11 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
       { pubkey: this.serumCoinVaultAccount,     isSigner: false, isWritable: true },
       { pubkey: this.serumPcVaultAccount,       isSigner: false, isWritable: true },
       { pubkey: this.serumVaultSigner,          isSigner: false, isWritable: false },
+      ... (this.serumEventQueueAccount ? [
+        { pubkey: this.serumEventQueueAccount!,  isSigner: false, isWritable: true },
+        { pubkey: this.serumBidsAccount!,        isSigner: false, isWritable: true },
+        { pubkey: this.serumAsksAccount!,        isSigner: false, isWritable: true },
+      ] : []),
     ];
   }
   async getLpStakeKeys (ownerKey: PublicKey) {
@@ -1337,6 +1354,10 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumPcVaultAccount: new PublicKey('8CFo8bL8mZQK8abbFyypFMwEDd8tVJjHTTojMLgQTUSZ'),
     serumVaultSigner: new PublicKey('F8Vyqk3unwxkXukZFQeYyGmFfTG3CAX4v24iyrjEYBJV'),
 
+    serumEventQueueAccount: new PublicKey('5KKsLVU6TcbVDK4BS6K1DGDxnh4Q9xjYJ8XaDCG5t8ht'),
+    serumBidsAccount: new PublicKey('14ivtgssEBoBjuZJtSAPKYgpUK7DmnSwuPMqJoVTSgKJ'),
+    serumAsksAccount: new PublicKey('CEQdAFKdycHugujQg9k2wbmxjcpdYZyVLfV9WerTnafJ'),
+
     rewardAccounts: [
       {
         rewardToken: TokenID.RAY,
@@ -1383,6 +1404,10 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumPcVaultAccount: new PublicKey('22jHt5WmosAykp3LPGSAKgY45p7VGh4DFWSwp21SWBVe'),
     serumVaultSigner: new PublicKey('FmhXe9uG6zun49p222xt3nG1rBAkWvzVz7dxERQ6ouGw'),
 
+    serumEventQueueAccount: new PublicKey('H9dZt8kvz1Fe5FyRisb77KcYTaN8LEbuVAfJSnAaEABz'),
+    serumBidsAccount: new PublicKey('Hf84mYadE1VqSvVWAvCWc9wqLXak4RwXiPb4A91EAUn5'),
+    serumAsksAccount: new PublicKey('DC1HsWWRCXVg3wk2NndS5LTbce3axwUwUZH1RgnV4oDN'),
+
     rewardAccounts: [
       {
         rewardToken: TokenID.RAY,
@@ -1424,6 +1449,10 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     ),
     serumPcVaultAccount: new PublicKey('EJwyNJJPbHH4pboWQf1NxegoypuY48umbfkhyfPew4E'),
     serumVaultSigner: new PublicKey('CzZAjoEqA6sjqtaiZiPqDkmxG6UuZWxwRWCenbBMc8Xz'),
+
+    serumEventQueueAccount: new PublicKey('GR363LDmwe25NZQMGtD2uvsiX66FzYByeQLcNFr596FK'),
+    serumBidsAccount: new PublicKey('2juozaawVqhQHfYZ9HNcs66sPatFHSHeKG5LsTbrS2Dn'),
+    serumAsksAccount: new PublicKey('ANXcuziKhxusxtthGxPxywY7FLRtmmCwFWDmU5eBDLdH'),
 
     rewardAccounts: [
       {
