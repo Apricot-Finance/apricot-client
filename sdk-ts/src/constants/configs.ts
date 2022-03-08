@@ -22,6 +22,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.mSOL]: new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"),
   [TokenID.stSOL]: new PublicKey("7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj"),
   [TokenID.whETH]: new PublicKey("7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs"),
+  [TokenID.scnSOL]: new PublicKey("5oVNBeEEQvYi1cX3ir8Dx5n1P7pdxydbGF2X4TxVusJm"),
 
   [TokenID.RAY]: new PublicKey("4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"),
   [TokenID.ORCA]: new PublicKey("orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE"),
@@ -31,6 +32,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.FTT]: new PublicKey("AGFEad2et2ZJif9jaGpdMixQqvW5i81aBdvKe7PHNfz3"),
   [TokenID.SRM]: new PublicKey("SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt"),
   [TokenID.wLDO]: new PublicKey("HZRCwxP2Vq9PCpPXooayhJ2bxTpo5xfpQrwB1svh332p"),
+  [TokenID.SOCN]: new PublicKey("11111111111111111111111111111111"), // fake address
 
   [TokenID.USDT]: new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
   [TokenID.USDC]: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
@@ -69,6 +71,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.mSOL]: 1e9,
   [TokenID.stSOL]: 1e9,
   [TokenID.whETH]: 1e8,
+  [TokenID.scnSOL]: 1e9,
 
   [TokenID.RAY] : 1e6,
   [TokenID.ORCA] : 1e6,
@@ -78,6 +81,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.FTT]: 1e6,
   [TokenID.SRM]: 1e6,
   [TokenID.wLDO]: 1e8,
+  [TokenID.SOCN]: 1e9,
 
   [TokenID.USDT]: 1e6,
   [TokenID.USDC]: 1e6,
@@ -146,6 +150,7 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.SRM_USDC_RAYDIUM]: 34,
   [TokenID.stSOL]: 35,
   [TokenID.whETH]: 36,
+  [TokenID.scnSOL]: 37,
 };
 
 const LTVS: { [key in TokenID]?: number } = {
@@ -156,6 +161,7 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.SOL]: 0.8,
   [TokenID.stSOL]: 0.8,
   [TokenID.whETH]: 0.85,
+  [TokenID.scnSOL]: 0.8,
 
   [TokenID.RAY]: 0.8,
   [TokenID.ORCA]: 0.8,
@@ -216,6 +222,7 @@ const INTEREST_RATES: {[key in TokenID]?: InterestRate} = {
   [TokenID.mSOL]:new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.stSOL]: new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.whETH]: new InterestRate(0.02, 0.85, 0.20, 2.0),
+  [TokenID.scnSOL]: new InterestRate(0.02, 0.85, 0.20, 2.0),
 
   [TokenID.APT]: new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.RAY]: new InterestRate(0.02, 0.85, 0.20, 2.0),
@@ -237,6 +244,7 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.SOL]: 0.2,
   [TokenID.stSOL]: 0.2,
   [TokenID.whETH]: 0.2,
+  [TokenID.scnSOL]: 0.2,
 
   [TokenID.APT]: 0.2,
   [TokenID.RAY]: 0.2,
@@ -279,6 +287,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.mSOL] : TokenCategory.Volatile,
   [TokenID.stSOL]: TokenCategory.Volatile,
   [TokenID.whETH]: TokenCategory.Volatile,
+  [TokenID.scnSOL]: TokenCategory.Volatile,
 
   [TokenID.APT] : TokenCategory.Volatile,
   [TokenID.RAY] : TokenCategory.Volatile,
@@ -289,6 +298,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.FTT] : TokenCategory.Volatile,
   [TokenID.SRM] : TokenCategory.Volatile,
   [TokenID.wLDO] : TokenCategory.Volatile,
+  [TokenID.SOCN] : TokenCategory.Volatile,
 
   [TokenID.USDT]: TokenCategory.Stable,
   [TokenID.USDC]: TokenCategory.Stable,
@@ -326,6 +336,7 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.mSOL] : 0.04,
   [TokenID.stSOL]: 0.04,
   [TokenID.whETH]: 0.04,
+  [TokenID.scnSOL]: 0.04,
 
   [TokenID.RAY] : 0.04,
   [TokenID.APT] : 0,
@@ -1712,6 +1723,7 @@ export const SWITCHBOARD_PRICE: { [key in TokenID]? : PublicKey} = {
   [TokenID.mSOL]: new PublicKey("CEPVH2t11KS4CaL3w4YxT9tRiijoGA4VEbnQ97cEpDmQ"),
   [TokenID.stSOL]: new PublicKey("9r2p6vyF8Wp5YB2DASK95yuXEakQth6wmUmV2DpH91WX"),
   [TokenID.whETH]: new PublicKey("QJc2HgGhdtW4e7zjvLB1TGRuwEpTre2agU5Lap2UqYz"),
+  [TokenID.scnSOL]: new PublicKey("DpzEKDSszosuzRUdRYzEcEbt6iZ4xhVEANQSRAYDYw8h"),
 
   [TokenID.APT]: new PublicKey("CvLZbNUPLkbMuVK9YPqhvLu4UkXmrJbF98odXtPL6VRu"),
   [TokenID.RAY]: new PublicKey("CppyF6264uKZkGua1brTUa2fSVdMFSCszwzDs76HCuzU"),
@@ -1734,6 +1746,7 @@ export const PYTH_PRICE: { [key in TokenID]? : PublicKey} = {
   [TokenID.mSOL]: new PublicKey("E4v1BBgoso9s64TQvmyownAVJbhbEPGyzA3qn4n46qj9"),
   [TokenID.stSOL]: new PublicKey("Bt1hEbY62aMriY1SyQqbeZbm8VmSbQVGBFzSzMuVNWzN"),
   [TokenID.whETH]: new PublicKey("JBu1AL4obBcCMqKBBxhpWCNUt136ijcuMZLFvTP7iWdB"),
+  // [TokenID.scnSOL]: new PublicKey(""),
 
   //[TokenID.APT]: new PublicKey(""),
   [TokenID.RAY]: new PublicKey("AnLf8tVYCM816gmBjiy8n53eXKKEDydT5piYjjQDPgTB"),
