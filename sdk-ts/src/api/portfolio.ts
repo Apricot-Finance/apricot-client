@@ -1,4 +1,4 @@
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey } from '@solana/web3.js';
 import {
   TokenID,
   AppConfig,
@@ -8,24 +8,24 @@ import {
   ApiUserAssetInfo,
   ApiBorrowPowerInfo,
   ApiUserInfo,
-} from "../types";
+} from '../types';
 import {
   MINTS,
   PUBLIC_CONFIG,
   SAFE_LIMIT,
   FORCE_ASSIST_LIMIT,
   LIQUIDATION_LIMIT,
-} from "../constants";
-import { ActionWrapper } from "../utils/ActionWrapper";
-import { PriceInfo } from "../utils/PriceInfo";
-import { Addresses } from "../addresses";
-import { Decimal } from "decimal.js";
+} from '../constants';
+import { ActionWrapper } from '../utils/ActionWrapper';
+import { PriceInfo } from '../utils/PriceInfo';
+import { Addresses } from '../addresses';
+import { Decimal } from 'decimal.js';
 import {
   rewindAmount,
   fastForwardAmount,
   nativeAmountToValue,
   nativeAmountToTokenAmount,
-} from "../utils/transform";
+} from '../utils/transform';
 
 export function createPortfolioLoader(
   userWalletKey: PublicKey,
@@ -34,14 +34,14 @@ export function createPortfolioLoader(
   config: AppConfig = PUBLIC_CONFIG,
 ): PortfolioLoader {
   if (fetchPrice === undefined) {
-    const priceInfo = new PriceInfo(config)
+    const priceInfo = new PriceInfo(config);
     fetchPrice = async (tokenId) => {
       if (tokenId === TokenID.MNDE) {
-        return await priceInfo.fetchRaydiumPrice(tokenId);
+        return await priceInfo.fetchCoinGeckoPrice(tokenId);
       } else {
         return await priceInfo.fetchPrice(tokenId, connection);
       }
-    }
+    };
   }
 
   let portfolioLoader = new PortfolioLoader(userWalletKey, connection, config, fetchPrice);
@@ -50,8 +50,8 @@ export function createPortfolioLoader(
 
 export class PortfolioLoader {
   userInfoCache: UserInfo | undefined;
-  assetPoolsCache: {[key in TokenID]?: AssetPool};
-  priceCache: {[key in TokenID]?: number};
+  assetPoolsCache: { [key in TokenID]?: AssetPool };
+  priceCache: { [key in TokenID]?: number };
   private readonly actionWrapper: ActionWrapper;
   private readonly addresses: Addresses;
 
@@ -68,7 +68,8 @@ export class PortfolioLoader {
   }
 
   async refreshPortfolio(): Promise<void> {
-    this.userInfoCache = await this.actionWrapper.getParsedUserInfo(this.userWalletKey) ?? undefined;
+    this.userInfoCache =
+      (await this.actionWrapper.getParsedUserInfo(this.userWalletKey)) ?? undefined;
     if (this.userInfoCache === undefined) {
       throw new Error(`Failed to fetch User Info for ${this.userWalletKey.toString()}`);
     }
@@ -76,17 +77,18 @@ export class PortfolioLoader {
     for (const userAssetInfo of this.userInfoCache.user_asset_info) {
       let tokenId = this.config.getTokenIdByPoolId(userAssetInfo.pool_id);
       let mintKey = MINTS[tokenId];
-      this.assetPoolsCache[tokenId] = await this.actionWrapper.getParsedAssetPool(mintKey) ?? undefined;
+      this.assetPoolsCache[tokenId] =
+        (await this.actionWrapper.getParsedAssetPool(mintKey)) ?? undefined;
       this.priceCache[tokenId] = await this.fetchPrice(tokenId);
-    };
+    }
   }
 
   async getUserInfo(): Promise<ApiUserInfo | undefined> {
     return {
       userWallet: this.userWalletKey.toString(),
       userAssetInfo: await this.getUserAssetInfoList(),
-      borrowPowerInfo: await this.getBorrowPowerInfo()
-    }
+      borrowPowerInfo: await this.getBorrowPowerInfo(),
+    };
   }
 
   async getUserInfoAddress(): Promise<PublicKey> {
@@ -102,7 +104,8 @@ export class PortfolioLoader {
       this.userInfoCache,
       this.config,
       (tokenId) => Promise.resolve(this.assetPoolsCache[tokenId]),
-      (tokenId) => Promise.resolve(this.priceCache[tokenId]));
+      (tokenId) => Promise.resolve(this.priceCache[tokenId]),
+    );
   }
 
   async getUserAssetInfoList(): Promise<ApiUserAssetInfo[]> {
@@ -114,7 +117,8 @@ export class PortfolioLoader {
       this.userInfoCache,
       this.config,
       (tokenId) => Promise.resolve(this.assetPoolsCache[tokenId]),
-      (tokenId) => Promise.resolve(this.priceCache[tokenId]));
+      (tokenId) => Promise.resolve(this.priceCache[tokenId]),
+    );
   }
 }
 
@@ -129,37 +133,43 @@ export async function getBorrowPowerInfo(
     return undefined;
   }
 
-  if (userAssetInfoList.some(uai => uai.depositValue == undefined || uai.borrowValue === undefined)) {
+  if (
+    userAssetInfoList.some((uai) => uai.depositValue == undefined || uai.borrowValue === undefined)
+  ) {
     return undefined;
   }
 
   let totalDeposit = userAssetInfoList.reduce(
     (acc, uai) => acc.add(uai.depositValue!),
-    Decimal.abs(0)
+    Decimal.abs(0),
   );
   let totalCollateral = userAssetInfoList.reduce(
     (acc, uai) => acc.add(uai.ltv.mul(uai.depositValue!)),
-    Decimal.abs(0)
+    Decimal.abs(0),
   );
   let totalBorrow = userAssetInfoList.reduce(
     (acc, uai) => acc.add(uai.borrowValue!),
-    Decimal.abs(0)
+    Decimal.abs(0),
   );
   return {
     totalDeposit: totalDeposit,
     totalCollateral: totalCollateral,
     maxBorrowAllowed: SAFE_LIMIT.mul(totalCollateral),
     totalBorrow: totalBorrow,
-    collateralRatio: totalCollateral.isZero() ? new Decimal(Infinity): totalBorrow.div(totalCollateral),
+    collateralRatio: totalCollateral.isZero()
+      ? new Decimal(Infinity)
+      : totalBorrow.div(totalCollateral),
     safeLimit: SAFE_LIMIT,
     forceAssistLimit: FORCE_ASSIST_LIMIT,
     liquidationLimit: LIQUIDATION_LIMIT,
-    assistTriggerLimit: userInfoRaw.assist.assist_mode === 0
-      ? undefined
-      : new Decimal(userInfoRaw.assist.self_deleverage_factor),
-    assistTargetLimit: userInfoRaw.assist.assist_mode === 0
-    ? undefined
-    : new Decimal(userInfoRaw.assist.post_deleverage_factor),
+    assistTriggerLimit:
+      userInfoRaw.assist.assist_mode === 0
+        ? undefined
+        : new Decimal(userInfoRaw.assist.self_deleverage_factor),
+    assistTargetLimit:
+      userInfoRaw.assist.assist_mode === 0
+        ? undefined
+        : new Decimal(userInfoRaw.assist.post_deleverage_factor),
   };
 }
 
@@ -176,7 +186,7 @@ export async function getUserAssetInfoList(
     let price = await fetchPrice(tokenId);
     if (assetPoolRaw === undefined) {
       continue;
-    };
+    }
     let apiUserAssetInfo = getUserAssetInfo(tokenId, userAssetInfoRaw, assetPoolRaw, price);
     if (apiUserAssetInfo === undefined) {
       continue;
@@ -219,20 +229,18 @@ export function fastForwardUserAssetInfo(
     useAsCollateral: userAssetInfoRaw.use_as_collateral === 1,
     ltv: assetPoolRaw.ltv,
     depositAmount: nativeAmountToTokenAmount(tokenId, currentDepositAmount),
-    depositValue: price === undefined
-      ? undefined
-      : nativeAmountToValue(tokenId, currentDepositAmount, price),
-    borrowAmount: nativeAmountToTokenAmount(tokenId,currentBorrowAmount),
-    borrowValue: price === undefined
-      ? undefined
-      : nativeAmountToValue(tokenId, currentBorrowAmount, price),
-  }
+    depositValue:
+      price === undefined ? undefined : nativeAmountToValue(tokenId, currentDepositAmount, price),
+    borrowAmount: nativeAmountToTokenAmount(tokenId, currentBorrowAmount),
+    borrowValue:
+      price === undefined ? undefined : nativeAmountToValue(tokenId, currentBorrowAmount, price),
+  };
 }
 
 export function fastForwardPositionAmount(
   lastAmount: Decimal,
   lastIndex: Decimal,
-  currentIndex: Decimal
+  currentIndex: Decimal,
 ) {
   return fastForwardAmount(rewindAmount(lastAmount, lastIndex), currentIndex);
 }
