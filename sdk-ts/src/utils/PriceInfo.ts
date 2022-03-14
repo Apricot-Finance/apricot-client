@@ -2,9 +2,9 @@ import { AccountInfo, Connection } from '@solana/web3.js';
 import { AccountLayout, MintLayout, u64 } from '@solana/spl-token';
 import * as switchboard from '@switchboard-xyz/switchboard-api';
 import invariant from 'tiny-invariant';
-import { DECIMAL_MULT, LP_SWAP_METAS, RAYDIUM_LP_METAS } from '../constants';
+import { DECIMAL_MULT, LP_SWAP_METAS, RAYDIUM_LP_METAS, COINGECKO_PRICE_ID } from '../constants';
 import { AppConfig, PoolConfig, TokenID } from '../types';
-import Decimal from "decimal.js";
+import Decimal from 'decimal.js';
 import { OpenOrders } from '@project-serum/serum';
 import { Dex } from '..';
 import axios from 'axios';
@@ -12,48 +12,55 @@ import * as rax from 'retry-axios';
 import { AMM_INFO_LAYOUT_V4 } from './Layouts';
 import { parsePriceData } from '@pythnetwork/client';
 import { Buffer } from 'buffer';
+import CoinGecko from 'coingecko-api';
+
 rax.attach();
 
 type RaydiumEntry = {
-  lp_mint: string,
-  lp_price: number,
-  token_amount_coin: number,
-  token_amount_pc: number,
-  token_amount_lp: number,
+  lp_mint: string;
+  lp_price: number;
+  token_amount_coin: number;
+  token_amount_pc: number;
+  token_amount_lp: number;
 };
 
-const checkIsValidNumber = (n: number) => invariant(
-  typeof n === 'number' &&
-  !(isNaN(n) || n === Infinity || n === -Infinity) &&
-  Number.isFinite(n) , 'Invalid number');
+const checkIsValidNumber = (n: number) =>
+  invariant(
+    typeof n === 'number' && !(isNaN(n) || n === Infinity || n === -Infinity) && Number.isFinite(n),
+    'Invalid number',
+  );
 
 const bufferToHexStr = (buffer: Buffer) => u64.fromBuffer(buffer).toString();
 export class PriceInfo {
   cachedRaydiumContent: RaydiumEntry[] | null;
   raydiumCacheTime: number;
-  constructor(
-    public config: AppConfig,
-  ) {
+  coinGecko: CoinGecko;
+
+  constructor(public config: AppConfig) {
     this.cachedRaydiumContent = null;
     this.raydiumCacheTime = 0;
+    this.coinGecko = new CoinGecko();
   }
 
-  async fetchPrice(tokId: TokenID, connection: Connection, isForcePriceByChain = false): Promise<number> {
+  async fetchPrice(
+    tokId: TokenID,
+    connection: Connection,
+    isForcePriceByChain = false,
+  ): Promise<number> {
     if (tokId in this.config.switchboardPriceKeys) {
       return this.fetchViaSwitchboard(tokId, connection);
-    }
-    else {
+    } else {
       invariant(tokId in this.config.poolConfigs);
       const poolConfig = this.config.poolConfigs[tokId]!;
-      invariant(poolConfig.isLp(), "volatile/stable tokens should be priced through switchboard");
+      invariant(poolConfig.isLp(), 'volatile/stable tokens should be priced through switchboard');
       // read directly from raydium endpoint if it's raydium LP
 
-      if (isForcePriceByChain) return await this.computeLpPriceOnChain(tokId, poolConfig, connection);
+      if (isForcePriceByChain)
+        return await this.computeLpPriceOnChain(tokId, poolConfig, connection);
 
       if (poolConfig.lpDex === Dex.Raydium) {
         return this.getRaydiumLpPrice(poolConfig, connection);
-      }
-      else {
+      } else {
         return this.computeLpPrice(tokId, poolConfig, connection);
       }
     }
@@ -64,8 +71,8 @@ export class PriceInfo {
     invariant(key, `${tokId} not available through switchboard`);
     const data = await switchboard.parseAggregatorAccountData(connection, key);
     let price = data.currentRoundResult?.result;
-    if(!price) {
-        price = data.lastRoundResult?.result;
+    if (!price) {
+      price = data.lastRoundResult?.result;
     }
     invariant(price);
     return price;
@@ -77,33 +84,37 @@ export class PriceInfo {
     const accountInfo = await connection.getAccountInfo(key, 'confirmed');
     invariant(accountInfo, `${tokId} PriceData not available through pyth`);
     const parsedData = parsePriceData(accountInfo.data);
-    invariant(parsedData.price, `${tokId} returned invalid price from pyth`)
+    invariant(parsedData.price, `${tokId} returned invalid price from pyth`);
     return parsedData.price;
   }
 
   async checkRaydiumCache(requestTimeout = 8000, retries = 0) {
     const now = Date.now();
     // update cache if cached more than 30s
-    if(now - this.raydiumCacheTime > 30 * 1000) {
+    if (now - this.raydiumCacheTime > 30 * 1000) {
       try {
-        const response = await axios.get("https://api.raydium.io/pairs", {
+        const response = await axios.get('https://api.raydium.io/pairs', {
           timeout: requestTimeout,
           raxConfig: {
             retry: retries,
             noResponseRetries: retries,
             backoffType: 'exponential',
-            statusCodesToRetry: [[100, 199], [400, 429], [500, 599]],
-            onRetryAttempt: err => {
+            statusCodesToRetry: [
+              [100, 199],
+              [400, 429],
+              [500, 599],
+            ],
+            onRetryAttempt: (err) => {
               const cfg = rax.getConfig(err);
               console.log(`Raydium pairs request retry attempt #${cfg?.currentRetryAttempt}`);
-            }
-          }
+            },
+          },
         });
         const content = response.data as RaydiumEntry[];
         this.cachedRaydiumContent = content;
         this.raydiumCacheTime = Date.now();
       } catch (error) {
-        if (axios.isAxiosError(error))  {
+        if (axios.isAxiosError(error)) {
           console.log(`Request raydium failed: ${error.message}`);
         } else {
           console.log(error);
@@ -121,14 +132,20 @@ export class PriceInfo {
     const rightPrice = await this.fetchPrice(rightTokId, connection);
     const mintStr = poolConfig.mint.toString();
     const raydiumContent = await this.checkRaydiumCache();
-    const filtered = raydiumContent.filter(entry => entry.lp_mint === mintStr);
+    const filtered = raydiumContent.filter((entry) => entry.lp_mint === mintStr);
     const entry = filtered[0];
-    const price = (leftPrice * entry.token_amount_coin + rightPrice * entry.token_amount_pc) / entry.token_amount_lp;
+    const price =
+      (leftPrice * entry.token_amount_coin + rightPrice * entry.token_amount_pc) /
+      entry.token_amount_lp;
     checkIsValidNumber(price);
     return price;
   }
 
-  async computeLpPriceOnChain(lpTokId: TokenID, poolConfig: PoolConfig, connection: Connection): Promise<number> {
+  async computeLpPriceOnChain(
+    lpTokId: TokenID,
+    poolConfig: PoolConfig,
+    connection: Connection,
+  ): Promise<number> {
     invariant(poolConfig.isLp());
     invariant(poolConfig.tokenId === lpTokId);
     const lpMint = poolConfig.mint;
@@ -157,7 +174,10 @@ export class PriceInfo {
     infos.forEach((info, i) => {
       invariant(info, `Fetch multiple account info failed at ${i}`);
       if (i <= 1) {
-        invariant(info.data.length === AccountLayout.span, 'Invalid token account info data length');
+        invariant(
+          info.data.length === AccountLayout.span,
+          'Invalid token account info data length',
+        );
         const account = AccountLayout.decode(info.data);
         if (i === 0) leftAmount = leftAmount.plus(bufferToHexStr(account.amount));
         if (i === 1) rightAmount = rightAmount.plus(bufferToHexStr(account.amount));
@@ -170,13 +190,19 @@ export class PriceInfo {
           const raydiumPoolMeta = RAYDIUM_LP_METAS[lpTokId];
           invariant(raydiumPoolMeta);
           const LAYOUT = OpenOrders.getLayout(raydiumPoolMeta.serumProgramId);
-          invariant(info.data.length === LAYOUT.span, 'Invalid raydium open orders account info data length');
+          invariant(
+            info.data.length === LAYOUT.span,
+            'Invalid raydium open orders account info data length',
+          );
           const parsedOpenOrders = LAYOUT.decode(info.data);
           const { baseTokenTotal, quoteTokenTotal } = parsedOpenOrders;
           leftAmount = leftAmount.plus(baseTokenTotal.toString()); // BN
           rightAmount = rightAmount.plus(quoteTokenTotal.toString()); // BN
         } else if (i === 4) {
-          invariant(info.data.length === AMM_INFO_LAYOUT_V4.span, 'invalid raydium amm ID account data length');
+          invariant(
+            info.data.length === AMM_INFO_LAYOUT_V4.span,
+            'invalid raydium amm ID account data length',
+          );
           const { needTakePnlCoin, needTakePnlPc } = AMM_INFO_LAYOUT_V4.decode(info.data);
           leftAmount = leftAmount.minus(needTakePnlCoin.toString());
           rightAmount = rightAmount.minus(needTakePnlPc.toString());
@@ -192,8 +218,10 @@ export class PriceInfo {
     const leftPrice = await this.fetchPrice(leftTokId, connection);
     const rightPrice = await this.fetchPrice(rightTokId, connection);
 
-    const price =  leftAmount.div(DECIMAL_MULT[leftTokId]).mul(leftPrice)
-      .plus((rightAmount.div(DECIMAL_MULT[rightTokId]).mul(rightPrice)))
+    const price = leftAmount
+      .div(DECIMAL_MULT[leftTokId])
+      .mul(leftPrice)
+      .plus(rightAmount.div(DECIMAL_MULT[rightTokId]).mul(rightPrice))
       .div(lpAmount.div(DECIMAL_MULT[lpTokId]));
 
     const priNum = price.toNumber();
@@ -201,7 +229,11 @@ export class PriceInfo {
     return priNum;
   }
 
-  async computeLpPrice(lpTokId: TokenID, poolConfig: PoolConfig, connection: Connection): Promise<number> {
+  async computeLpPrice(
+    lpTokId: TokenID,
+    poolConfig: PoolConfig,
+    connection: Connection,
+  ): Promise<number> {
     invariant(poolConfig.isLp());
     invariant(poolConfig.tokenId === lpTokId);
     const lpMint = poolConfig.mint;
@@ -220,7 +252,10 @@ export class PriceInfo {
 
     // raydium has extra balance floating on serum
     if (poolConfig.lpDex === Dex.Raydium) {
-      const [additionalLeftNative, additionalRightNative] = await this.getRaydiumAdditionalBalance(lpTokId, connection);
+      const [additionalLeftNative, additionalRightNative] = await this.getRaydiumAdditionalBalance(
+        lpTokId,
+        connection,
+      );
       const additionalLeftBalance = additionalLeftNative / DECIMAL_MULT[leftTokId];
       const additionalRightBalance = additionalRightNative / DECIMAL_MULT[rightTokId];
       leftBalance += additionalLeftBalance;
@@ -235,7 +270,11 @@ export class PriceInfo {
     return price;
   }
 
-  async fetchLRStats(lpTokId: TokenID, connection: Connection, isValue: boolean): Promise<[number, number]> {
+  async fetchLRStats(
+    lpTokId: TokenID,
+    connection: Connection,
+    isValue: boolean,
+  ): Promise<[number, number]> {
     const [leftBalance, rightBalance] = await this.fetchLRLpAmounts(lpTokId, connection);
     if (!isValue) {
       return [leftBalance, rightBalance];
@@ -260,7 +299,10 @@ export class PriceInfo {
     return this.fetchLRStats(lpTokId, connection, true);
   }
 
-  async fetchLRLpAmounts(lpTokId: TokenID, connection: Connection): Promise<[number, number, number]> {
+  async fetchLRLpAmounts(
+    lpTokId: TokenID,
+    connection: Connection,
+  ): Promise<[number, number, number]> {
     const poolConfig = this.config.poolConfigs[lpTokId]!;
     invariant(poolConfig.isLp());
     invariant(poolConfig.tokenId === lpTokId);
@@ -288,7 +330,10 @@ export class PriceInfo {
     infos.forEach((info, i) => {
       invariant(info, `Fetch multiple account info failed at ${i}`);
       if (i <= 1) {
-        invariant(info.data.length === AccountLayout.span, 'Invalid token account info data length');
+        invariant(
+          info.data.length === AccountLayout.span,
+          'Invalid token account info data length',
+        );
         const account = AccountLayout.decode(info.data);
         if (i === 0) leftAmount = leftAmount.plus(bufferToHexStr(account.amount));
         if (i === 1) rightAmount = rightAmount.plus(bufferToHexStr(account.amount));
@@ -301,13 +346,19 @@ export class PriceInfo {
           const raydiumPoolMeta = RAYDIUM_LP_METAS[lpTokId];
           invariant(raydiumPoolMeta);
           const LAYOUT = OpenOrders.getLayout(raydiumPoolMeta.serumProgramId);
-          invariant(info.data.length === LAYOUT.span, 'Invalid raydium open orders account info data length');
+          invariant(
+            info.data.length === LAYOUT.span,
+            'Invalid raydium open orders account info data length',
+          );
           const parsedOpenOrders = LAYOUT.decode(info.data);
           const { baseTokenTotal, quoteTokenTotal } = parsedOpenOrders;
           leftAmount = leftAmount.plus(baseTokenTotal.toString()); // BN
           rightAmount = rightAmount.plus(quoteTokenTotal.toString()); // BN
         } else if (i === 4) {
-          invariant(info.data.length === AMM_INFO_LAYOUT_V4.span, 'invalid raydium amm ID account data length');
+          invariant(
+            info.data.length === AMM_INFO_LAYOUT_V4.span,
+            'invalid raydium amm ID account data length',
+          );
           const { needTakePnlCoin, needTakePnlPc } = AMM_INFO_LAYOUT_V4.decode(info.data);
           leftAmount = leftAmount.minus(needTakePnlCoin.toString());
           rightAmount = rightAmount.minus(needTakePnlPc.toString());
@@ -329,7 +380,10 @@ export class PriceInfo {
     return [leftAmt, rightAmt, lpAmt];
   }
 
-  async getRaydiumAdditionalBalance(lpTokId: TokenID, connection: Connection): Promise<[number, number]> {
+  async getRaydiumAdditionalBalance(
+    lpTokId: TokenID,
+    connection: Connection,
+  ): Promise<[number, number]> {
     const raydiumPoolMeta = RAYDIUM_LP_METAS[lpTokId]!;
     invariant(raydiumPoolMeta);
     const response = (await connection.getAccountInfo(raydiumPoolMeta.ammOpenOrdersPubkey))!;
@@ -341,34 +395,55 @@ export class PriceInfo {
     return [baseTokenTotal, quoteTokenTotal];
   }
 
+  // Deprecated: Raydium added CloudFlare to block us
   async fetchRaydiumPrice(tokenId: TokenID, timeout = 3000, retries = 3): Promise<number> {
     try {
-      const response = await axios.get("https://api.raydium.io/coin/price", {
+      const response = await axios.get('https://api.raydium.io/coin/price', {
         timeout: timeout,
         raxConfig: {
           retry: retries,
           noResponseRetries: retries,
           backoffType: 'exponential',
-          statusCodesToRetry: [[100, 199], [400, 429], [500, 599]],
-          onRetryAttempt: err => {
+          statusCodesToRetry: [
+            [100, 199],
+            [400, 429],
+            [500, 599],
+          ],
+          onRetryAttempt: (err) => {
             const cfg = rax.getConfig(err);
             console.log(`Raydium price request retry attempt #${cfg?.currentRetryAttempt}`);
-          }
-        }
+          },
+        },
       });
 
       if (tokenId in response.data) {
         return response.data[tokenId];
       }
       throw new Error(`${tokenId} Price is not available at Raydium`);
-    }
-    catch (error) {
-      if (axios.isAxiosError(error))  {
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
         console.log(`Request raydium price failed: ${error.message}`);
       } else {
         console.log(error);
       }
       throw error;
     }
+  }
+
+  async fetchCoinGeckoPrice(tokenId: TokenID): Promise<number> {
+    const coinId = COINGECKO_PRICE_ID[tokenId];
+    const vsCcy = 'usd';
+    if (coinId === undefined) {
+      console.error(`Fetching price of ${tokenId} from CoinGecko is not supported yet.`);
+      return 0;
+    }
+
+    var priceData = await this.coinGecko.simple.price({ ids: coinId, vs_currencies: vsCcy });
+    if (!priceData.success) {
+      console.error(`Failed to fetch price of ${tokenId} from CoinGecko.`);
+      return 0;
+    }
+
+    return priceData.data[coinId][vsCcy];
   }
 }

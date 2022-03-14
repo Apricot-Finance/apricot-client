@@ -1,19 +1,20 @@
-import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { PublicKey, SystemProgram, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
-import invariant from "tiny-invariant";
-import { SWAP_RAYDIUM } from ".";
-import { getAssociatedTokenPubkey } from "..";
-import { TokenID, TokenCategory, AppConfig, Dex, PoolId, LpSwapKeyInfo } from "../types";
-import { SWAP_ORCA, SWAP_SABER } from "./commands";
-import { Decimal } from "decimal.js";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { PublicKey, SystemProgram, SYSVAR_CLOCK_PUBKEY } from '@solana/web3.js';
+import invariant from 'tiny-invariant';
+import { SWAP_RAYDIUM } from '.';
+import { getAssociatedTokenPubkey } from '..';
+import { TokenID, TokenCategory, AppConfig, Dex, PoolId, LpSwapKeyInfo } from '../types';
+import { SWAP_ORCA, SWAP_SABER } from './commands';
+import { Decimal } from 'decimal.js';
 
 export const FAKE_KEY = SystemProgram.programId;
 
 export const LM_MNDE_MULTIPLIER: Decimal = new Decimal(0.195);
 export const SAFE_LIMIT: Decimal = new Decimal(0.9);
-export const FORCE_ASSIST_LIMIT: Decimal = new Decimal(1.00);
+export const FORCE_ASSIST_LIMIT: Decimal = new Decimal(1.0);
 export const LIQUIDATION_LIMIT: Decimal = new Decimal(1.01);
 
+// prettier-ignore
 export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.APT]: new PublicKey("APTtJyaRX5yGTsJU522N4VYWg3vCvSb65eam5GrPT5Rt"),
   [TokenID.BTC]: new PublicKey("9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E"),
@@ -63,6 +64,7 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.SRM_USDC_RAYDIUM]: new PublicKey("9XnZd82j34KxNLgQfz29jGbYdxsYznTWRpvZE3SRE7JG"),
 };
 
+// prettier-ignore
 export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.APT] : 1e6,
   [TokenID.BTC] : 1e6,
@@ -112,6 +114,7 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.SRM_USDC_RAYDIUM]: 1e6,
 };
 
+// prettier-ignore
 const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.BTC]: 0,
   [TokenID.ETH]: 1,
@@ -153,6 +156,7 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.scnSOL]: 37,
 };
 
+// prettier-ignore
 const LTVS: { [key in TokenID]?: number } = {
   [TokenID.APT]: 0,
   [TokenID.BTC]: 0.85,
@@ -215,6 +219,7 @@ export class InterestRate {
   }
 }
 
+// prettier-ignore
 const INTEREST_RATES: {[key in TokenID]?: InterestRate} = {
   [TokenID.BTC]: new InterestRate(0.02, 0.85, 0.20, 2.0),
   [TokenID.ETH]: new InterestRate(0.02, 0.85, 0.20, 2.0),
@@ -237,6 +242,7 @@ const INTEREST_RATES: {[key in TokenID]?: InterestRate} = {
   [TokenID.USTv2]: new InterestRate(0.01, 0.85, 0.08, 1.0),
 }
 
+// prettier-ignore
 const FEES: { [key in TokenID]?: number } = {
   [TokenID.BTC]: 0.2,
   [TokenID.ETH]: 0.2,
@@ -280,6 +286,7 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.SRM_USDC_RAYDIUM]: 0.2,
 };
 
+// prettier-ignore
 export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.BTC] : TokenCategory.Volatile,
   [TokenID.ETH] : TokenCategory.Volatile,
@@ -329,6 +336,7 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.SRM_USDC_RAYDIUM]: TokenCategory.Lp,
 };
 
+// prettier-ignore
 export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.BTC] : 0.04,
   [TokenID.ETH] : 0.04,
@@ -373,6 +381,7 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.SRM_USDC_RAYDIUM]: 0,
 };
 
+// prettier-ignore
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.USDT_USDC_SABER] : [TokenID.USDT, TokenID.USDC],
   [TokenID.USDC_USDT_ORCA] : [TokenID.USDC, TokenID.USDT],
@@ -398,6 +407,7 @@ export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.SRM_USDC_RAYDIUM]: [TokenID.SRM, TokenID.USDC],
 };
 
+// prettier-ignore
 export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.USDT_USDC_SABER] : SWAP_SABER,
   [TokenID.USDC_USDT_ORCA] : SWAP_ORCA,
@@ -423,6 +433,7 @@ export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.SRM_USDC_RAYDIUM]: SWAP_RAYDIUM,
 };
 
+// prettier-ignore
 export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.USDT_USDC_SABER] : Dex.Saber,
   [TokenID.USDC_USDT_ORCA] : Dex.Orca,
@@ -448,6 +459,7 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.SRM_USDC_RAYDIUM]: Dex.Raydium,
 };
 
+// prettier-ignore
 export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
   [TokenID.USDT_USDC_SABER] : false,
   [TokenID.USDC_USDT_ORCA] : false,
@@ -473,24 +485,23 @@ export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
   [TokenID.SRM_USDC_RAYDIUM]: true,
 };
 
-
 // meta-info used by Addresses to compute keys needed when interacting with various Solana swaps
 // check out Addresses to see how they are used
 export const SWAP_METAS = {
   [SWAP_SABER]: {
-    stake_program: new PublicKey("QMNeHCGYnLVDn1icRAfQZpjPLBNkfGbSKRB83G5d8KB"),
-    deposit_program: new PublicKey("SSwpkEEcbUqx4vtoEByFjSkhKdCT862DNVb52nZg1UZ"),
-    redeem_program: new PublicKey("RDM23yr8pr1kEAmhnFpaabPny6C9UVcEcok3Py5v86X"),
+    stake_program: new PublicKey('QMNeHCGYnLVDn1icRAfQZpjPLBNkfGbSKRB83G5d8KB'),
+    deposit_program: new PublicKey('SSwpkEEcbUqx4vtoEByFjSkhKdCT862DNVb52nZg1UZ'),
+    redeem_program: new PublicKey('RDM23yr8pr1kEAmhnFpaabPny6C9UVcEcok3Py5v86X'),
   },
   [SWAP_ORCA]: {
-    depositProgramPubkey: new PublicKey("9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP"),
-    farmProgramPubkey: new PublicKey("82yxjeMsvaURa4MbZZ7WZZHfobirZYkH1zF8fmeGtyaQ"),
+    depositProgramPubkey: new PublicKey('9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP'),
+    farmProgramPubkey: new PublicKey('82yxjeMsvaURa4MbZZ7WZZHfobirZYkH1zF8fmeGtyaQ'),
   },
   [SWAP_RAYDIUM]: {
-    depositProgramPubkey: new PublicKey("675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"),
-    stakeProgramPubkey: new PublicKey("EhhTKczWMGQt46ynNeRX1WfeagwwJd7ufHvCDjRxjo5Q"),
-    stakeProgramV5Pubkey: new PublicKey("9KEPoZmtHUrBbhWN1v1KWLMkkvwY6WLtAVUCPRtRjP4z"),
-  }
+    depositProgramPubkey: new PublicKey('675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8'),
+    stakeProgramPubkey: new PublicKey('EhhTKczWMGQt46ynNeRX1WfeagwwJd7ufHvCDjRxjo5Q'),
+    stakeProgramV5Pubkey: new PublicKey('9KEPoZmtHUrBbhWN1v1KWLMkkvwY6WLtAVUCPRtRjP4z'),
+  },
 };
 
 const isPublicOrAlpha = (ownerKey: PublicKey) => {
@@ -500,8 +511,9 @@ const isPublicOrAlpha = (ownerKey: PublicKey) => {
     throw new Error(`Unknown ownerKey: ${ownerKey.toString()}`);
   }
   return { isPublic, isAlpha };
-}
+};
 
+// prettier-ignore
 type SaberLpArgs = {
     swap:           PublicKey;
     swapAuthority:  PublicKey;
@@ -516,6 +528,7 @@ type SaberLpArgs = {
     mint:         PublicKey;
 };
 
+// prettier-ignore
 export class SaberLpSwapInfo implements LpSwapKeyInfo {
   swap:           PublicKey;
   swapAuthority:  PublicKey;
@@ -535,17 +548,16 @@ export class SaberLpSwapInfo implements LpSwapKeyInfo {
     this.tokenBVault = args.tokenBVault;
     this.tokenAfees = args.tokenAfees;
     this.tokenBfees = args.tokenBfees;
-    // 
+    //
     this.quarry = args.quarry;
     this.rewarder = args.rewarder;
     this.mint = args.mint;
   }
   async getMinerKey(ownerKey: PublicKey): Promise<[PublicKey, number]> {
-    const [key, bump] = await PublicKey.findProgramAddress([
-      Buffer.from("Miner"),
-      this.quarry.toBuffer(),
-      ownerKey.toBuffer(),
-    ], SWAP_METAS[SWAP_SABER].stake_program);
+    const [key, bump] = await PublicKey.findProgramAddress(
+      [Buffer.from('Miner'), this.quarry.toBuffer(), ownerKey.toBuffer()],
+      SWAP_METAS[SWAP_SABER].stake_program,
+    );
     return [key, bump];
   }
 
@@ -560,6 +572,7 @@ export class SaberLpSwapInfo implements LpSwapKeyInfo {
     );
   }
 
+  // prettier-ignore
   async getLpDepositKeys(_ownerKey: PublicKey) {
     /*
     - saber_lp_program
@@ -584,7 +597,7 @@ export class SaberLpSwapInfo implements LpSwapKeyInfo {
       {pubkey: SYSVAR_CLOCK_PUBKEY,           isSigner: false, isWritable: false},
     ];
   }
-
+  // prettier-ignore
   async getLpWithdrawKeys () {
     /*
     - saber_lp_program
@@ -616,6 +629,7 @@ export class SaberLpSwapInfo implements LpSwapKeyInfo {
     ];
   }
 
+  // prettier-ignore
   async getLpStakeKeys(ownerKey: PublicKey) {
     /*
     - saber_stake_program,
@@ -645,13 +659,13 @@ export class SaberLpSwapInfo implements LpSwapKeyInfo {
     const isUSDT_USDC = this.mint.toString() === MINTS.USDT_USDC_SABER.toString();
     if (isUSDT_USDC) {
       return [this.tokenBVault, this.tokenAVault];
-    }
-    else {
+    } else {
       return [this.tokenAVault, this.tokenBVault];
     }
   }
 }
 
+// prettier-ignore
 type OrcaLpArgs = {
   lpMintPubkey:           PublicKey;
 
@@ -681,6 +695,7 @@ type OrcaLpArgs = {
   doubleDipRewardMint?:   PublicKey;
 };
 
+// prettier-ignore
 export class OrcaLpSwapInfo implements LpSwapKeyInfo {
   lpMintPubkey:           PublicKey;
 
@@ -796,6 +811,7 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
     };
   }
 
+  // prettier-ignore
   async getLpDepositKeys (_ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_ORCA];
     return [
@@ -808,6 +824,7 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
     ];
   }
 
+  // prettier-ignore
   async getLpWithdrawKeys(_ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_ORCA];
     return [
@@ -832,6 +849,7 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
     return await this.getFirstStakeKeys(ownerKey);
   }
 
+  // prettier-ignore
   async getFirstStakeKeys(ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_ORCA];
     const pdaKeys = await this.getPdaKeys(ownerKey);
@@ -876,14 +894,14 @@ type RaydiumStakeKeys = {
   poolAuthorityPubkey: PublicKey;
 
   poolLPVault: PublicKey;
-}
+};
 
 type RaydiumRewardKeys = {
   rewardToken: TokenID;
   userRewardAlphaAccountPubkey: PublicKey;
   userRewardPublicAccountPubkey: PublicKey;
   rewardVault: PublicKey;
-}
+};
 
 type RaydiumLpArgs = {
   lpMintPubkey: PublicKey;
@@ -968,6 +986,7 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
     this.serumBidsAccount = args.serumBidsAccount;
     this.serumAsksAccount = args.serumAsksAccount;
   }
+  // prettier-ignore
   async getLpDepositKeys (_ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_RAYDIUM];
     return [
@@ -982,6 +1001,7 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
       { pubkey: this.serumMarketPubkey,         isSigner: false, isWritable: false },
     ];
   }
+  // prettier-ignore
   async getLpWithdrawKeys(_ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_RAYDIUM];
     return [
@@ -1008,19 +1028,21 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
       ] : []),
     ];
   }
-  async getLpStakeKeys (ownerKey: PublicKey) {
+  async getLpStakeKeys(ownerKey: PublicKey) {
     if (!this.stakeKeys) {
-      return []
-    }
-    else {
+      return [];
+    } else {
       invariant(this.rewardAccounts);
       const stkeys = this.stakeKeys;
       const userLedger = await this.getAssociatedLedger(ownerKey);
       console.log(`user ledger: ${userLedger.toBase58()}`);
 
       const { isPublic } = isPublicOrAlpha(ownerKey);
-      const userRewardFirstAccount = isPublic ? this.rewardAccounts![0].userRewardPublicAccountPubkey : this.rewardAccounts![0].userRewardAlphaAccountPubkey;
+      const userRewardFirstAccount = isPublic
+        ? this.rewardAccounts![0].userRewardPublicAccountPubkey
+        : this.rewardAccounts![0].userRewardAlphaAccountPubkey;
 
+      // prettier-ignore
       const keys = [
         { pubkey: this.stakeProgram,                  isSigner: false, isWritable: false, },
         { pubkey: stkeys.poolIdPubkey,                isSigner: false, isWritable: true },
@@ -1038,41 +1060,45 @@ export class RaydiumLpSwapInfo implements LpSwapKeyInfo {
       ];
       if (this.rewardAccounts.length > 1) {
         for (let i = 1; i < this.rewardAccounts.length; i++) {
-          const userRewardAccount = isPublic ? this.rewardAccounts![i].userRewardPublicAccountPubkey : this.rewardAccounts![i].userRewardAlphaAccountPubkey;
-          keys.push(...[
-            { pubkey: userRewardAccount,                  isSigner: false, isWritable: true},
-            { pubkey: this.rewardAccounts![i].rewardVault,isSigner: false, isWritable: true },
-          ]);
+          const userRewardAccount = isPublic
+            ? this.rewardAccounts![i].userRewardPublicAccountPubkey
+            : this.rewardAccounts![i].userRewardAlphaAccountPubkey;
+          keys.push(
+            ...[
+              { pubkey: userRewardAccount, isSigner: false, isWritable: true },
+              { pubkey: this.rewardAccounts![i].rewardVault, isSigner: false, isWritable: true },
+            ],
+          );
         }
       }
 
       return keys;
     }
   }
-  async getUserRewardAccountsToClaim (ownerKey: PublicKey) {
+  async getUserRewardAccountsToClaim(ownerKey: PublicKey) {
     const { isPublic } = isPublicOrAlpha(ownerKey);
-    return this.rewardAccounts!
-      .reduce((pre, cur) => {
-        pre[cur.rewardToken] = isPublic ? cur.userRewardPublicAccountPubkey : cur.userRewardAlphaAccountPubkey;
-        return pre;
-      }, {} as Record<TokenID, PublicKey>);
+    return this.rewardAccounts!.reduce((pre, cur) => {
+      pre[cur.rewardToken] = isPublic
+        ? cur.userRewardPublicAccountPubkey
+        : cur.userRewardAlphaAccountPubkey;
+      return pre;
+    }, {} as Record<TokenID, PublicKey>);
   }
   getLRVaults(): [PublicKey, PublicKey] {
     return [this.poolCoinTokenPubkey, this.poolPcTokenPubkey];
   }
-  async getAssociatedLedger(
-    owner: PublicKey,
-  ) {
+  async getAssociatedLedger(owner: PublicKey) {
     const poolId = this.stakeKeys?.poolIdPubkey;
     invariant(poolId);
-    const [ publicKey ] = await PublicKey.findProgramAddress(
-      [poolId.toBuffer(), owner.toBuffer(), Buffer.from("staker_info_v2_associated_seed", "utf-8")],
+    const [publicKey] = await PublicKey.findProgramAddress(
+      [poolId.toBuffer(), owner.toBuffer(), Buffer.from('staker_info_v2_associated_seed', 'utf-8')],
       this.stakeProgram,
     );
     return publicKey;
   }
 }
 
+// prettier-ignore
 export const SABER_LP_METAS: {[key in TokenID]? : SaberLpSwapInfo } = {
   [TokenID.USDT_USDC_SABER]: new SaberLpSwapInfo({
     swap:           new PublicKey("YAkoNb6HKmSxQN9L8hiBE5tPJRsniSSMzND1boHmZxe"),
@@ -1102,6 +1128,7 @@ export const SABER_LP_METAS: {[key in TokenID]? : SaberLpSwapInfo } = {
   }),
 }
 
+// prettier-ignore
 export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
   [TokenID.USDC_USDT_ORCA]: new OrcaLpSwapInfo({
     lpMintPubkey:           new PublicKey(MINTS[TokenID.USDC_USDT_ORCA]),
@@ -1339,6 +1366,7 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
   }),
 }
 
+// prettier-ignore
 export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
   [TokenID.SOL_USDC_RAYDIUM]: new RaydiumLpSwapInfo({
     lpMintPubkey: new PublicKey(MINTS[TokenID.SOL_USDC_RAYDIUM]),
@@ -1687,78 +1715,83 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
   }),
 }
 
-export const LP_SWAP_METAS: {[key in TokenID]? : LpSwapKeyInfo}  = {};
+export const LP_SWAP_METAS: { [key in TokenID]?: LpSwapKeyInfo } = {};
 
-for(const key in ORCA_LP_METAS) {
+for (const key in ORCA_LP_METAS) {
   const tokId = key as TokenID;
-  invariant(tokId in TokenID, `Invalid tokId: ${key}`)
+  invariant(tokId in TokenID, `Invalid tokId: ${key}`);
   invariant(!(tokId in LP_SWAP_METAS), `${tokId} is duplicated`);
   const value = ORCA_LP_METAS[tokId]!;
   invariant(value);
   LP_SWAP_METAS[tokId] = value;
 }
 
-for(const key in SABER_LP_METAS) {
+for (const key in SABER_LP_METAS) {
   const tokId = key as TokenID;
-  invariant(tokId in TokenID, `Invalid tokId: ${key}`)
+  invariant(tokId in TokenID, `Invalid tokId: ${key}`);
   invariant(!(tokId in LP_SWAP_METAS), `${tokId} is duplicated`);
   const value = SABER_LP_METAS[tokId]!;
   invariant(value);
   LP_SWAP_METAS[tokId] = value;
 }
 
-for(const key in RAYDIUM_LP_METAS) {
+for (const key in RAYDIUM_LP_METAS) {
   const tokId = key as TokenID;
-  invariant(tokId in TokenID, `Invalid tokId: ${key}`)
+  invariant(tokId in TokenID, `Invalid tokId: ${key}`);
   invariant(!(tokId in LP_SWAP_METAS), `${tokId} is duplicated`);
   const value = RAYDIUM_LP_METAS[tokId]!;
   invariant(value);
   LP_SWAP_METAS[tokId] = value;
 }
 
-export const SWITCHBOARD_PRICE: { [key in TokenID]? : PublicKey} = {
-  [TokenID.BTC]: new PublicKey("74YzQPGUT9VnjrBz8MuyDLKgKpbDqGot5xZJvTtMi6Ng"),
-  [TokenID.ETH]: new PublicKey("QJc2HgGhdtW4e7zjvLB1TGRuwEpTre2agU5Lap2UqYz"),
-  [TokenID.SOL]: new PublicKey("AdtRGGhmqvom3Jemp5YNrxd9q9unX36BZk1pujkkXijL"),
-  [TokenID.mSOL]: new PublicKey("CEPVH2t11KS4CaL3w4YxT9tRiijoGA4VEbnQ97cEpDmQ"),
-  [TokenID.stSOL]: new PublicKey("9r2p6vyF8Wp5YB2DASK95yuXEakQth6wmUmV2DpH91WX"),
-  [TokenID.whETH]: new PublicKey("QJc2HgGhdtW4e7zjvLB1TGRuwEpTre2agU5Lap2UqYz"),
-  [TokenID.scnSOL]: new PublicKey("DpzEKDSszosuzRUdRYzEcEbt6iZ4xhVEANQSRAYDYw8h"),
+export const SWITCHBOARD_PRICE: { [key in TokenID]?: PublicKey } = {
+  [TokenID.BTC]: new PublicKey('74YzQPGUT9VnjrBz8MuyDLKgKpbDqGot5xZJvTtMi6Ng'),
+  [TokenID.ETH]: new PublicKey('QJc2HgGhdtW4e7zjvLB1TGRuwEpTre2agU5Lap2UqYz'),
+  [TokenID.SOL]: new PublicKey('AdtRGGhmqvom3Jemp5YNrxd9q9unX36BZk1pujkkXijL'),
+  [TokenID.mSOL]: new PublicKey('CEPVH2t11KS4CaL3w4YxT9tRiijoGA4VEbnQ97cEpDmQ'),
+  [TokenID.stSOL]: new PublicKey('9r2p6vyF8Wp5YB2DASK95yuXEakQth6wmUmV2DpH91WX'),
+  [TokenID.whETH]: new PublicKey('QJc2HgGhdtW4e7zjvLB1TGRuwEpTre2agU5Lap2UqYz'),
+  [TokenID.scnSOL]: new PublicKey('DpzEKDSszosuzRUdRYzEcEbt6iZ4xhVEANQSRAYDYw8h'),
 
-  [TokenID.APT]: new PublicKey("CvLZbNUPLkbMuVK9YPqhvLu4UkXmrJbF98odXtPL6VRu"),
-  [TokenID.RAY]: new PublicKey("CppyF6264uKZkGua1brTUa2fSVdMFSCszwzDs76HCuzU"),
-  [TokenID.ORCA]: new PublicKey("EHwSRkm2ErRjWxCxrTxrmC7sT2kGb5jJcsiindUHAX7W"),
-  [TokenID.SBR]: new PublicKey("Lp3VNoRQi699VZe6u59TV8J38ELEUzxkaisoWsDuJgB"),
+  [TokenID.APT]: new PublicKey('CvLZbNUPLkbMuVK9YPqhvLu4UkXmrJbF98odXtPL6VRu'),
+  [TokenID.RAY]: new PublicKey('CppyF6264uKZkGua1brTUa2fSVdMFSCszwzDs76HCuzU'),
+  [TokenID.ORCA]: new PublicKey('EHwSRkm2ErRjWxCxrTxrmC7sT2kGb5jJcsiindUHAX7W'),
+  [TokenID.SBR]: new PublicKey('Lp3VNoRQi699VZe6u59TV8J38ELEUzxkaisoWsDuJgB'),
   // [TokenID.MERC]: new PublicKey(""), // MERC not on sb
-  [TokenID.FTT]: new PublicKey("6SqRewrr5f4ycWy7NvLmNgpXJbhwXrtTc1erL9aq2gP3"),
-  [TokenID.SRM]: new PublicKey("BAoygKcKN7wk8yKzLD6sxzUQUqLvhBV1rjMA4UJqfZuH"),
+  [TokenID.FTT]: new PublicKey('6SqRewrr5f4ycWy7NvLmNgpXJbhwXrtTc1erL9aq2gP3'),
+  [TokenID.SRM]: new PublicKey('BAoygKcKN7wk8yKzLD6sxzUQUqLvhBV1rjMA4UJqfZuH'),
 
-  [TokenID.USDT]: new PublicKey("5mp8kbkTYwWWCsKSte8rURjTuyinsqBpJ9xAQsewPDD"),
-  [TokenID.USDC]: new PublicKey("CZx29wKMUxaJDq6aLVQTdViPL754tTR64NAgQBUGxxHb"),
-  [TokenID.UST]: new PublicKey("8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61"),
-  [TokenID.USTv2]: new PublicKey("8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61"),
+  [TokenID.USDT]: new PublicKey('5mp8kbkTYwWWCsKSte8rURjTuyinsqBpJ9xAQsewPDD'),
+  [TokenID.USDC]: new PublicKey('CZx29wKMUxaJDq6aLVQTdViPL754tTR64NAgQBUGxxHb'),
+  [TokenID.UST]: new PublicKey('8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61'),
+  [TokenID.USTv2]: new PublicKey('8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61'),
 };
 
-export const PYTH_PRICE: { [key in TokenID]? : PublicKey} = {
-  [TokenID.BTC]: new PublicKey("GVXRSBjFk6e6J3NbVPXohDJetcTjaeeuykUpbQF8UoMU"),
-  [TokenID.ETH]: new PublicKey("JBu1AL4obBcCMqKBBxhpWCNUt136ijcuMZLFvTP7iWdB"),
-  [TokenID.SOL]: new PublicKey("H6ARHf6YXhGYeQfUzQNGk6rDNnLBQKrenN712K4AQJEG"),
-  [TokenID.mSOL]: new PublicKey("E4v1BBgoso9s64TQvmyownAVJbhbEPGyzA3qn4n46qj9"),
-  [TokenID.stSOL]: new PublicKey("Bt1hEbY62aMriY1SyQqbeZbm8VmSbQVGBFzSzMuVNWzN"),
-  [TokenID.whETH]: new PublicKey("JBu1AL4obBcCMqKBBxhpWCNUt136ijcuMZLFvTP7iWdB"),
+export const PYTH_PRICE: { [key in TokenID]?: PublicKey } = {
+  [TokenID.BTC]: new PublicKey('GVXRSBjFk6e6J3NbVPXohDJetcTjaeeuykUpbQF8UoMU'),
+  [TokenID.ETH]: new PublicKey('JBu1AL4obBcCMqKBBxhpWCNUt136ijcuMZLFvTP7iWdB'),
+  [TokenID.SOL]: new PublicKey('H6ARHf6YXhGYeQfUzQNGk6rDNnLBQKrenN712K4AQJEG'),
+  [TokenID.mSOL]: new PublicKey('E4v1BBgoso9s64TQvmyownAVJbhbEPGyzA3qn4n46qj9'),
+  [TokenID.stSOL]: new PublicKey('Bt1hEbY62aMriY1SyQqbeZbm8VmSbQVGBFzSzMuVNWzN'),
+  [TokenID.whETH]: new PublicKey('JBu1AL4obBcCMqKBBxhpWCNUt136ijcuMZLFvTP7iWdB'),
   // [TokenID.scnSOL]: new PublicKey(""),
 
   //[TokenID.APT]: new PublicKey(""),
-  [TokenID.RAY]: new PublicKey("AnLf8tVYCM816gmBjiy8n53eXKKEDydT5piYjjQDPgTB"),
+  [TokenID.RAY]: new PublicKey('AnLf8tVYCM816gmBjiy8n53eXKKEDydT5piYjjQDPgTB'),
   // [TokenID.ORCA]: new PublicKey(""),
-  [TokenID.SBR]: new PublicKey("8Td9VML1nHxQK6M8VVyzsHo32D7VBk72jSpa9U861z2A"),
-  [TokenID.FTT]: new PublicKey("8JPJJkmDScpcNmBRKGZuPuG2GYAveQgP3t5gFuMymwvF"),
-  [TokenID.SRM]: new PublicKey("3NBReDRTLKMQEKiLD5tGcx4kXbTf88b7f2xLS9UuGjym"),
+  [TokenID.SBR]: new PublicKey('8Td9VML1nHxQK6M8VVyzsHo32D7VBk72jSpa9U861z2A'),
+  [TokenID.FTT]: new PublicKey('8JPJJkmDScpcNmBRKGZuPuG2GYAveQgP3t5gFuMymwvF'),
+  [TokenID.SRM]: new PublicKey('3NBReDRTLKMQEKiLD5tGcx4kXbTf88b7f2xLS9UuGjym'),
 
-  [TokenID.USDT]: new PublicKey("3vxLXJqLqF3JG5TCbYycbKWRBbCJQLxQmBGCkyqEEefL"),
-  [TokenID.USDC]: new PublicKey("Gnt27xtC473ZT2Mw5u8wZ68Z3gULkSTb5DuxJy7eJotD"),
-  [TokenID.UST]: new PublicKey("H8DvrfSaRfUyP1Ytse1exGf7VSinLWtmKNNaBhA4as9P"),
-  [TokenID.USTv2]: new PublicKey("H8DvrfSaRfUyP1Ytse1exGf7VSinLWtmKNNaBhA4as9P"),
+  [TokenID.USDT]: new PublicKey('3vxLXJqLqF3JG5TCbYycbKWRBbCJQLxQmBGCkyqEEefL'),
+  [TokenID.USDC]: new PublicKey('Gnt27xtC473ZT2Mw5u8wZ68Z3gULkSTb5DuxJy7eJotD'),
+  [TokenID.UST]: new PublicKey('H8DvrfSaRfUyP1Ytse1exGf7VSinLWtmKNNaBhA4as9P'),
+  [TokenID.USTv2]: new PublicKey('H8DvrfSaRfUyP1Ytse1exGf7VSinLWtmKNNaBhA4as9P'),
+};
+
+export const COINGECKO_PRICE_ID: { [key in TokenID]?: string } = {
+  [TokenID.MNDE]: 'marinade',
+  [TokenID.wLDO]: 'lido-dao-wormhole',
 };
 
 const FIREBASE_READER_CONFIG = {
@@ -1784,13 +1817,13 @@ const FIREBASE_READER_CONFIG = {
 
 // alpha mainnet is where we deploy tests
 export const ALPHA_CONFIG = new AppConfig(
-  new PublicKey("5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ"),
-  new PublicKey("EFo9V7mFQgxz7xPMrJ6qLyrjfGXPgsEFEfGEtVQx2xKt"),
-  new PublicKey("3cWR2VDrVhQ43VX8B43MwTazfx66naioXurUh8vrkidt"),
-  new PublicKey("4DUvqxvab2BiJEYR7YHi3nM5tfyLNXFBQbJuExQPK9rf"),
-  new PublicKey("Ff9WeFriS8DoJkiZPEZRpmiFu5jzYx3xZzoGNpwWMp5J"),
-  new PublicKey("EQWujCg9fTnj2wi2oVWWkWsJmtRU2tpEUMhhiVSMtHCH"),
-  new PublicKey("Cuf4Hbuv9RDZ1vzuUE833MKzjeX7odsBeewEjhmVwVRk"),
+  new PublicKey('5dtKmAzoJu4qDxMjjK7gWY2pPe6NWAX6HWQk5QUHaKQZ'),
+  new PublicKey('EFo9V7mFQgxz7xPMrJ6qLyrjfGXPgsEFEfGEtVQx2xKt'),
+  new PublicKey('3cWR2VDrVhQ43VX8B43MwTazfx66naioXurUh8vrkidt'),
+  new PublicKey('4DUvqxvab2BiJEYR7YHi3nM5tfyLNXFBQbJuExQPK9rf'),
+  new PublicKey('Ff9WeFriS8DoJkiZPEZRpmiFu5jzYx3xZzoGNpwWMp5J'),
+  new PublicKey('EQWujCg9fTnj2wi2oVWWkWsJmtRU2tpEUMhhiVSMtHCH'),
+  new PublicKey('Cuf4Hbuv9RDZ1vzuUE833MKzjeX7odsBeewEjhmVwVRk'),
   MINTS,
   DECIMAL_MULT,
   CATEGORY,
@@ -1812,13 +1845,13 @@ export const ALPHA_CONFIG = new AppConfig(
 // public mainnet is where the real thing is
 export const PUBLIC_CONFIG = new AppConfig(
   // not added yet
-  new PublicKey("6UeJYTLU1adaoHWeApWsoj1xNEDbWA2RhM2DLc8CrDDi"),
-  new PublicKey("6L2QoTpr8WUd76eLAGnvow8i3WQzRP36C1qdUna9iwMn"),
-  new PublicKey("F5m8gNjC6pjynywcbw9kK1miSNJMw1nQGeviWykfCCXd"),
-  new PublicKey("FsSq4dqugLgZbsyLNt7bngtBkDApXaHUFXVQ6od5TeQ3"),
-  new PublicKey("GttyqdmooMEcgWqZPrb8FcdwjgaTLweLzuvVpnCMq5q1"),
-  new PublicKey("4aWV85p4o115qVo5p9sgbAGqYXmh34838xFpwuN1nxEP"),
-  new PublicKey("C1k4CehboSgUkmL3BJfw32Xj9HPs9NKTzhT5WXsYwWh4"),
+  new PublicKey('6UeJYTLU1adaoHWeApWsoj1xNEDbWA2RhM2DLc8CrDDi'),
+  new PublicKey('6L2QoTpr8WUd76eLAGnvow8i3WQzRP36C1qdUna9iwMn'),
+  new PublicKey('F5m8gNjC6pjynywcbw9kK1miSNJMw1nQGeviWykfCCXd'),
+  new PublicKey('FsSq4dqugLgZbsyLNt7bngtBkDApXaHUFXVQ6od5TeQ3'),
+  new PublicKey('GttyqdmooMEcgWqZPrb8FcdwjgaTLweLzuvVpnCMq5q1'),
+  new PublicKey('4aWV85p4o115qVo5p9sgbAGqYXmh34838xFpwuN1nxEP'),
+  new PublicKey('C1k4CehboSgUkmL3BJfw32Xj9HPs9NKTzhT5WXsYwWh4'),
   MINTS,
   DECIMAL_MULT,
   CATEGORY,
