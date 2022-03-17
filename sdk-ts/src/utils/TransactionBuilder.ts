@@ -797,20 +797,28 @@ export class TransactionBuilder {
     stakeTableKey: PublicKey,
     stakeKeys: AccountMeta[],
     amount: number,
+    leftMintStr: string,
+    rightMintStr: string,
   ) {
     const [base_pda,] = await this.addresses.getBasePda();
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
     const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
     const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
+    const leftAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, leftMintStr);
+    const rightAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, rightMintStr);
+    const poolSummariesKey = await this.addresses.getPoolSummariesKey();
 
     const keys = [
       { pubkey: unstakeIdentity, isSigner: true, isWritable: false },
       { pubkey: userWalletKey, isSigner: false, isWritable: false },
-      { pubkey: userInfoKey, isSigner: false, isWritable: false },
+      { pubkey: userInfoKey, isSigner: false, isWritable: true },
       { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
       { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
       { pubkey: stakeTableKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
+      { pubkey: leftAssetPoolKey, isSigner: false, isWritable: true},
+      { pubkey: rightAssetPoolKey, isSigner: false, isWritable: true},
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: true},
     ].concat(stakeKeys);
 
     const buffer = new ArrayBuffer(8);
@@ -930,6 +938,12 @@ export class TransactionBuilder {
     lpTokenId: TokenID,
     lpAmount: number,
   ) {
+    const lr = LP_TO_LR[lpTokenId];
+    invariant(lr);
+    const [leftId, rightId] = lr;
+    const leftMint = MINTS[leftId];
+    const rightMint = MINTS[rightId];
+
     const tx = new Transaction();
     const lpMint = MINTS[lpTokenId];
     const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(lpMint.toString());
@@ -957,6 +971,8 @@ export class TransactionBuilder {
         stakeTableKey,
         await this.addresses.getLpStakeKeys(lpTokenId),
         lpAmount,
+        leftMint.toString(),
+        rightMint.toString(),
       );
       tx.add(ix);
     } else {
