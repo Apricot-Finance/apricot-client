@@ -7,6 +7,7 @@ export * from "./ActionWrapper";
 export * from "./PriceInfo";
 export * from "./transform";
 export * from "./Logger";
+export * from "./rpcs";
 
 export function assert(cond: boolean, msg?: string): asserts cond {
   if(!cond) {
