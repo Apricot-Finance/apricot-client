@@ -25,6 +25,7 @@ export enum TokenID {
   wLDO = 'wLDO',
   scnSOL = 'scnSOL',
   SOCN = 'SOCN',
+  wLUNA = 'wLUNA',
   USDT_USDC_SABER = 'USDT_USDC_SABER',
   USTv2_USDC_SABER = 'USTv2_USDC_SABER',
   UST_USDC_SABER = 'UST_USDC_SABER',
