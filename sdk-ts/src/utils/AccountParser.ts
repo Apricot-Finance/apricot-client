@@ -224,13 +224,15 @@ export class AccountParser {
       available_apt: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 8),
       available_mnde: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 9),
       available_ldo: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 10),
+      available_socn: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 11),
+      available_wluna: AccountParser.parseFloat64(data.buffer, reward_base + 8 * 12),
     };
 
     // pad
-    const pad_base = reward_base + 8 * 11;
+    const pad_base = reward_base + 8 * 13;
 
     // last_vest_cutoff_time
-    const last_vest_cutoff_base = pad_base + 24;
+    const last_vest_cutoff_base = pad_base + 8;
     const last_vest_cutoff_time = AccountParser.parseBigUint64(
       data.buffer,
       last_vest_cutoff_base
