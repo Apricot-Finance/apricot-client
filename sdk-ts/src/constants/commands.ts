@@ -8,7 +8,7 @@ export const CMD_REPAY = 0x14;
 export const CMD_EXTERN_LIQUIDATE = 0x15;
 // DEPRECATED self-liquidate
 export const CMD_UPDATE_USER_CONFIG = 0x17;
-// export const CMD_MARGIN_SWAP = 0x18;
+export const CMD_MARGIN_SWAP = 0x18;
 export const CMD_UPDATE_USER_ASSET_CONFIG = 0x19;
 export const CMD_WITHDRAW_AND_REMOVE_USER = 0x1a;
 // export const CMD_TOKEN_DEPOSIT = 0x1b;

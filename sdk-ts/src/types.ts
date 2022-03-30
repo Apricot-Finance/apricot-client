@@ -1,60 +1,60 @@
-import { Decimal } from "decimal.js";
-import { AccountMeta, PublicKey } from "@solana/web3.js";
-import invariant from "tiny-invariant";
-import { InterestRate } from "./constants";
+import { Decimal } from 'decimal.js';
+import { AccountMeta, PublicKey } from '@solana/web3.js';
+import invariant from 'tiny-invariant';
+import { InterestRate } from './constants';
 
 export enum TokenID {
-  APT = "APT",
-  BTC = "BTC",
-  ETH = "ETH",
-  USDT = "USDT",
-  USDC = "USDC",
-  UST = "UST",
-  SOL = "SOL",
-  SBR = "SBR",
-  ORCA = "ORCA",
-  RAY = "RAY",
-  MERC = "MERC",
-  MNDE = "MNDE",
-  mSOL = "mSOL",
-  USTv2 = "USTv2",
-  FTT = "FTT",
-  SRM = "SRM",
-  stSOL = "stSOL",
-  whETH = "whETH",
-  wLDO = "wLDO",
-  scnSOL = "scnSOL",
-  SOCN = "SOCN",
-  USDT_USDC_SABER = "USDT_USDC_SABER",
-  USTv2_USDC_SABER = "USTv2_USDC_SABER",
-  UST_USDC_SABER = "UST_USDC_SABER",
-  SOL_USDC_RAYDIUM = "SOL_USDC_RAYDIUM",
-  RAY_USDC_RAYDIUM = "RAY_USDC_RAYDIUM",
-  SOL_USDT_RAYDIUM = "SOL_USDT_RAYDIUM",
-  mSOL_SOL_RAYDIUM = "mSOL_SOL_RAYDIUM",
-  RAY_USDT_RAYDIUM = "RAY_USDT_RAYDIUM",
-  RAY_ETH_RAYDIUM = "RAY_ETH_RAYDIUM",
-  RAY_SOL_RAYDIUM = "RAY_SOL_RAYDIUM",
-  SRM_USDC_RAYDIUM = "SRM_USDC_RAYDIUM",
-  USDC_USDT_ORCA = "USDC_USDT_ORCA",
-  SOL_USDC_ORCA = "SOL_USDC_ORCA",
-  mSOL_SOL_ORCA = "mSOL_SOL_ORCA",
-  ORCA_USDC_ORCA = "ORCA_USDC_ORCA",
-  ORCA_SOL_ORCA = "ORCA_SOL_ORCA",
-  ETH_USDC_ORCA = "ETH_USDC_ORCA",
-  SOL_USDT_ORCA = "SOL_USDT_ORCA",
-  ETH_SOL_ORCA = "ETH_SOL_ORCA",
-  BTC_mSOL_ORCA = "BTC_mSOL_ORCA",
-  mSOL_USDC_ORCA = "mSOL_USDC_ORCA",
-  APT_USDC_ORCA = "APT_USDC_ORCA",
+  APT = 'APT',
+  BTC = 'BTC',
+  ETH = 'ETH',
+  USDT = 'USDT',
+  USDC = 'USDC',
+  UST = 'UST',
+  SOL = 'SOL',
+  SBR = 'SBR',
+  ORCA = 'ORCA',
+  RAY = 'RAY',
+  MERC = 'MERC',
+  MNDE = 'MNDE',
+  mSOL = 'mSOL',
+  USTv2 = 'USTv2',
+  FTT = 'FTT',
+  SRM = 'SRM',
+  stSOL = 'stSOL',
+  whETH = 'whETH',
+  wLDO = 'wLDO',
+  scnSOL = 'scnSOL',
+  SOCN = 'SOCN',
+  USDT_USDC_SABER = 'USDT_USDC_SABER',
+  USTv2_USDC_SABER = 'USTv2_USDC_SABER',
+  UST_USDC_SABER = 'UST_USDC_SABER',
+  SOL_USDC_RAYDIUM = 'SOL_USDC_RAYDIUM',
+  RAY_USDC_RAYDIUM = 'RAY_USDC_RAYDIUM',
+  SOL_USDT_RAYDIUM = 'SOL_USDT_RAYDIUM',
+  mSOL_SOL_RAYDIUM = 'mSOL_SOL_RAYDIUM',
+  RAY_USDT_RAYDIUM = 'RAY_USDT_RAYDIUM',
+  RAY_ETH_RAYDIUM = 'RAY_ETH_RAYDIUM',
+  RAY_SOL_RAYDIUM = 'RAY_SOL_RAYDIUM',
+  SRM_USDC_RAYDIUM = 'SRM_USDC_RAYDIUM',
+  USDC_USDT_ORCA = 'USDC_USDT_ORCA',
+  SOL_USDC_ORCA = 'SOL_USDC_ORCA',
+  mSOL_SOL_ORCA = 'mSOL_SOL_ORCA',
+  ORCA_USDC_ORCA = 'ORCA_USDC_ORCA',
+  ORCA_SOL_ORCA = 'ORCA_SOL_ORCA',
+  ETH_USDC_ORCA = 'ETH_USDC_ORCA',
+  SOL_USDT_ORCA = 'SOL_USDT_ORCA',
+  ETH_SOL_ORCA = 'ETH_SOL_ORCA',
+  BTC_mSOL_ORCA = 'BTC_mSOL_ORCA',
+  mSOL_USDC_ORCA = 'mSOL_USDC_ORCA',
+  APT_USDC_ORCA = 'APT_USDC_ORCA',
 }
 
 export type PoolId = number;
 
 export enum TokenCategory {
-  Volatile = "volatile",
-  Stable = "stable",
-  Lp = "lp",
+  Volatile = 'volatile',
+  Stable = 'stable',
+  Lp = 'lp',
 }
 
 export enum PoolFlag {
@@ -64,14 +64,18 @@ export enum PoolFlag {
 }
 
 export interface LpSwapKeyInfo {
-  getLpDepositKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
-  getLpWithdrawKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
-  getLpStakeKeys : (ownerKey: PublicKey) => Promise<AccountMeta[]>;
+  getLpDepositKeys: (ownerKey: PublicKey) => Promise<AccountMeta[]>;
+  getLpWithdrawKeys: (ownerKey: PublicKey) => Promise<AccountMeta[]>;
+  getLpStakeKeys: (ownerKey: PublicKey) => Promise<AccountMeta[]>;
   getLRVaults: () => [PublicKey, PublicKey];
 }
 
 export enum Dex {
-  Serum, Raydium, Saber, Mercurial, Orca
+  Serum,
+  Raydium,
+  Saber,
+  Mercurial,
+  Orca,
 }
 
 export class PoolConfig {
@@ -96,13 +100,13 @@ export class PoolConfig {
     invariant(ltv >= 0);
     invariant(mint);
     invariant(liquidationDiscount >= 0);
-    invariant(reserveRatio>=0);
+    invariant(reserveRatio >= 0);
     invariant(reserveRatio <= 0.2);
-    if(tokenCategory === TokenCategory.Lp) {
-      invariant( lpLeftRightTokenId !== null && lpLeftRightTokenId !== undefined);
-      invariant( lpLeftRightPoolId !== null && lpLeftRightPoolId !== undefined);
-      invariant( lpDex !== null && lpDex !== undefined);
-      invariant( lpTargetSwap !== null && lpTargetSwap !== undefined);
+    if (tokenCategory === TokenCategory.Lp) {
+      invariant(lpLeftRightTokenId !== null && lpLeftRightTokenId !== undefined);
+      invariant(lpLeftRightPoolId !== null && lpLeftRightPoolId !== undefined);
+      invariant(lpDex !== null && lpDex !== undefined);
+      invariant(lpTargetSwap !== null && lpTargetSwap !== undefined);
       const [lTokId, rTokId] = lpLeftRightTokenId;
       const [lPoolId, rPoolId] = lpLeftRightPoolId;
       invariant(lTokId, `${tokenId} missing lTokId`);
@@ -110,29 +114,37 @@ export class PoolConfig {
       invariant(lPoolId >= 0, `${tokenId} missing lPoolId`);
       invariant(rPoolId >= 0, `${tokenId} missing rPoolId`);
       invariant(lpSwapKeyInfo, `${tokenId} is missing lpSwapKeyInfo`);
-      invariant(lpNeedSndStake === true || lpNeedSndStake === false, `${tokenId} missing lpNeedSndStake`);
-    }
-    else {
+      invariant(
+        lpNeedSndStake === true || lpNeedSndStake === false,
+        `${tokenId} missing lpNeedSndStake`,
+      );
+    } else {
       invariant(interestRate);
     }
   }
 
-  isStable() { return this.tokenCategory === TokenCategory.Stable; }
-  isLp() { return this.tokenCategory === TokenCategory.Lp; }
-  isVolatile() { return this.tokenCategory === TokenCategory.Volatile; }
+  isStable() {
+    return this.tokenCategory === TokenCategory.Stable;
+  }
+  isLp() {
+    return this.tokenCategory === TokenCategory.Lp;
+  }
+  isVolatile() {
+    return this.tokenCategory === TokenCategory.Volatile;
+  }
 }
 
 function getLpLRPoolIds(
   tokId: TokenID,
   lpToLR: { [key in TokenID]?: [TokenID, TokenID] | undefined },
-  tokenIdToPoolId: { [key in TokenID]?: PoolId | undefined; },
+  tokenIdToPoolId: { [key in TokenID]?: PoolId | undefined },
 ): [PoolId, PoolId] {
   const [leftTokId, rightTokId] = lpToLR[tokId]!;
   return [tokenIdToPoolId[leftTokId]!, tokenIdToPoolId[rightTokId]!];
 }
 
 export class AppConfig {
-  poolConfigs: {[key in TokenID]? : PoolConfig};
+  poolConfigs: { [key in TokenID]?: PoolConfig };
   constructor(
     public programPubkey: PublicKey,
     public adminPubkey: PublicKey,
@@ -142,20 +154,20 @@ export class AppConfig {
     public retroAptVault: PublicKey,
     public lmAptVault: PublicKey,
     // maps from TokenID to mint/decimalMult/poolId/ltv
-    public mints: { [key in TokenID]: PublicKey; },
-    public decimalMults: { [key in TokenID]: number; },
-    public categories: {[key in TokenID]: TokenCategory},
+    public mints: { [key in TokenID]: PublicKey },
+    public decimalMults: { [key in TokenID]: number },
+    public categories: { [key in TokenID]: TokenCategory },
 
     public tokenIdToPoolId: { [key in TokenID]?: PoolId | undefined },
-    public discounts: {[key in TokenID]?: number | undefined },
-    public ltvs: {[key in TokenID]?: number | undefined },
+    public discounts: { [key in TokenID]?: number | undefined },
+    public ltvs: { [key in TokenID]?: number | undefined },
     public lpToLR: { [key in TokenID]?: [TokenID, TokenID] | undefined },
     public lpToDex: { [key in TokenID]?: Dex | undefined },
     public lpToTargetSwap: { [key in TokenID]?: number | undefined },
     public lpToNeedSndStake: { [key in TokenID]?: boolean },
-    public switchboardPriceKeys: { [key in TokenID]?: PublicKey; },
-    public pythPriceKeys: { [key in TokenID]?: PublicKey; },
-    public interestRates: { [key in TokenID]?: InterestRate; },
+    public switchboardPriceKeys: { [key in TokenID]?: PublicKey },
+    public pythPriceKeys: { [key in TokenID]?: PublicKey },
+    public interestRates: { [key in TokenID]?: InterestRate },
     public fees: { [key in TokenID]?: number },
     public lpSwapInfo: { [key in TokenID]?: LpSwapKeyInfo },
     public firebaseConfig: object,
@@ -164,31 +176,36 @@ export class AppConfig {
     this.tokenIdToPoolId = tokenIdToPoolId;
     const poolIds = Object.values(tokenIdToPoolId);
     const idSet = new Set(poolIds);
-    invariant(poolIds.length === idSet.size, `poolIds length: ${poolIds.length} != idSet.size: ${idSet.size}`);
+    invariant(
+      poolIds.length === idSet.size,
+      `poolIds length: ${poolIds.length} != idSet.size: ${idSet.size}`,
+    );
     this.poolConfigs = {};
     for (const tokenId in tokenIdToPoolId) {
       const tokId = tokenId as TokenID;
       this.poolConfigs[tokId] = new PoolConfig(
-        tokId, 
+        tokId,
         tokenIdToPoolId[tokId]!,
         ltvs[tokId]!,
         mints[tokId],
         discounts[tokId]!,
         categories[tokId],
-        categories[tokId] === TokenCategory.Lp? lpToLR[tokId]! : null,
-        categories[tokId] === TokenCategory.Lp? getLpLRPoolIds(tokId, lpToLR, tokenIdToPoolId) : null,
-        categories[tokId] === TokenCategory.Lp? lpToDex[tokId]! : null,
-        categories[tokId] === TokenCategory.Lp? lpToTargetSwap[tokId]! : null,
+        categories[tokId] === TokenCategory.Lp ? lpToLR[tokId]! : null,
+        categories[tokId] === TokenCategory.Lp
+          ? getLpLRPoolIds(tokId, lpToLR, tokenIdToPoolId)
+          : null,
+        categories[tokId] === TokenCategory.Lp ? lpToDex[tokId]! : null,
+        categories[tokId] === TokenCategory.Lp ? lpToTargetSwap[tokId]! : null,
         lpSwapInfo[tokId]!,
-        categories[tokId] === TokenCategory.Lp? lpToNeedSndStake[tokId]! : null,
-        categories[tokId] === TokenCategory.Lp? null : interestRates[tokId]!,
+        categories[tokId] === TokenCategory.Lp ? lpToNeedSndStake[tokId]! : null,
+        categories[tokId] === TokenCategory.Lp ? null : interestRates[tokId]!,
         fees[tokId]!,
       );
     }
   }
   mintKeyStrToPoolId(mint_key_str: string): number {
-    for(const [tokenType, pubkey] of Object.entries(this.mints)) {
-      if(pubkey.toString() === mint_key_str) {
+    for (const [tokenType, pubkey] of Object.entries(this.mints)) {
+      if (pubkey.toString() === mint_key_str) {
         const result = this.tokenIdToPoolId[tokenType as TokenID];
         invariant(result !== undefined);
         return result;
@@ -200,9 +217,8 @@ export class AppConfig {
     return Object.values(this.tokenIdToPoolId);
   }
   getTokenIdByPoolId(targetPoolId: number): TokenID {
-    for(const [tokenId, poolId] of Object.entries(this.tokenIdToPoolId)) {
-      if (poolId === targetPoolId)
-        return tokenId as TokenID;
+    for (const [tokenId, poolId] of Object.entries(this.tokenIdToPoolId)) {
+      if (poolId === targetPoolId) return tokenId as TokenID;
     }
     throw new Error(`poolId ${targetPoolId} not valid`);
   }
@@ -227,6 +243,7 @@ export class AppConfig {
   }
 }
 
+// prettier-ignore
 export interface AssetPool {
   coin_name         : string;
 
@@ -285,6 +302,7 @@ export interface AssetPrice {
   price_in_usd: Decimal;
 }
 
+// prettier-ignore
 export interface UserInfo {
   page_id         : number;
   num_assets      : number;
@@ -295,6 +313,7 @@ export interface UserInfo {
   assist          : Assist;
 }
 
+// prettier-ignore
 export interface JsonUserInfo {
   page_id         : number;
   num_assets      : number;
@@ -305,6 +324,7 @@ export interface JsonUserInfo {
   assist          : Assist;
 }
 
+// prettier-ignore
 export interface UserAssetInfo {
   pool_id               : number;
   use_as_collateral     : number;
@@ -322,6 +342,7 @@ export interface UserAssetInfo {
   reward_borrow_index   : Decimal;
 }
 
+// prettier-ignore
 export interface JsonUserAssetInfo {
   pool_id               : number;
   use_as_collateral     : number;
@@ -339,6 +360,7 @@ export interface JsonUserAssetInfo {
   reward_borrow_index   : number;
 }
 
+// prettier-ignore
 export interface Assist {
   assist_mode           : number;
   self_deleverage_factor: number;
@@ -355,7 +377,7 @@ export interface ApiAssetPool {
   tokenName: string;
   mintKey: PublicKey;
   poolKey: PublicKey;
-  allowBorrow: boolean,
+  allowBorrow: boolean;
   isLp: boolean;
   isStable: boolean;
   depositAmount: Decimal;
@@ -378,22 +400,22 @@ export interface ApiAssetPool {
 }
 
 export interface ApiBorrowPowerInfo {
-  totalDeposit: Decimal,
-  totalCollateral: Decimal,
-  maxBorrowAllowed: Decimal,
-  totalBorrow: Decimal,
-  collateralRatio: Decimal,
-  safeLimit: Decimal,
-  forceAssistLimit: Decimal,
-  liquidationLimit: Decimal,
-  assistTriggerLimit?: Decimal,
-  assistTargetLimit?: Decimal,
+  totalDeposit: Decimal;
+  totalCollateral: Decimal;
+  maxBorrowAllowed: Decimal;
+  totalBorrow: Decimal;
+  collateralRatio: Decimal;
+  safeLimit: Decimal;
+  forceAssistLimit: Decimal;
+  liquidationLimit: Decimal;
+  assistTriggerLimit?: Decimal;
+  assistTargetLimit?: Decimal;
 }
 
 export interface ApiUserAssetInfo {
-  tokenId: TokenID,
-  useAsCollateral: boolean,
-  ltv: Decimal,
+  tokenId: TokenID;
+  useAsCollateral: boolean;
+  ltv: Decimal;
   depositAmount: Decimal;
   depositValue?: Decimal;
   borrowAmount: Decimal;
@@ -408,4 +430,9 @@ export interface ApiUserInfo {
 
 export interface AptUserRewardInfo {
   // TODO
+}
+
+export interface AdhocSwapInfo {
+  targetSwap: number;
+  getSwapKeys: (isBuy: boolean) => AccountMeta[];
 }
