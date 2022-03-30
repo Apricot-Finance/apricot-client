@@ -1,7 +1,15 @@
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { Keypair, AccountMeta, PublicKey, SystemProgram, Transaction, TransactionInstruction, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
-import invariant from "tiny-invariant";
-import { Addresses } from "../addresses";
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import {
+  Keypair,
+  AccountMeta,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+  SYSVAR_CLOCK_PUBKEY,
+} from '@solana/web3.js';
+import invariant from 'tiny-invariant';
+import { Addresses } from '../addresses';
 import {
   CMD_ADD_USER_AND_DEPOSIT,
   CMD_BORROW,
@@ -20,28 +28,24 @@ import {
   CMD_UPDATE_USER_CONFIG,
   CMD_WITHDRAW,
   CMD_WITHDRAW_AND_REMOVE_USER,
+  CMD_MARGIN_SWAP,
   SWAP_ORCA,
   SWAP_RAYDIUM,
-} from "../constants/commands";
-import { LP_TO_LR, MINTS } from "../constants/configs";
-import { UserInfo, TokenID } from "../types";
-import { AccountParser } from "./AccountParser";
+} from '../constants/commands';
+import { LP_TO_LR, MINTS, DIRECT_SWAP_META } from '../constants/configs';
+import { UserInfo, TokenID } from '../types';
+import { AccountParser } from './AccountParser';
 
-const sysvarInstructionsKey = new PublicKey("Sysvar1nstructions1111111111111111111111111");
+const sysvarInstructionsKey = new PublicKey('Sysvar1nstructions1111111111111111111111111');
 
 export class TransactionBuilder {
+  constructor(public addresses: Addresses) {}
 
-  constructor(
-    public addresses: Addresses,
-  ) {
-
-  }
-
-  mintKeyStrToPoolIdArray(mintKeyStr: string) : number[] {
+  mintKeyStrToPoolIdArray(mintKeyStr: string): number[] {
     return [this.addresses.mintKeyStrToPoolId(mintKeyStr)];
   }
 
-  mintKeyStrToPoolId(mintKeyStr: string) : number {
+  mintKeyStrToPoolId(mintKeyStr: string): number {
     return this.addresses.mintKeyStrToPoolId(mintKeyStr);
   }
 
@@ -51,9 +55,9 @@ export class TransactionBuilder {
     const inst = new TransactionInstruction({
       programId: this.addresses.getProgramKey(),
       keys: [
-        { pubkey: userWalletKey,    isSigner: false, isWritable: false },    // wallet
-        { pubkey: userInfoKey,      isSigner: false, isWritable: true },         // UserInfo
-        { pubkey: poolSummariesKey, isSigner: false, isWritable: false },   // PoolSummaries
+        { pubkey: userWalletKey, isSigner: false, isWritable: false }, // wallet
+        { pubkey: userInfoKey, isSigner: false, isWritable: true }, // UserInfo
+        { pubkey: poolSummariesKey, isSigner: false, isWritable: false }, // PoolSummaries
       ],
       data: Buffer.from([CMD_REFRESH_USER]),
     });
@@ -78,8 +82,8 @@ export class TransactionBuilder {
     const inst = new TransactionInstruction({
       programId: this.addresses.getProgramKey(),
       keys: [
-        { pubkey: walletKey,    isSigner: true, isWritable: false },    // wallet
-        { pubkey: userInfoKey,  isSigner: false, isWritable: true },   // userInfo
+        { pubkey: walletKey, isSigner: true, isWritable: false }, // wallet
+        { pubkey: userInfoKey, isSigner: false, isWritable: true }, // userInfo
       ],
       data: Buffer.from(data),
     });
@@ -112,17 +116,17 @@ export class TransactionBuilder {
     const inst = new TransactionInstruction({
       programId: this.addresses.getProgramKey(),
       keys: [
-        { pubkey: walletKey,              isSigner: true,  isWritable: true },  // user wallet
-        { pubkey: userSplKey,             isSigner: false, isWritable: true },  // account for PoolList
-        { pubkey: userPagesStatsKey,      isSigner: false, isWritable: true },  // UserPagesStats
-        { pubkey: usersPageKey,           isSigner: false, isWritable: true },  // UsersPage
-        { pubkey: userInfoKey,            isSigner: false, isWritable: true },  // UserInfo
-        { pubkey: assetPoolKey,           isSigner: false, isWritable: true },  // AssetPool
-        { pubkey: assetPoolSplKey,        isSigner: false, isWritable: true },  // AssetPool's spl account
-        { pubkey: poolSummariesKey,       isSigner: false, isWritable: true },  // PoolSummaries
-        { pubkey: priceSummariesKey,      isSigner: false, isWritable: false }, // PriceSummaries
-        { pubkey: SystemProgram.programId,isSigner: false, isWritable: false }, // system program account
-        { pubkey: TOKEN_PROGRAM_ID,       isSigner: false, isWritable: false }, // spl-token program account
+        { pubkey: walletKey, isSigner: true, isWritable: true }, // user wallet
+        { pubkey: userSplKey, isSigner: false, isWritable: true }, // account for PoolList
+        { pubkey: userPagesStatsKey, isSigner: false, isWritable: true }, // UserPagesStats
+        { pubkey: usersPageKey, isSigner: false, isWritable: true }, // UsersPage
+        { pubkey: userInfoKey, isSigner: false, isWritable: true }, // UserInfo
+        { pubkey: assetPoolKey, isSigner: false, isWritable: true }, // AssetPool
+        { pubkey: assetPoolSplKey, isSigner: false, isWritable: true }, // AssetPool's spl account
+        { pubkey: poolSummariesKey, isSigner: false, isWritable: true }, // PoolSummaries
+        { pubkey: priceSummariesKey, isSigner: false, isWritable: false }, // PriceSummaries
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, // system program account
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // spl-token program account
       ],
       data: Buffer.from([CMD_ADD_USER_AND_DEPOSIT].concat(payload).concat(poolIdArray)),
     });
@@ -151,13 +155,13 @@ export class TransactionBuilder {
     const inst = new TransactionInstruction({
       programId: this.addresses.getProgramKey(),
       keys: [
-        { pubkey: userWalletKey,    isSigner: true,  isWritable: true },  // user wallet
-        { pubkey: userSplKey,       isSigner: false, isWritable: true },  // account for PoolList
-        { pubkey: userInfoKey,      isSigner: false, isWritable: true },  // UserInfo
-        { pubkey: assetPoolKey,     isSigner: false, isWritable: true },  // AssetPool
-        { pubkey: assetPoolSplKey,  isSigner: false, isWritable: true },  // AssetPool's spl account
-        { pubkey: poolSummariesKey, isSigner: false, isWritable: true },  // PoolSummaries
-        { pubkey: priceSummariesKey,isSigner: false, isWritable: false }, // PriceSummaries
+        { pubkey: userWalletKey, isSigner: true, isWritable: true }, // user wallet
+        { pubkey: userSplKey, isSigner: false, isWritable: true }, // account for PoolList
+        { pubkey: userInfoKey, isSigner: false, isWritable: true }, // UserInfo
+        { pubkey: assetPoolKey, isSigner: false, isWritable: true }, // AssetPool
+        { pubkey: assetPoolSplKey, isSigner: false, isWritable: true }, // AssetPool's spl account
+        { pubkey: poolSummariesKey, isSigner: false, isWritable: true }, // PoolSummaries
+        { pubkey: priceSummariesKey, isSigner: false, isWritable: false }, // PriceSummaries
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // spl-token program account
       ],
       data: Buffer.from([CMD_DEPOSIT].concat(payload).concat(poolIdArray)),
@@ -176,7 +180,7 @@ export class TransactionBuilder {
   ): Promise<Transaction | null> {
     const pageId = userInfo.page_id;
     if (pageId > 10000) {
-      console.log("User not added to backend yet.");
+      console.log('User not added to backend yet.');
       return null;
     }
     const [basePda] = await this.addresses.getBasePda();
@@ -189,17 +193,17 @@ export class TransactionBuilder {
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
     const priceSummariesKey = await this.addresses.getPriceSummariesKey(basePda);
     const keys = [
-      { pubkey: userWalletKey,      isSigner: true, isWritable: true }, // user wallet
-      { pubkey: userSplKey,         isSigner: false, isWritable: true }, // account for PoolList
-      { pubkey: userPagesStatsKey,  isSigner: false, isWritable: true }, // UserPagesStats
-      { pubkey: usersPageKey,       isSigner: false, isWritable: true }, // UsersPage
-      { pubkey: userInfoKey,        isSigner: false, isWritable: true }, // UserInfo
-      { pubkey: assetPoolKey,       isSigner: false, isWritable: true }, // AssetPool
-      { pubkey: assetPoolSplKey,    isSigner: false, isWritable: true }, // AssetPool's spl account
-      { pubkey: poolSummariesKey,   isSigner: false, isWritable: true }, // PoolSummaries
-      { pubkey: priceSummariesKey,  isSigner: false, isWritable: false }, // PriceSummaries
-      { pubkey: basePda,            isSigner: false, isWritable: false }, // basePda
-      { pubkey: TOKEN_PROGRAM_ID,   isSigner: false, isWritable: false }, // spl-token program account
+      { pubkey: userWalletKey, isSigner: true, isWritable: true }, // user wallet
+      { pubkey: userSplKey, isSigner: false, isWritable: true }, // account for PoolList
+      { pubkey: userPagesStatsKey, isSigner: false, isWritable: true }, // UserPagesStats
+      { pubkey: usersPageKey, isSigner: false, isWritable: true }, // UsersPage
+      { pubkey: userInfoKey, isSigner: false, isWritable: true }, // UserInfo
+      { pubkey: assetPoolKey, isSigner: false, isWritable: true }, // AssetPool
+      { pubkey: assetPoolSplKey, isSigner: false, isWritable: true }, // AssetPool's spl account
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: true }, // PoolSummaries
+      { pubkey: priceSummariesKey, isSigner: false, isWritable: false }, // PriceSummaries
+      { pubkey: basePda, isSigner: false, isWritable: false }, // basePda
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // spl-token program account
     ];
     const buffer = new ArrayBuffer(9);
     AccountParser.setUint8(buffer, 0, withdrawAll ? 1 : 0);
@@ -232,15 +236,15 @@ export class TransactionBuilder {
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
     const priceSummariesKey = await this.addresses.getPriceSummariesKey(basePda);
     const keys = [
-      { pubkey: userWalletKey,      isSigner: true, isWritable: true }, // user wallet
-      { pubkey: userSplKey,         isSigner: false, isWritable: true }, // account for PoolList
-      { pubkey: userInfoKey,        isSigner: false, isWritable: true }, // UserInfo
-      { pubkey: assetPoolKey,       isSigner: false, isWritable: true }, // AssetPool
-      { pubkey: assetPoolSplKey,    isSigner: false, isWritable: true }, // AssetPool's spl account
-      { pubkey: poolSummariesKey,   isSigner: false, isWritable: true }, // PoolSummaries
-      { pubkey: priceSummariesKey,  isSigner: false, isWritable: false }, // PriceSummaries
-      { pubkey: basePda,            isSigner: false, isWritable: false }, // basePda
-      { pubkey: TOKEN_PROGRAM_ID,   isSigner: false, isWritable: false }, // spl-token program account
+      { pubkey: userWalletKey, isSigner: true, isWritable: true }, // user wallet
+      { pubkey: userSplKey, isSigner: false, isWritable: true }, // account for PoolList
+      { pubkey: userInfoKey, isSigner: false, isWritable: true }, // UserInfo
+      { pubkey: assetPoolKey, isSigner: false, isWritable: true }, // AssetPool
+      { pubkey: assetPoolSplKey, isSigner: false, isWritable: true }, // AssetPool's spl account
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: true }, // PoolSummaries
+      { pubkey: priceSummariesKey, isSigner: false, isWritable: false }, // PriceSummaries
+      { pubkey: basePda, isSigner: false, isWritable: false }, // basePda
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // spl-token program account
     ];
     const buffer = new ArrayBuffer(9);
     AccountParser.setUint8(buffer, 0, withdraw_all ? 1 : 0);
@@ -272,14 +276,14 @@ export class TransactionBuilder {
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
     const priceSummariesKey = await this.addresses.getPriceSummariesKey(basePda);
     const keys = [
-      { pubkey: userWalletKey,    isSigner: true, isWritable: true }, // user wallet
-      { pubkey: userSplKey,       isSigner: false, isWritable: true }, // account for PoolList
-      { pubkey: userInfoKey,      isSigner: false, isWritable: true }, // UserInfo
-      { pubkey: assetPoolKey,     isSigner: false, isWritable: true }, // AssetPool
-      { pubkey: assetPoolSplKey,  isSigner: false, isWritable: true }, // AssetPool's spl account
+      { pubkey: userWalletKey, isSigner: true, isWritable: true }, // user wallet
+      { pubkey: userSplKey, isSigner: false, isWritable: true }, // account for PoolList
+      { pubkey: userInfoKey, isSigner: false, isWritable: true }, // UserInfo
+      { pubkey: assetPoolKey, isSigner: false, isWritable: true }, // AssetPool
+      { pubkey: assetPoolSplKey, isSigner: false, isWritable: true }, // AssetPool's spl account
       { pubkey: poolSummariesKey, isSigner: false, isWritable: true }, // PoolSummaries
-      { pubkey: priceSummariesKey,isSigner: false, isWritable: false }, // PriceSummaries
-      { pubkey: basePda,          isSigner: false, isWritable: false }, // basePda
+      { pubkey: priceSummariesKey, isSigner: false, isWritable: false }, // PriceSummaries
+      { pubkey: basePda, isSigner: false, isWritable: false }, // basePda
       { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // spl-token program account
     ];
 
@@ -312,11 +316,11 @@ export class TransactionBuilder {
     const assetPoolSplKey = await this.addresses.getAssetPoolSplKey(basePda, mintKeyStr);
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
     const keys = [
-      { pubkey: userWalletKey,    isSigner: true,  isWritable: true }, // user wallet
-      { pubkey: userSplKey,       isSigner: false, isWritable: true }, // account for PoolList
-      { pubkey: userInfoKey,      isSigner: false, isWritable: true }, // UserInfo
-      { pubkey: assetPoolKey,     isSigner: false, isWritable: true }, // AssetPool
-      { pubkey: assetPoolSplKey,  isSigner: false, isWritable: true }, // AssetPool's spl account
+      { pubkey: userWalletKey, isSigner: true, isWritable: true }, // user wallet
+      { pubkey: userSplKey, isSigner: false, isWritable: true }, // account for PoolList
+      { pubkey: userInfoKey, isSigner: false, isWritable: true }, // UserInfo
+      { pubkey: assetPoolKey, isSigner: false, isWritable: true }, // AssetPool
+      { pubkey: assetPoolSplKey, isSigner: false, isWritable: true }, // AssetPool's spl account
       { pubkey: poolSummariesKey, isSigner: false, isWritable: true }, // PoolSummaries
       { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // spl-token program account
     ];
@@ -358,24 +362,24 @@ export class TransactionBuilder {
     const priceSummariesKey = await this.addresses.getPriceSummariesKey(basePda);
 
     const keys = [
-      { pubkey: liquidatedWalletKey,      isSigner: false, isWritable: false },
-      { pubkey: liquidatorWalletKey,      isSigner: true,  isWritable: false },
-      { pubkey: userInfoKey,              isSigner: false, isWritable: true },
-      { pubkey: basePda,                  isSigner: false, isWritable: false },
+      { pubkey: liquidatedWalletKey, isSigner: false, isWritable: false },
+      { pubkey: liquidatorWalletKey, isSigner: true, isWritable: false },
+      { pubkey: userInfoKey, isSigner: false, isWritable: true },
+      { pubkey: basePda, isSigner: false, isWritable: false },
 
-      { pubkey: liquidatorCollateralSpl,  isSigner: false, isWritable: true },
-      { pubkey: liquidatorBorrowedSpl,    isSigner: false, isWritable: true },
+      { pubkey: liquidatorCollateralSpl, isSigner: false, isWritable: true },
+      { pubkey: liquidatorBorrowedSpl, isSigner: false, isWritable: true },
 
-      { pubkey: collateralPoolKey,        isSigner: false, isWritable: true },
-      { pubkey: collateralPoolSpl,        isSigner: false, isWritable: true },
+      { pubkey: collateralPoolKey, isSigner: false, isWritable: true },
+      { pubkey: collateralPoolSpl, isSigner: false, isWritable: true },
 
-      { pubkey: borrowedPoolKey,          isSigner: false, isWritable: true },
-      { pubkey: borrowedPoolSpl,          isSigner: false, isWritable: true },
+      { pubkey: borrowedPoolKey, isSigner: false, isWritable: true },
+      { pubkey: borrowedPoolSpl, isSigner: false, isWritable: true },
 
-      { pubkey: poolSummariesKey,         isSigner: false, isWritable: true }, // PoolSummaries
-      { pubkey: priceSummariesKey,        isSigner: false, isWritable: false }, // PriceSummaries
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: true }, // PoolSummaries
+      { pubkey: priceSummariesKey, isSigner: false, isWritable: false }, // PriceSummaries
 
-      { pubkey: TOKEN_PROGRAM_ID,         isSigner: false, isWritable: false }, // spl-token program account
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // spl-token program account
     ];
 
     const buffer = new ArrayBuffer(8 + 8);
@@ -414,7 +418,7 @@ export class TransactionBuilder {
     isCreate: boolean,
     isSigned: boolean,
   ): Promise<TransactionInstruction> {
-    const [base_pda,]= await this.addresses.getBasePda();
+    const [base_pda] = await this.addresses.getBasePda();
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
     const leftAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, leftMintStr);
     const leftAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, leftMintStr);
@@ -425,16 +429,16 @@ export class TransactionBuilder {
     const priceSummariesKey = await this.addresses.getPriceSummariesKey(base_pda);
 
     const keys = [
-      {pubkey: userWalletKey,         isSigner: isSigned,    isWritable: false},
-      {pubkey: userInfoKey,           isSigner: false,        isWritable: true},
-      {pubkey: leftAssetPoolKey,      isSigner: false,        isWritable: true},
-      {pubkey: leftAssetPoolSplKey,   isSigner: false,        isWritable: true},
-      {pubkey: rightAssetPoolKey,     isSigner: false,        isWritable: true},
-      {pubkey: rightAssetPoolSplKey,  isSigner: false,        isWritable: true},
-      {pubkey: lpAssetPoolKey,        isSigner: false,        isWritable: true},
-      {pubkey: poolSummariesKey,      isSigner: false,        isWritable: true},
-      {pubkey: priceSummariesKey,     isSigner: false,        isWritable: false},
-      {pubkey: sysvarInstructionsKey, isSigner: false,        isWritable: false},
+      { pubkey: userWalletKey, isSigner: isSigned, isWritable: false },
+      { pubkey: userInfoKey, isSigner: false, isWritable: true },
+      { pubkey: leftAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: leftAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: rightAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: rightAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: true },
+      { pubkey: priceSummariesKey, isSigner: false, isWritable: false },
+      { pubkey: sysvarInstructionsKey, isSigner: false, isWritable: false },
     ];
 
     const buffer = new ArrayBuffer(29);
@@ -448,7 +452,7 @@ export class TransactionBuilder {
     const lpPoolId = this.mintKeyStrToPoolId(lpMintStr);
     AccountParser.setUint8(buffer, 26, lpPoolId);
     AccountParser.setUint8(buffer, 27, targetSwap);
-    AccountParser.setUint8(buffer, 28, isCreate? 1 : 0);
+    AccountParser.setUint8(buffer, 28, isCreate ? 1 : 0);
     const payload = Array.from(new Uint8Array(buffer));
 
     const data = [CMD_LP_OP_CHECK].concat(payload);
@@ -456,17 +460,15 @@ export class TransactionBuilder {
     return new TransactionInstruction({
       programId: this.addresses.getProgramKey(),
       keys: keys,
-      data: Buffer.from(data)
+      data: Buffer.from(data),
     });
   }
 
-  async buildLpOpEndcheckIx(
-    _userWalletKey: PublicKey,
-  ): Promise<TransactionInstruction> {
+  async buildLpOpEndcheckIx(_userWalletKey: PublicKey): Promise<TransactionInstruction> {
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
 
     const keys = [
-      {pubkey: poolSummariesKey,          isSigner: false,        isWritable: true},     // PoolSummaries
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: true }, // PoolSummaries
     ];
 
     return new TransactionInstruction({
@@ -488,7 +490,7 @@ export class TransactionBuilder {
     swap_account_keys: AccountMeta[],
     stakeKeys: AccountMeta[],
   ): Promise<Transaction> {
-    const [base_pda,] = await this.addresses.getBasePda();
+    const [base_pda] = await this.addresses.getBasePda();
     const user_wallet_key = walletAccount.publicKey;
     const userInfoKey = await this.addresses.getUserInfoKey(user_wallet_key);
     const leftAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, leftMintStr);
@@ -501,18 +503,18 @@ export class TransactionBuilder {
     const priceSummariesKey = await this.addresses.getPriceSummariesKey(base_pda);
 
     const keys = [
-      {pubkey: user_wallet_key,       isSigner: true,     isWritable: false},
-      {pubkey: userInfoKey,           isSigner: false,    isWritable: true},
-      {pubkey: base_pda,              isSigner: false,    isWritable: false},
-      {pubkey: leftAssetPoolKey,      isSigner: false,    isWritable: true},
-      {pubkey: leftAssetPoolSplKey,   isSigner: false,    isWritable: true},
-      {pubkey: rightAssetPoolKey,     isSigner: false,    isWritable: true},
-      {pubkey: rightAssetPoolSplKey,  isSigner: false,    isWritable: true},
-      {pubkey: lpAssetPoolKey,        isSigner: false,    isWritable: true},
-      {pubkey: lpAssetPoolSplKey,     isSigner: false,    isWritable: true},
-      {pubkey: poolSummariesKey,      isSigner: false,    isWritable: true},
-      {pubkey: priceSummariesKey,     isSigner: false,    isWritable: false},
-      {pubkey: TOKEN_PROGRAM_ID,      isSigner: false,    isWritable: false},
+      { pubkey: user_wallet_key, isSigner: true, isWritable: false },
+      { pubkey: userInfoKey, isSigner: false, isWritable: true },
+      { pubkey: base_pda, isSigner: false, isWritable: false },
+      { pubkey: leftAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: leftAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: rightAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: rightAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: true },
+      { pubkey: priceSummariesKey, isSigner: false, isWritable: false },
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
     ].concat(swap_account_keys);
 
     const lpPoolId = this.mintKeyStrToPoolId(lpMintStr);
@@ -521,8 +523,10 @@ export class TransactionBuilder {
     const poolConfig = this.addresses.config.getPoolConfigByPoolId(lpPoolId);
     invariant(poolConfig);
     if (poolConfig.lpNeedSndStake) {
-      const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(poolConfig.mint.toString());
-      keys.push({ pubkey: stakeTableKey,  isSigner: false, isWritable: true });
+      const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(
+        poolConfig.mint.toString(),
+      );
+      keys.push({ pubkey: stakeTableKey, isSigner: false, isWritable: true });
     }
 
     const buffer = new ArrayBuffer(28);
@@ -542,20 +546,28 @@ export class TransactionBuilder {
     const inst = new TransactionInstruction({
       programId: this.addresses.getProgramKey(),
       keys: keys,
-      data: Buffer.from(data)
+      data: Buffer.from(data),
     });
 
     const tx = new Transaction()
-      .add(await this.buildLpOpCheckIx(
-        walletAccount.publicKey, leftMintStr, leftAmount, rightMintStr, rightAmount, lpMintStr, min_lpAmount, targetSwap, true, true))
+      .add(
+        await this.buildLpOpCheckIx(
+          walletAccount.publicKey,
+          leftMintStr,
+          leftAmount,
+          rightMintStr,
+          rightAmount,
+          lpMintStr,
+          min_lpAmount,
+          targetSwap,
+          true,
+          true,
+        ),
+      )
       .add(inst);
 
-    if(stakeKeys.length > 0) {
-      const stake_ix = await this.buildLpStakeIx(
-        lpMintStr,
-        targetSwap,
-        stakeKeys,
-      );
+    if (stakeKeys.length > 0) {
+      const stake_ix = await this.buildLpStakeIx(lpMintStr, targetSwap, stakeKeys);
       tx.add(stake_ix);
     }
 
@@ -600,7 +612,7 @@ export class TransactionBuilder {
     unstakeKeys: AccountMeta[],
     is_signed = true,
   ): Promise<Transaction> {
-    const [base_pda,] = await this.addresses.getBasePda();
+    const [base_pda] = await this.addresses.getBasePda();
     const userInfoKey = await this.addresses.getUserInfoKey(walletKey);
     const leftAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, leftMintStr);
     const leftAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, leftMintStr);
@@ -612,30 +624,38 @@ export class TransactionBuilder {
     const priceSummariesKey = await this.addresses.getPriceSummariesKey(base_pda);
 
     const keys = [
-      {pubkey: walletKey,            isSigner: is_signed,    isWritable: true},
-      {pubkey: userInfoKey,           isSigner: false,        isWritable: true},
-      {pubkey: base_pda,              isSigner: false,        isWritable: false},
-      {pubkey: leftAssetPoolKey,      isSigner: false,        isWritable: true},
-      {pubkey: leftAssetPoolSplKey,   isSigner: false,        isWritable: true},
-      {pubkey: rightAssetPoolKey,     isSigner: false,        isWritable: true},
-      {pubkey: rightAssetPoolSplKey,  isSigner: false,        isWritable: true},
-      {pubkey: lpAssetPoolKey,        isSigner: false,        isWritable: true},
-      {pubkey: lpAssetPoolSplKey,     isSigner: false,        isWritable: true},
-      {pubkey: poolSummariesKey,      isSigner: false,        isWritable: true},
-      {pubkey: priceSummariesKey,     isSigner: false,        isWritable: false},
-      {pubkey: TOKEN_PROGRAM_ID,    isSigner: false,        isWritable: false},
+      { pubkey: walletKey, isSigner: is_signed, isWritable: true },
+      { pubkey: userInfoKey, isSigner: false, isWritable: true },
+      { pubkey: base_pda, isSigner: false, isWritable: false },
+      { pubkey: leftAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: leftAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: rightAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: rightAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: true },
+      { pubkey: priceSummariesKey, isSigner: false, isWritable: false },
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
     ].concat(swap_account_keys);
 
     const poolId = this.mintKeyStrToPoolId(lpMintStr);
 
     const poolConfig = this.addresses.config.getPoolConfigByPoolId(poolId);
     if (poolConfig.lpNeedSndStake) {
-      const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(poolConfig.mint.toString());
-      keys.push({ pubkey: stakeTableKey,  isSigner: false, isWritable: true });
+      const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(
+        poolConfig.mint.toString(),
+      );
+      keys.push({ pubkey: stakeTableKey, isSigner: false, isWritable: true });
     }
 
     const data = this.buildMarginLpRedeemParam(
-      leftMintStr, minLeftAmount, rightMintStr, min_rightAmount, lpMintStr, lpAmount, targetSwap,
+      leftMintStr,
+      minLeftAmount,
+      rightMintStr,
+      min_rightAmount,
+      lpMintStr,
+      lpAmount,
+      targetSwap,
     );
 
     const inst = new TransactionInstruction({
@@ -646,17 +666,24 @@ export class TransactionBuilder {
 
     const tx = new Transaction();
     if (targetSwap !== SWAP_RAYDIUM) {
-      tx.add(await this.buildLpOpCheckIx(
-        walletKey, leftMintStr, minLeftAmount, rightMintStr, min_rightAmount, lpMintStr, lpAmount, targetSwap, false, is_signed));
+      tx.add(
+        await this.buildLpOpCheckIx(
+          walletKey,
+          leftMintStr,
+          minLeftAmount,
+          rightMintStr,
+          min_rightAmount,
+          lpMintStr,
+          lpAmount,
+          targetSwap,
+          false,
+          is_signed,
+        ),
+      );
     }
 
-    if(unstakeKeys.length > 0) {
-      const unstake_ix = await this.buildLpUnstakeIx(
-        lpMintStr,
-        targetSwap,
-        lpAmount,
-        unstakeKeys,
-      );
+    if (unstakeKeys.length > 0) {
+      const unstake_ix = await this.buildLpUnstakeIx(lpMintStr, targetSwap, lpAmount, unstakeKeys);
       tx.add(unstake_ix);
     }
 
@@ -673,21 +700,24 @@ export class TransactionBuilder {
     targetSwap: number,
     stakeKeys: AccountMeta[],
   ): Promise<TransactionInstruction> {
-    const [base_pda,] = await this.addresses.getBasePda();
+    const [base_pda] = await this.addresses.getBasePda();
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
     const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
 
     const keys = [
-      {pubkey: poolSummariesKey,          isSigner: false,        isWritable: false},
-      {pubkey: lpAssetPoolSplKey,         isSigner: false,        isWritable: true},
-      {pubkey: base_pda,                  isSigner: false,        isWritable: false},
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: false },
+      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: base_pda, isSigner: false, isWritable: false },
     ].concat(stakeKeys);
 
     const buffer = new ArrayBuffer(8);
     AccountParser.setBigUint64(buffer, 0, 0);
     const payload = Array.from(new Uint8Array(buffer));
 
-    const data = [CMD_LP_STAKE].concat(payload).concat([targetSwap]).concat(this.mintKeyStrToPoolIdArray(lpMintStr));
+    const data = [CMD_LP_STAKE]
+      .concat(payload)
+      .concat([targetSwap])
+      .concat(this.mintKeyStrToPoolIdArray(lpMintStr));
 
     return new TransactionInstruction({
       programId: this.addresses.getProgramKey(),
@@ -703,7 +733,7 @@ export class TransactionBuilder {
     firstStakeKeys: AccountMeta[],
     secondStakeKeys: AccountMeta[],
   ) {
-    const [base_pda,] = await this.addresses.getBasePda();
+    const [base_pda] = await this.addresses.getBasePda();
     // const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
     const adminPubkey = this.addresses.config.refresherKey;
     const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
@@ -716,7 +746,9 @@ export class TransactionBuilder {
       { pubkey: stakeTableKey, isSigner: false, isWritable: true },
       { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
-    ].concat(firstStakeKeys).concat(secondStakeKeys);
+    ]
+      .concat(firstStakeKeys)
+      .concat(secondStakeKeys);
 
     const data = [CMD_LP_STAKE_SECOND];
     return new TransactionInstruction({
@@ -729,9 +761,9 @@ export class TransactionBuilder {
   async buildLpStake2ndStepIxForRaydium(
     lpMintStr: string,
     stakeTableKey: PublicKey,
-    stakeKeys: &AccountMeta[],
+    stakeKeys: AccountMeta[],
   ) {
-    const [base_pda,] = await this.addresses.getBasePda();
+    const [base_pda] = await this.addresses.getBasePda();
     const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
     const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
 
@@ -761,7 +793,7 @@ export class TransactionBuilder {
     secondStakeKeys: AccountMeta[],
     amount: number,
   ) {
-    const [base_pda,] = await this.addresses.getBasePda();
+    const [base_pda] = await this.addresses.getBasePda();
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
     const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
     const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
@@ -775,7 +807,9 @@ export class TransactionBuilder {
       { pubkey: stakeTableKey, isSigner: false, isWritable: true },
       { pubkey: floatingLpSplKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
-    ].concat(secondStakeKeys).concat(firstStakeKeys);
+    ]
+      .concat(secondStakeKeys)
+      .concat(firstStakeKeys);
 
     const buffer = new ArrayBuffer(8);
     AccountParser.setBigUint64(buffer, 0, amount);
@@ -800,7 +834,7 @@ export class TransactionBuilder {
     leftMintStr: string,
     rightMintStr: string,
   ) {
-    const [base_pda,] = await this.addresses.getBasePda();
+    const [base_pda] = await this.addresses.getBasePda();
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
     const lpAssetPoolKey = await this.addresses.getAssetPoolKey(base_pda, lpMintStr);
     const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
@@ -816,9 +850,9 @@ export class TransactionBuilder {
       { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
       { pubkey: stakeTableKey, isSigner: false, isWritable: true },
       { pubkey: base_pda, isSigner: false, isWritable: false },
-      { pubkey: leftAssetPoolKey, isSigner: false, isWritable: true},
-      { pubkey: rightAssetPoolKey, isSigner: false, isWritable: true},
-      { pubkey: poolSummariesKey, isSigner: false, isWritable: true},
+      { pubkey: leftAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: rightAssetPoolKey, isSigner: false, isWritable: true },
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: true },
     ].concat(stakeKeys);
 
     const buffer = new ArrayBuffer(8);
@@ -840,21 +874,24 @@ export class TransactionBuilder {
     amount: number,
     stakeKeys: AccountMeta[],
   ): Promise<TransactionInstruction> {
-    const [base_pda,] = await this.addresses.getBasePda();
+    const [base_pda] = await this.addresses.getBasePda();
     const poolSummariesKey = await this.addresses.getPoolSummariesKey();
     const lpAssetPoolSplKey = await this.addresses.getAssetPoolSplKey(base_pda, lpMintStr);
 
     const keys = [
-      {pubkey: poolSummariesKey,          isSigner: false,        isWritable: false},
-      {pubkey: lpAssetPoolSplKey,         isSigner: false,        isWritable: true},
-      {pubkey: base_pda,                  isSigner: false,        isWritable: false},
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: false },
+      { pubkey: lpAssetPoolSplKey, isSigner: false, isWritable: true },
+      { pubkey: base_pda, isSigner: false, isWritable: false },
     ].concat(stakeKeys);
 
     const buffer = new ArrayBuffer(8);
     AccountParser.setBigUint64(buffer, 0, amount);
     const payload = Array.from(new Uint8Array(buffer));
 
-    const data = [CMD_LP_UNSTAKE].concat(payload).concat([targetSwap]).concat(this.mintKeyStrToPoolIdArray(lpMintStr));
+    const data = [CMD_LP_UNSTAKE]
+      .concat(payload)
+      .concat([targetSwap])
+      .concat(this.mintKeyStrToPoolIdArray(lpMintStr));
 
     return new TransactionInstruction({
       programId: this.addresses.getProgramKey(),
@@ -862,7 +899,6 @@ export class TransactionBuilder {
       data: Buffer.from(data),
     });
   }
-
 
   // simplified interface for marginLpCreate and marginLpRedeem
   async simpleLpCreate(
@@ -885,7 +921,7 @@ export class TransactionBuilder {
     let stakeKeys = poolConfig.lpNeedSndStake ? [] : await this.addresses.getLpStakeKeys(lpTokenId);
 
     const tx = await this.marginLpCreate(
-      walletAccount, 
+      walletAccount,
       leftMint.toString(),
       leftAmount,
       rightMint.toString(),
@@ -899,9 +935,7 @@ export class TransactionBuilder {
     return tx;
   }
 
-  async lpStake2nd(
-    lpTokenId: TokenID,
-  ) {
+  async lpStake2nd(lpTokenId: TokenID) {
     const tx = new Transaction();
     const lpMint = MINTS[lpTokenId];
     const stakeTableKey = await this.addresses.getAssetPoolStakeTableKey(lpMint.toString());
@@ -916,15 +950,15 @@ export class TransactionBuilder {
         floatingLpSplKey,
         // orca needs to stake both LP1 and LP2
         await this.addresses.getLpFirstStakeKeys(lpTokenId),
-        await this.addresses.getLpSecondStakeKeys(lpTokenId)
+        await this.addresses.getLpSecondStakeKeys(lpTokenId),
       );
       tx.add(ix);
     } else if (targetSwap === SWAP_RAYDIUM) {
       const ix = await this.buildLpStake2ndStepIxForRaydium(
-          lpMint.toString(),
-          stakeTableKey,
-          await this.addresses.getLpStakeKeys(lpTokenId),
-      ) ;
+        lpMint.toString(),
+        stakeTableKey,
+        await this.addresses.getLpStakeKeys(lpTokenId),
+      );
       tx.add(ix);
     } else {
       throw new Error(`invalid target swap for lp stake 2nd`);
@@ -1003,7 +1037,7 @@ export class TransactionBuilder {
     let stakeKeys = poolConfig.lpNeedSndStake ? [] : await this.addresses.getLpStakeKeys(lpTokenId);
 
     const tx = await this.marginLpRedeem(
-      walletKey, 
+      walletKey,
       leftMint.toString(),
       minLeftAmount,
       rightMint.toString(),
@@ -1016,5 +1050,126 @@ export class TransactionBuilder {
       isSigned,
     );
     return tx;
+  }
+
+  buildMarginSwapParam(
+    target_swap: number,
+    is_buy: boolean,
+    sell_mint_str: string,
+    sell_amount: number,
+    buy_mint_str: string,
+    buy_amount: number,
+  ) {
+    const buffer = new ArrayBuffer(1 + 8 + 8);
+
+    AccountParser.setUint8(buffer, 0, is_buy ? 1 : 0);
+    AccountParser.setBigUint64(buffer, 1, sell_amount);
+    AccountParser.setBigUint64(buffer, 9, buy_amount);
+    const payload = Array.from(new Uint8Array(buffer));
+    const sellPoolIdArray = this.mintKeyStrToPoolIdArray(sell_mint_str);
+    const buyPoolIdArray = this.mintKeyStrToPoolIdArray(buy_mint_str);
+    return [CMD_MARGIN_SWAP]
+      .concat(payload)
+      .concat(sellPoolIdArray)
+      .concat(buyPoolIdArray)
+      .concat([target_swap]);
+  }
+
+  canSwap(sellTokenId: TokenID, buyTokenId: TokenID): boolean {
+    const isBuy = buyTokenId in DIRECT_SWAP_META && sellTokenId in DIRECT_SWAP_META[buyTokenId]!;
+    const isSell = sellTokenId in DIRECT_SWAP_META && buyTokenId in DIRECT_SWAP_META[sellTokenId]!;
+    return isBuy || isSell;
+  }
+
+  async marginSwap(
+    userWalletKey: PublicKey,
+    targetSwap: number,
+    isBuy: boolean,
+    sellMintStr: string,
+    sellAmount: number,
+    buyMintStr: string,
+    buyAmount: number,
+    swapKeys: AccountMeta[],
+    isSigned: boolean,
+  ) {
+    const [base_pda] = await this.addresses.getBasePda();
+    const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
+
+    const collateralPoolKey = await this.addresses.getAssetPoolKey(base_pda, sellMintStr);
+    const collateralPoolSpl = await this.addresses.getAssetPoolSplKey(base_pda, sellMintStr);
+
+    const borrowedPoolKey = await this.addresses.getAssetPoolKey(base_pda, buyMintStr);
+    const borrowedPoolSpl = await this.addresses.getAssetPoolSplKey(base_pda, buyMintStr);
+
+    const poolSummariesKey = await this.addresses.getPoolSummariesKey();
+    const priceSummariesKey = await this.addresses.getPriceSummariesKey(base_pda);
+
+    // prettier-ignore
+    const keys = [
+      { pubkey: userWalletKey,      isSigner: isSigned, isWritable: false },
+      { pubkey: userInfoKey,        isSigner: false,    isWritable: true },
+      { pubkey: base_pda,           isSigner: false,    isWritable: false },
+
+      { pubkey: collateralPoolKey,  isSigner: false,    isWritable: true },
+      { pubkey: collateralPoolSpl,  isSigner: false,    isWritable: true },
+
+      { pubkey: borrowedPoolKey,    isSigner: false,    isWritable: true },
+      { pubkey: borrowedPoolSpl,    isSigner: false,    isWritable: true },
+
+      { pubkey: poolSummariesKey,   isSigner: false,    isWritable: true }, // PoolSummaries
+      { pubkey: priceSummariesKey,  isSigner: false,    isWritable: false }, // PriceSummaries
+
+      { pubkey: TOKEN_PROGRAM_ID,   isSigner: false,    isWritable: false }, // spl-token program account
+    ].concat(swapKeys);
+
+    const data = this.buildMarginSwapParam(
+      targetSwap,
+      isBuy,
+      sellMintStr,
+      sellAmount,
+      buyMintStr,
+      buyAmount,
+    );
+
+    const inst = new TransactionInstruction({
+      programId: this.addresses.getProgramKey(),
+      keys: keys,
+      data: Buffer.from(data),
+    });
+    return new Transaction().add(inst);
+  }
+
+  async simpleSwap(
+    userWalletKey: PublicKey,
+    sellTokenId: TokenID,
+    buyTokenId: TokenID,
+    sellAmount: number,
+    minBuyAmount: number,
+    isSigned: boolean,
+  ) {
+    const sellMint = MINTS[sellTokenId];
+    const buyMint = MINTS[buyTokenId];
+
+    invariant(this.canSwap(sellTokenId, buyTokenId));
+
+    const isBuy = buyTokenId in DIRECT_SWAP_META && sellTokenId in DIRECT_SWAP_META[buyTokenId]!;
+
+    const swapInfo = isBuy
+      ? DIRECT_SWAP_META[buyTokenId]![sellTokenId]!
+      : DIRECT_SWAP_META[sellTokenId]![buyTokenId]!;
+
+    const swapKeys = isBuy ? swapInfo.getSwapKeys(true) : swapInfo.getSwapKeys(false);
+
+    return this.marginSwap(
+      userWalletKey,
+      swapInfo.targetSwap,
+      isBuy,
+      sellMint.toString(),
+      sellAmount,
+      buyMint.toString(),
+      minBuyAmount,
+      swapKeys,
+      isSigned,
+    );
   }
 }
