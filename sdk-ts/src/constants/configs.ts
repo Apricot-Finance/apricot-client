@@ -19,8 +19,6 @@ import {
   SERUM_PROGRAM,
   MERCURIAL_SWAP_PROGRAM,
   SABER_SWAP_PROGRAM,
-  RAYDIUM_BTC_USDC_MARKET,
-  RAYDIUM_ETH_USDC_MARKET,
   RAYDIUM_SOL_USDC_MARKET,
   RAYDIUM_mSOL_USDC_MARKET,
   RAYDIUM_RAY_USDC_MARKET,
@@ -34,6 +32,8 @@ import {
   RAYDIUM_SRM_USDC_MARKET,
   ORCA_FTT_USDC_MARKET,
   ORCA_scnSOL_USDC_MARKET,
+  ORCA_BTC_USDC_MARKET,
+  ORCA_ETH_USDC_MARKET,
 } from '@apricot-lend/solana-swaps-js';
 export const FAKE_KEY = SystemProgram.programId;
 
@@ -1902,60 +1902,6 @@ export const PUBLIC_CONFIG = new AppConfig(
 );
 
 export const DIRECT_SWAP_META: { [key in TokenID]?: { [key in TokenID]?: AdhocSwapInfo } } = {
-  [TokenID.BTC]: {
-    [TokenID.USDC]: {
-      targetSwap: SWAP_RAYDIUM,
-      getSwapKeys: (_isBuy: boolean) => {
-        const smeta = RAYDIUM_BTC_USDC_MARKET;
-        // prettier-ignore
-        return [
-          {pubkey: RAYDIUM_AMM_PROGRAM,   isSigner: false, isWritable: false},
-          {pubkey: smeta.amm,              isSigner: false, isWritable: true},
-          {pubkey: smeta.ammAuthority,     isSigner: false, isWritable: false},
-          {pubkey: smeta.openOrders,       isSigner: false, isWritable: true},
-          {pubkey: smeta.targetOrders,     isSigner: false, isWritable: true},
-          {pubkey: smeta.raydiumVaultA,    isSigner: false, isWritable: true},
-          {pubkey: smeta.raydiumVaultB,    isSigner: false, isWritable: true},
-
-          {pubkey: SERUM_PROGRAM,         isSigner: false, isWritable: false},
-          {pubkey: smeta.serumMarket,      isSigner: false, isWritable: true},
-          {pubkey: smeta.serumBids,        isSigner: false, isWritable: true},
-          {pubkey: smeta.serumAsks,        isSigner: false, isWritable: true},
-          {pubkey: smeta.serumEvents,      isSigner: false, isWritable: true},
-          {pubkey: smeta.serumVaultA,      isSigner: false, isWritable: true},
-          {pubkey: smeta.serumVaultB,      isSigner: false, isWritable: true},
-          {pubkey: smeta.serumVaultSigner, isSigner: false, isWritable: false},
-        ];
-      },
-    },
-  },
-  [TokenID.ETH]: {
-    [TokenID.USDC]: {
-      targetSwap: SWAP_RAYDIUM,
-      getSwapKeys: (_isBuy: boolean) => {
-        const smeta = RAYDIUM_ETH_USDC_MARKET;
-        // prettier-ignore
-        return [
-          {pubkey: RAYDIUM_AMM_PROGRAM,   isSigner: false, isWritable: false},
-          {pubkey: smeta.amm,              isSigner: false, isWritable: true},
-          {pubkey: smeta.ammAuthority,     isSigner: false, isWritable: false},
-          {pubkey: smeta.openOrders,       isSigner: false, isWritable: true},
-          {pubkey: smeta.targetOrders,     isSigner: false, isWritable: true},
-          {pubkey: smeta.raydiumVaultA,    isSigner: false, isWritable: true},
-          {pubkey: smeta.raydiumVaultB,    isSigner: false, isWritable: true},
-
-          {pubkey: SERUM_PROGRAM,         isSigner: false, isWritable: false},
-          {pubkey: smeta.serumMarket,      isSigner: false, isWritable: true},
-          {pubkey: smeta.serumBids,        isSigner: false, isWritable: true},
-          {pubkey: smeta.serumAsks,        isSigner: false, isWritable: true},
-          {pubkey: smeta.serumEvents,      isSigner: false, isWritable: true},
-          {pubkey: smeta.serumVaultA,      isSigner: false, isWritable: true},
-          {pubkey: smeta.serumVaultB,      isSigner: false, isWritable: true},
-          {pubkey: smeta.serumVaultSigner, isSigner: false, isWritable: false},
-        ];
-      },
-    },
-  },
   [TokenID.SOL]: {
     [TokenID.USDC]: {
       targetSwap: SWAP_RAYDIUM,
@@ -2263,4 +2209,44 @@ export const DIRECT_SWAP_META: { [key in TokenID]?: { [key in TokenID]?: AdhocSw
       },
     },
   },
+  [TokenID.BTC]: {
+    [TokenID.USDC]: {
+      targetSwap: SWAP_ORCA,
+      getSwapKeys: (isBuy: boolean) => {
+        const smeta = ORCA_BTC_USDC_MARKET;
+        const sourceVault = !isBuy ? smeta.vaultA : smeta.vaultB;
+        const destVault = isBuy ? smeta.vaultA : smeta.vaultB;
+        // prettier-ignore
+        return [
+          {pubkey: ORCA_SWAP_PROGRAM,     isSigner: false, isWritable: false},
+          {pubkey: smeta.swap,            isSigner: false, isWritable: false},
+          {pubkey: smeta.swapAuthority,   isSigner: false, isWritable: false},
+          {pubkey: sourceVault,           isSigner: false, isWritable: true},
+          {pubkey: destVault,             isSigner: false, isWritable: true},
+          {pubkey: smeta.poolMint,        isSigner: false, isWritable: true},
+          {pubkey: smeta.fees,            isSigner: false, isWritable: true},
+        ];
+      },
+    },
+  },
+  [TokenID.ETH]: {
+    [TokenID.USDC]: {
+      targetSwap: SWAP_ORCA,
+      getSwapKeys: (isBuy: boolean) => {
+        const smeta = ORCA_ETH_USDC_MARKET;
+        const sourceVault = !isBuy ? smeta.vaultA : smeta.vaultB;
+        const destVault = isBuy ? smeta.vaultA : smeta.vaultB;
+        // prettier-ignore
+        return [
+          {pubkey: ORCA_SWAP_PROGRAM,     isSigner: false, isWritable: false},
+          {pubkey: smeta.swap,            isSigner: false, isWritable: false},
+          {pubkey: smeta.swapAuthority,   isSigner: false, isWritable: false},
+          {pubkey: sourceVault,           isSigner: false, isWritable: true},
+          {pubkey: destVault,             isSigner: false, isWritable: true},
+          {pubkey: smeta.poolMint,        isSigner: false, isWritable: true},
+          {pubkey: smeta.fees,            isSigner: false, isWritable: true},
+        ];
+      },
+    },
+  }
 };
