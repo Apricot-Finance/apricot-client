@@ -44,7 +44,7 @@ export function createPortfolioLoader(
     };
   }
 
-  let portfolioLoader = new PortfolioLoader(userWalletKey, connection, config, fetchPrice);
+  const portfolioLoader = new PortfolioLoader(userWalletKey, connection, config, fetchPrice);
   return portfolioLoader;
 }
 
@@ -75,8 +75,8 @@ export class PortfolioLoader {
     }
 
     for (const userAssetInfo of this.userInfoCache.user_asset_info) {
-      let tokenId = this.config.getTokenIdByPoolId(userAssetInfo.pool_id);
-      let mintKey = MINTS[tokenId];
+      const tokenId = this.config.getTokenIdByPoolId(userAssetInfo.pool_id);
+      const mintKey = MINTS[tokenId];
       this.assetPoolsCache[tokenId] =
         (await this.actionWrapper.getParsedAssetPool(mintKey)) ?? undefined;
       this.priceCache[tokenId] = await this.fetchPrice(tokenId);
@@ -128,7 +128,12 @@ export async function getBorrowPowerInfo(
   fetchPool: (tokenId: TokenID) => Promise<AssetPool | undefined>,
   fetchPrice: (tokenId: TokenID) => Promise<number | undefined>,
 ): Promise<ApiBorrowPowerInfo | undefined> {
-  let userAssetInfoList = await getUserAssetInfoList(userInfoRaw, appConfig, fetchPool, fetchPrice);
+  const userAssetInfoList = await getUserAssetInfoList(
+    userInfoRaw,
+    appConfig,
+    fetchPool,
+    fetchPrice,
+  );
   if (userAssetInfoList === undefined) {
     return undefined;
   }
@@ -139,15 +144,15 @@ export async function getBorrowPowerInfo(
     return undefined;
   }
 
-  let totalDeposit = userAssetInfoList.reduce(
+  const totalDeposit = userAssetInfoList.reduce(
     (acc, uai) => acc.add(uai.depositValue!),
     Decimal.abs(0),
   );
-  let totalCollateral = userAssetInfoList.reduce(
+  const totalCollateral = userAssetInfoList.reduce(
     (acc, uai) => acc.add(uai.ltv.mul(uai.depositValue!)),
     Decimal.abs(0),
   );
-  let totalBorrow = userAssetInfoList.reduce(
+  const totalBorrow = userAssetInfoList.reduce(
     (acc, uai) => acc.add(uai.borrowValue!),
     Decimal.abs(0),
   );
@@ -179,15 +184,15 @@ export async function getUserAssetInfoList(
   fetchPool: (tokenId: TokenID) => Promise<AssetPool | undefined>,
   fetchPrice: (tokenId: TokenID) => Promise<number | undefined>,
 ): Promise<ApiUserAssetInfo[]> {
-  let userAssetInfoList = [];
+  const userAssetInfoList = [];
   for (const userAssetInfoRaw of userInfoRaw.user_asset_info) {
-    let tokenId = appConfig.getTokenIdByPoolId(userAssetInfoRaw.pool_id);
-    let assetPoolRaw = await fetchPool(tokenId);
-    let price = await fetchPrice(tokenId);
+    const tokenId = appConfig.getTokenIdByPoolId(userAssetInfoRaw.pool_id);
+    const assetPoolRaw = await fetchPool(tokenId);
+    const price = await fetchPrice(tokenId);
     if (assetPoolRaw === undefined) {
       continue;
     }
-    let apiUserAssetInfo = getUserAssetInfo(tokenId, userAssetInfoRaw, assetPoolRaw, price);
+    const apiUserAssetInfo = getUserAssetInfo(tokenId, userAssetInfoRaw, assetPoolRaw, price);
     if (apiUserAssetInfo === undefined) {
       continue;
     }
@@ -214,12 +219,12 @@ export function fastForwardUserAssetInfo(
   assetPoolRaw: AssetPool,
   price: number | undefined,
 ): ApiUserAssetInfo {
-  let currentDepositAmount = fastForwardPositionAmount(
+  const currentDepositAmount = fastForwardPositionAmount(
     userAssetInfoRaw.deposit_amount,
     userAssetInfoRaw.deposit_index,
     assetPoolRaw.deposit_index,
   );
-  let currentBorrowAmount = fastForwardPositionAmount(
+  const currentBorrowAmount = fastForwardPositionAmount(
     userAssetInfoRaw.borrow_amount,
     userAssetInfoRaw.borrow_index,
     assetPoolRaw.borrow_index,
@@ -241,6 +246,6 @@ export function fastForwardPositionAmount(
   lastAmount: Decimal,
   lastIndex: Decimal,
   currentIndex: Decimal,
-) {
+): Decimal {
   return fastForwardAmount(rewindAmount(lastAmount, lastIndex), currentIndex);
 }

@@ -1,9 +1,9 @@
 import { Decimal } from 'decimal.js';
-import { TokenID, PoolFlag } from "../types"
-import { DECIMAL_MULT } from "../constants/configs";
-import invariant from "tiny-invariant";
+import { TokenID, PoolFlag } from '../types';
+import { DECIMAL_MULT } from '../constants/configs';
+import invariant from 'tiny-invariant';
 
-export function epochToDate(time: Decimal) {
+export function epochToDate(time: Decimal): Date {
   return new Date(time.toNumber() * 1000);
 }
 
@@ -20,27 +20,37 @@ export function tokenAmountToNativeAmount(tokenId: TokenID, amount: Decimal): De
 }
 
 export function nativeRateToTokenRate(
-  rate: Decimal, nTokenId: TokenID, dTokenId: TokenID,
+  rate: Decimal,
+  nTokenId: TokenID,
+  dTokenId: TokenID,
 ): Decimal {
-  return nativeAmountToTokenAmount(nTokenId, rate)
-    .div(nativeAmountToTokenAmount(dTokenId, Decimal.abs(1)));
+  return nativeAmountToTokenAmount(nTokenId, rate).div(
+    nativeAmountToTokenAmount(dTokenId, Decimal.abs(1)),
+  );
 }
 
 export function tokenRateToNativeRate(
-  rate: Decimal, nTokenId: TokenID, dTokenId: TokenID,
+  rate: Decimal,
+  nTokenId: TokenID,
+  dTokenId: TokenID,
 ): Decimal {
-  return tokenAmountToNativeAmount(nTokenId, rate)
-  .div(tokenAmountToNativeAmount(dTokenId, Decimal.abs(1)));
+  return tokenAmountToNativeAmount(nTokenId, rate).div(
+    tokenAmountToNativeAmount(dTokenId, Decimal.abs(1)),
+  );
 }
 export function nativeAmountToValue(
-  tokenId: TokenID, amount: Decimal, price: Decimal.Value
+  tokenId: TokenID,
+  amount: Decimal,
+  price: Decimal.Value,
 ): Decimal {
   return nativeAmountToTokenAmount(tokenId, amount).mul(price);
 }
 
 export function tokenRateToValueRate(
-  rate: Decimal, nTokenPrice: Decimal.Value, dTokenPrice: Decimal.Value,
-) {
+  rate: Decimal,
+  nTokenPrice: Decimal.Value,
+  dTokenPrice: Decimal.Value,
+): Decimal {
   if (Decimal.abs(dTokenPrice).isZero()) {
     throw new Error(`Token price to be divided can't be zero.`);
   }
@@ -49,24 +59,29 @@ export function tokenRateToValueRate(
 }
 
 export function nativeRateToValueRate(
-  rate: Decimal, nTokenId: TokenID, dTokenId: TokenID,
-  nTokenPrice: Decimal.Value, dTokenPrice: Decimal.Value,
+  rate: Decimal,
+  nTokenId: TokenID,
+  dTokenId: TokenID,
+  nTokenPrice: Decimal.Value,
+  dTokenPrice: Decimal.Value,
 ): Decimal {
   return tokenRateToValueRate(
-    nativeRateToTokenRate(rate, nTokenId, dTokenId), nTokenPrice, dTokenPrice
+    nativeRateToTokenRate(rate, nTokenId, dTokenId),
+    nTokenPrice,
+    dTokenPrice,
   );
 }
 
-export function rewindAmount(amount: Decimal, index: Decimal) {
+export function rewindAmount(amount: Decimal, index: Decimal): Decimal {
   invariant(index.greaterThanOrEqualTo(1), `Invalid index: ${index}. Index must >= 1`);
   return amount.div(index);
 }
 
-export function fastForwardAmount(amount: Decimal, index: Decimal) {
+export function fastForwardAmount(amount: Decimal, index: Decimal): Decimal {
   invariant(index.greaterThanOrEqualTo(1), `Invalid index: ${index}. Index must >= 1`);
   return amount.mul(index);
 }
 
-export function currentPerPastRateToCurrentPerCurrentRate(rate: Decimal, index: Decimal) {
+export function currentPerPastRateToCurrentPerCurrentRate(rate: Decimal, index: Decimal): Decimal {
   return rate.div(fastForwardAmount(Decimal.abs(1), index));
 }

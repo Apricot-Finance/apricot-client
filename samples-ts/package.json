@@ -11,7 +11,7 @@
     "portfolio-sample": "ts-node ./src/samplePortfolio.ts"
   },
   "dependencies": {
-    "@apricot-lend/sdk-ts": "^0.16.33",
+    "@apricot-lend/sdk-ts": "file:../sdk-ts",
     "@solana/web3.js": "^1.27.0",
     "@types/node": "^16.11.12",
     "commander": "^9.0.0",

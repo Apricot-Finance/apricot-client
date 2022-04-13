@@ -154,7 +154,7 @@ export class PriceInfo {
     invariant(leftTokId);
     invariant(rightTokId);
     invariant(lpTokId in LP_SWAP_METAS);
-    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]?.getLRVaults()!;
+    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]!.getLRVaults()!;
 
     const accountKeys = [leftVault, rightVault, lpMint];
     if (poolConfig.lpDex === Dex.Raydium) {
@@ -169,7 +169,7 @@ export class PriceInfo {
 
     // console.log(`keys: `, accountKeys.map(k => k.toBase58()));
     console.log(`Is calculating price via getMultipleAccountsInfo ...`);
-    let infosRaw = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
+    const infosRaw = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
     const infos = infosRaw as AccountInfo<Buffer>[];
     infos.forEach((info, i) => {
       invariant(info, `Fetch multiple account info failed at ${i}`);
@@ -242,7 +242,7 @@ export class PriceInfo {
     invariant(leftTokId);
     invariant(rightTokId);
     invariant(lpTokId in LP_SWAP_METAS);
-    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]?.getLRVaults()!;
+    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]!.getLRVaults()!;
     let leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
     let rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
     const lpMintData = (await connection.getParsedAccountInfo(lpMint)).value?.data as any;
@@ -312,7 +312,7 @@ export class PriceInfo {
     invariant(leftTokId);
     invariant(rightTokId);
     invariant(lpTokId in LP_SWAP_METAS);
-    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]?.getLRVaults()!;
+    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]!.getLRVaults()!;
 
     const accountKeys = [leftVault, rightVault, lpMint];
     if (poolConfig.lpDex === Dex.Raydium) {
@@ -325,7 +325,7 @@ export class PriceInfo {
     let rightAmount = new Decimal(0);
     let lpAmount = new Decimal(0);
 
-    let infosRaw = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
+    const infosRaw = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
     const infos = infosRaw as AccountInfo<Buffer>[];
     infos.forEach((info, i) => {
       invariant(info, `Fetch multiple account info failed at ${i}`);
@@ -438,7 +438,12 @@ export class PriceInfo {
       return 0;
     }
 
-    var priceData = await this.coinGecko.simple.price({ ids: coinId, vs_currencies: vsCcy });
+    if (tokenId === TokenID.SOCN) {
+      console.warn('Temporarily assume unlaunched SOCN price to be 0.06.');
+      return 0.06;
+    }
+
+    const priceData = await this.coinGecko.simple.price({ ids: coinId, vs_currencies: vsCcy });
     if (!priceData.success) {
       console.error(`Failed to fetch price of ${tokenId} from CoinGecko.`);
       return 0;
