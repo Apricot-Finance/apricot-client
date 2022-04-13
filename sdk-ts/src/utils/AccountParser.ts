@@ -1,7 +1,7 @@
-import { PublicKey } from "@solana/web3.js";
-import Decimal from "decimal.js";
-import { AMOUNT_MULTIPLIER } from "../constants";
-import { AssetPool, AssetPrice, UserAssetInfo, UserInfo } from "../types";
+import { PublicKey } from '@solana/web3.js';
+import Decimal from 'decimal.js';
+import { AMOUNT_MULTIPLIER } from '../constants';
+import { AssetPool, AssetPrice, UserAssetInfo, UserInfo } from '../types';
 
 export class AccountParser {
   static getOffsets(widths: number[]) {
@@ -18,11 +18,11 @@ export class AccountParser {
 
   static parseString(buffer: Uint8Array) {
     const decoded = new TextDecoder().decode(buffer);
-    const len = decoded.indexOf("\u0000");
+    const len = decoded.indexOf('\u0000');
     return len === -1 ? decoded : decoded.substr(0, len);
   }
 
-  static parseUint16(buffer: ArrayBufferLike, offset: number) : number {
+  static parseUint16(buffer: ArrayBufferLike, offset: number): number {
     const view = new DataView(buffer);
     return view.getUint16(offset, true);
   }
@@ -44,7 +44,7 @@ export class AccountParser {
     return higher.mul(new Decimal(4294967296)).add(lower);
   }
 
-  static parseFloat64(buffer: ArrayBufferLike, offset: number) : Decimal {
+  static parseFloat64(buffer: ArrayBufferLike, offset: number): Decimal {
     const view = new DataView(buffer);
     return new Decimal(view.getFloat64(offset, true));
   }
@@ -54,7 +54,7 @@ export class AccountParser {
     view.setUint8(offset, value);
   }
 
-  static setBigUint64(buffer: ArrayBufferLike, offset: number, value: Decimal | number ) {
+  static setBigUint64(buffer: ArrayBufferLike, offset: number, value: Decimal | number) {
     value = new Decimal(value);
     const view = new DataView(buffer);
     const high = value.divToInt(4294967296);
@@ -63,10 +63,10 @@ export class AccountParser {
     view.setUint32(offset + 4, high.toNumber(), true);
   }
 
-  static parseBigInt128(buffer: ArrayBufferLike, offset: number) : Decimal {
+  static parseBigInt128(buffer: ArrayBufferLike, offset: number): Decimal {
     const lower = AccountParser.parseBigUint64(buffer, offset);
     const higher = AccountParser.parseBigUint64(buffer, offset + 8);
-    return higher.mul(new Decimal("18446744073709551616")).add(lower);
+    return higher.mul(new Decimal('18446744073709551616')).add(lower);
   }
 
   static setFloat64(buffer: ArrayBufferLike, offset: number, value: number) {
@@ -85,12 +85,13 @@ export class AccountParser {
     return result;
   }
 
-  static parseAssetPool(data: Uint8Array) : AssetPool {
+  // prettier-ignore
+  static parseAssetPool(data: Uint8Array): AssetPool {
     const widths =  [
       32, 
       32, 8, 1, 
-      16,  8, 
-      16,  8,  
+      16, 8, 
+      16, 8,  
       8, 16, 8, 8, 
       8, 
       32, 32, 32, 32, 
@@ -193,7 +194,8 @@ export class AccountParser {
     return result;
   }
 
-  static parseUserInfo(data: Uint8Array) : UserInfo {
+  // prettier-ignore
+  static parseUserInfo(data: Uint8Array): UserInfo {
     // page_id and num_assets
     const widths = [2, 1];
     const [offsets, ends] = AccountParser.getOffsets(widths);
@@ -233,10 +235,7 @@ export class AccountParser {
 
     // last_vest_cutoff_time
     const last_vest_cutoff_base = pad_base + 8;
-    const last_vest_cutoff_time = AccountParser.parseBigUint64(
-      data.buffer,
-      last_vest_cutoff_base
-    );
+    const last_vest_cutoff_time = AccountParser.parseBigUint64(data.buffer, last_vest_cutoff_base);
 
     // last_update_time
     const last_update_base = last_vest_cutoff_base + 8;
@@ -256,6 +255,7 @@ export class AccountParser {
     };
   }
 
+  // prettier-ignore
   static parseUserAssetInfo(data: Uint8Array, offset: number): UserAssetInfo {
     const widths = [1, 1, 16, 8, 8, 8, 8, 16, 8, 8, 8, 8];
     const [offsets] = AccountParser.getOffsets(widths);
@@ -277,6 +277,7 @@ export class AccountParser {
     };
   }
 
+  // prettier-ignore
   static parseAssist(data: Uint8Array, offset: number) {
     const sizePriceTrigAction = (10 + 30) * 8;
     const widths = [1, 8, 8, 8, 8, sizePriceTrigAction, 1, 1];

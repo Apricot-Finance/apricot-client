@@ -35,7 +35,7 @@ export async function createAssetPoolLoader(
       }
     };
   }
-  let poolLoader = new AssetPoolLoader(connection, config, fetchPrice);
+  const poolLoader = new AssetPoolLoader(connection, config, fetchPrice);
   return poolLoader;
 }
 
@@ -54,7 +54,7 @@ export class AssetPoolLoader {
 
   async getAssetPool(tokenId: TokenID): Promise<ApiAssetPool | undefined> {
     const mintKey = MINTS[tokenId];
-    let assetPoolRaw = await this.actionWrapper.getParsedAssetPool(mintKey);
+    const assetPoolRaw = await this.actionWrapper.getParsedAssetPool(mintKey);
     if (assetPoolRaw === null) {
       return undefined;
     }
@@ -71,19 +71,19 @@ export async function normalizePool(
   fetchPrice: (token: TokenID) => Promise<number | undefined>,
 ): Promise<ApiAssetPool | undefined> {
   const [base_pda, _] = await addresses.getBasePda();
-  let depositAptRewardNativeRate = currentPerPastRateToCurrentPerCurrentRate(
+  const depositAptRewardNativeRate = currentPerPastRateToCurrentPerCurrentRate(
     assetPoolRaw.reward_per_year_per_d,
     assetPoolRaw.deposit_index,
   );
-  let borrowAptRewardNativeRate = currentPerPastRateToCurrentPerCurrentRate(
+  const borrowAptRewardNativeRate = currentPerPastRateToCurrentPerCurrentRate(
     assetPoolRaw.reward_per_year_per_b,
     assetPoolRaw.borrow_index,
   );
-  let tokenPrice = await fetchPrice(tokenId);
-  let aptPrice = await fetchPrice(TokenID.APT);
-  let mndePrice = hasMndeReward(tokenId) ? await fetchPrice(TokenID.MNDE) : undefined;
-  let lastPriceUpdate = new Date();
-  let mndeAptMultiplierNative = tokenRateToNativeRate(
+  const tokenPrice = await fetchPrice(tokenId);
+  const aptPrice = await fetchPrice(TokenID.APT);
+  const mndePrice = hasMndeReward(tokenId) ? await fetchPrice(TokenID.MNDE) : undefined;
+  const lastPriceUpdate = new Date();
+  const mndeAptMultiplierNative = tokenRateToNativeRate(
     LM_MNDE_MULTIPLIER,
     TokenID.MNDE,
     TokenID.APT,
@@ -178,6 +178,6 @@ export async function normalizePool(
   };
 }
 
-export function hasMndeReward(tokenId: TokenID) {
+export function hasMndeReward(tokenId: TokenID): boolean {
   return tokenId === TokenID.mSOL;
 }
