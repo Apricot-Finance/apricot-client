@@ -438,6 +438,11 @@ export class PriceInfo {
       return 0;
     }
 
+    if (tokenId === TokenID.SOCN) {
+      console.warn('Temporarily assume unlaunched SOCN price to be 0.06.');
+      return 0.06;
+    }
+
     const priceData = await this.coinGecko.simple.price({ ids: coinId, vs_currencies: vsCcy });
     if (!priceData.success) {
       console.error(`Failed to fetch price of ${tokenId} from CoinGecko.`);

@@ -9,8 +9,9 @@ import {
   normalizePool,
   Addresses,
   PUBLIC_CONFIG,
-} from "@apricot-lend/sdk-ts"
-import { Argument, Command } from 'commander';
+  DUAL_REWARD_INFO,
+} from "@apricot-lend/sdk-ts";
+import { Argument, Command } from "commander";
 
 async function sampleDefaultPricing(tokenId: TokenID): Promise<void> {
   console.log("Sample: get AssetPool with apricot pricing.");
@@ -25,20 +26,24 @@ async function sampleClientPricing(tokenId: TokenID): Promise<void> {
   console.log("Sample: get AssetPool with client pricing.");
   let connection = getConnection();
   let priceInfo = getPriceInfo();
-  let assetPoolLoader = await createAssetPoolLoader(connection, async (tokenId: TokenID) => 
-  {
-    try {
-      if (tokenId === TokenID.MNDE) {
-        return await priceInfo.fetchRaydiumPrice(tokenId);
-      } else {
-        return await priceInfo.fetchPrice(tokenId, connection);
+  const isDualRewardToken = Object.values(DUAL_REWARD_INFO).some(
+    (info) => info.tokenId == tokenId
+  );
+  let assetPoolLoader = await createAssetPoolLoader(
+    connection,
+    async (tokenId: TokenID) => {
+      try {
+        if (isDualRewardToken) {
+          return await priceInfo.fetchRaydiumPrice(tokenId);
+        } else {
+          return await priceInfo.fetchPrice(tokenId, connection);
+        }
+      } catch (error) {
+        console.error(error);
+        return undefined;
       }
     }
-    catch (error) {
-      console.error(error);
-      return undefined;
-    }
-  });
+  );
 
   let assetPool = await assetPoolLoader.getAssetPool(tokenId);
   console.log(assetPool);
@@ -57,29 +62,41 @@ async function sampleRaw(tokenId: TokenID): Promise<void> {
   }
 
   let priceInfo = getPriceInfo();
-  let fetchPrice = async (tokenId: TokenID) => 
-  {
-    return (tokenId === TokenID.MNDE)
-      ? await priceInfo.fetchRaydiumPrice(tokenId)
+  const isDualRewardToken = Object.values(DUAL_REWARD_INFO).some(
+    (info) => info.tokenId == tokenId
+  );
+  let fetchPrice = async (tokenId: TokenID) => {
+    return isDualRewardToken
+      ? await priceInfo.fetchCoinGeckoPrice(tokenId)
       : await priceInfo.fetchPrice(tokenId, connection);
   };
 
-  let assetPool = await normalizePool(tokenId, mintKey, assetPoolRaw, addresses, fetchPrice);
+  let assetPool = await normalizePool(
+    tokenId,
+    mintKey,
+    assetPoolRaw,
+    addresses,
+    fetchPrice
+  );
   console.log(assetPool);
 }
 
-async function main() : Promise<void> {
+async function main(): Promise<void> {
   let program = new Command();
   program
-    .addArgument(new Argument('token'))
-    .addArgument(new Argument('mode').choices(['default', 'client', 'raw']).default('default'))
+    .addArgument(new Argument("token"))
+    .addArgument(
+      new Argument("mode")
+        .choices(["default", "client", "raw"])
+        .default("default")
+    )
     .parse();
 
   const [token, mode] = program.args;
   let tokenId = token as TokenID;
-  if (mode === 'client') {
+  if (mode === "client") {
     await sampleClientPricing(tokenId);
-  } else if (mode === 'raw') {
+  } else if (mode === "raw") {
     await sampleRaw(tokenId);
   } else {
     await sampleDefaultPricing(tokenId);

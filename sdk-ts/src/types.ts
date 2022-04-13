@@ -383,18 +383,20 @@ export interface ApiAssetPool {
   isStable: boolean;
   depositAmount: Decimal;
   depositValue?: Decimal;
+  depositRate: Decimal;
   borrowAmount: Decimal;
   borrowValue?: Decimal;
-  depositRate: Decimal;
+  borrowRate: Decimal;
+  dualRewardTokenName?: string;
+  dualRewardMint?: PublicKey;
   depositAptRewardTokenRate: Decimal;
   depositAptRewardRate?: Decimal;
-  depositMndeRewardTokenRate?: Decimal;
-  depositMndeRewardRate?: Decimal;
-  borrowRate: Decimal;
+  depositDualRewardTokenRate?: Decimal;
+  depositDualRewardRate?: Decimal;
   borrowAptRewardTokenRate: Decimal;
   borrowAptRewardRate?: Decimal;
-  borrowMndeRewardTokenRate?: Decimal;
-  borrowMndeRewardRate?: Decimal;
+  borrowDualRewardTokenRate?: Decimal;
+  borrowDualRewardRate?: Decimal;
   farmYieldRate: Decimal;
   lastPoolUpdate: Date;
   lastPriceUpdate?: Date;
@@ -431,6 +433,11 @@ export interface ApiUserInfo {
 
 export interface AptUserRewardInfo {
   // TODO
+}
+
+export interface DualRewardInfo {
+  tokenId: TokenID;
+  multiplier: Decimal;
 }
 
 export interface AdhocSwapInfo {

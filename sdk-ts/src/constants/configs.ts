@@ -10,6 +10,7 @@ import {
   PoolId,
   LpSwapKeyInfo,
   AdhocSwapInfo,
+  DualRewardInfo,
 } from '../types';
 import { SWAP_ORCA, SWAP_SABER, SWAP_RAYDIUM, SWAP_MERCURIAL } from './commands';
 import { Decimal } from 'decimal.js';
@@ -37,7 +38,6 @@ import {
 } from '@apricot-lend/solana-swaps-js';
 export const FAKE_KEY = SystemProgram.programId;
 
-export const LM_MNDE_MULTIPLIER: Decimal = new Decimal(0.195);
 export const SAFE_LIMIT: Decimal = new Decimal(0.9);
 export const FORCE_ASSIST_LIMIT: Decimal = new Decimal(1.0);
 export const LIQUIDATION_LIMIT: Decimal = new Decimal(1.01);
@@ -543,6 +543,14 @@ const isPublicOrAlpha = (ownerKey: PublicKey) => {
   }
   return { isPublic, isAlpha };
 };
+
+// prettier-ignore
+export const DUAL_REWARD_INFO: {[key in TokenID]?: DualRewardInfo} = {
+  [TokenID.mSOL]:     { tokenId: TokenID.MNDE,    multiplier: new Decimal(0.195) },
+  [TokenID.stSOL]:    { tokenId: TokenID.wLDO,    multiplier: new Decimal(10.0 / 250.0) },
+  [TokenID.scnSOL]:   { tokenId: TokenID.SOCN,    multiplier: new Decimal(65.0 / 125.0) },
+  [TokenID.USTv2]:    { tokenId: TokenID.wLUNA,   multiplier: new Decimal(1.1 / 250.0) },
+}
 
 // prettier-ignore
 type SaberLpArgs = {
@@ -1835,6 +1843,8 @@ export const PYTH_PRICE: { [key in TokenID]?: PublicKey } = {
 export const COINGECKO_PRICE_ID: { [key in TokenID]?: string } = {
   [TokenID.MNDE]: 'marinade',
   [TokenID.wLDO]: 'lido-dao-wormhole',
+  [TokenID.wLUNA]: 'terra-luna',
+  [TokenID.SOCN]: 'temp-socn',
 };
 
 const FIREBASE_READER_CONFIG = {

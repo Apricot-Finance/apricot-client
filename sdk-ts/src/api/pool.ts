@@ -1,9 +1,10 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { TokenID, AssetPool, ApiAssetPool, AppConfig, PoolFlag } from '../types';
-import { MINTS, LM_MNDE_MULTIPLIER, PUBLIC_CONFIG } from '../constants';
+import { MINTS, PUBLIC_CONFIG } from '../constants';
 import { ActionWrapper } from '../utils/ActionWrapper';
 import { PriceInfo } from '../utils/PriceInfo';
 import { Addresses } from '../addresses';
+import { DUAL_REWARD_INFO } from '../constants/configs';
 import {
   flagsToBool,
   nativeAmountToTokenAmount,
@@ -24,9 +25,14 @@ export async function createAssetPoolLoader(
     const priceInfo = new PriceInfo(config);
     fetchPrice = async (tokenId) => {
       try {
-        if (tokenId === TokenID.MNDE) {
+        const isDualRewardToken = Object.values(DUAL_REWARD_INFO).some(
+          (info) => info.tokenId == tokenId,
+        );
+        if (isDualRewardToken) {
+          console.log(`Fetching coin gecko price for ${tokenId}`);
           return await priceInfo.fetchCoinGeckoPrice(tokenId);
         } else {
+          console.log(`Fetching onchain price for ${tokenId}`);
           return await priceInfo.fetchPrice(tokenId, connection);
         }
       } catch (error) {
@@ -81,13 +87,14 @@ export async function normalizePool(
   );
   const tokenPrice = await fetchPrice(tokenId);
   const aptPrice = await fetchPrice(TokenID.APT);
-  const mndePrice = hasMndeReward(tokenId) ? await fetchPrice(TokenID.MNDE) : undefined;
+  const dualRewardInfo = DUAL_REWARD_INFO[tokenId];
+  const dualRewardTokenPrice = dualRewardInfo
+    ? await fetchPrice(dualRewardInfo.tokenId)
+    : undefined;
+  const multiplierNative = dualRewardInfo
+    ? tokenRateToNativeRate(dualRewardInfo.multiplier, dualRewardInfo.tokenId, TokenID.APT)
+    : undefined;
   const lastPriceUpdate = new Date();
-  const mndeAptMultiplierNative = tokenRateToNativeRate(
-    LM_MNDE_MULTIPLIER,
-    TokenID.MNDE,
-    TokenID.APT,
-  );
 
   return {
     tokenName: assetPoolRaw.coin_name,
@@ -101,12 +108,15 @@ export async function normalizePool(
       tokenPrice === undefined
         ? undefined
         : nativeAmountToValue(tokenId, assetPoolRaw.deposit_amount, tokenPrice),
+    depositRate: assetPoolRaw.deposit_rate,
     borrowAmount: nativeAmountToTokenAmount(tokenId, assetPoolRaw.borrow_amount),
     borrowValue:
       tokenPrice === undefined
         ? undefined
         : nativeAmountToValue(tokenId, assetPoolRaw.borrow_amount, tokenPrice),
-    depositRate: assetPoolRaw.deposit_rate,
+    borrowRate: assetPoolRaw.borrow_rate,
+    dualRewardTokenName: dualRewardInfo === undefined ? undefined : dualRewardInfo.tokenId,
+    dualRewardMint: dualRewardInfo === undefined ? undefined : MINTS[dualRewardInfo.tokenId],
     depositAptRewardTokenRate: nativeRateToTokenRate(
       depositAptRewardNativeRate,
       TokenID.APT,
@@ -122,26 +132,29 @@ export async function normalizePool(
             aptPrice,
             tokenPrice,
           ),
-    depositMndeRewardTokenRate: hasMndeReward(tokenId)
-      ? nativeRateToTokenRate(
-          depositAptRewardNativeRate.mul(mndeAptMultiplierNative),
-          TokenID.MNDE,
-          tokenId,
-        )
-      : undefined,
-    depositMndeRewardRate:
-      !hasMndeReward(tokenId) || mndePrice === undefined || tokenPrice === undefined
+    depositDualRewardTokenRate:
+      dualRewardInfo === undefined || multiplierNative === undefined
+        ? undefined
+        : nativeRateToTokenRate(
+            depositAptRewardNativeRate.mul(multiplierNative),
+            dualRewardInfo.tokenId,
+            tokenId,
+          ),
+    depositDualRewardRate:
+      dualRewardInfo === undefined ||
+      multiplierNative === undefined ||
+      dualRewardTokenPrice === undefined ||
+      tokenPrice === undefined
         ? undefined
         : nativeRateToValueRate(
-            depositAptRewardNativeRate.mul(mndeAptMultiplierNative),
-            TokenID.MNDE,
+            depositAptRewardNativeRate.mul(multiplierNative),
+            dualRewardInfo.tokenId,
             tokenId,
-            mndePrice,
+            dualRewardTokenPrice,
             tokenPrice,
           ),
-    borrowRate: assetPoolRaw.borrow_rate,
     borrowAptRewardTokenRate: nativeRateToTokenRate(
-      borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
+      borrowAptRewardNativeRate,
       TokenID.APT,
       tokenId,
     ),
@@ -149,35 +162,35 @@ export async function normalizePool(
       aptPrice === undefined || tokenPrice === undefined
         ? undefined
         : nativeRateToValueRate(
-            borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
+            borrowAptRewardNativeRate,
             TokenID.APT,
             tokenId,
             aptPrice,
             tokenPrice,
           ),
-    borrowMndeRewardTokenRate: hasMndeReward(tokenId)
-      ? nativeRateToTokenRate(
-          borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
-          TokenID.MNDE,
-          tokenId,
-        )
-      : undefined,
-    borrowMndeRewardRate:
-      !hasMndeReward(tokenId) || mndePrice === undefined || tokenPrice === undefined
+    borrowDualRewardTokenRate:
+      dualRewardInfo === undefined || multiplierNative === undefined
+        ? undefined
+        : nativeRateToTokenRate(
+            borrowAptRewardNativeRate.mul(multiplierNative),
+            dualRewardInfo.tokenId,
+            tokenId,
+          ),
+    borrowDualRewardRate:
+      dualRewardInfo === undefined ||
+      multiplierNative === undefined ||
+      dualRewardTokenPrice === undefined ||
+      tokenPrice === undefined
         ? undefined
         : nativeRateToValueRate(
-            borrowAptRewardNativeRate.mul(mndeAptMultiplierNative),
-            TokenID.MNDE,
+            borrowAptRewardNativeRate.mul(multiplierNative),
+            dualRewardInfo.tokenId,
             tokenId,
-            mndePrice,
+            dualRewardTokenPrice,
             tokenPrice,
           ),
     farmYieldRate: assetPoolRaw.farm_yield,
     lastPoolUpdate: epochToDate(assetPoolRaw.last_update_time),
     lastPriceUpdate: lastPriceUpdate,
   };
-}
-
-export function hasMndeReward(tokenId: TokenID): boolean {
-  return tokenId === TokenID.mSOL;
 }
