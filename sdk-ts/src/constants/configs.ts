@@ -1842,7 +1842,7 @@ export const PYTH_PRICE: { [key in TokenID]?: PublicKey } = {
 
 export const COINGECKO_PRICE_ID: { [key in TokenID]?: string } = {
   [TokenID.MNDE]: 'marinade',
-  [TokenID.wLDO]: 'lido-dao-wormhole',
+  [TokenID.wLDO]: 'lido-dao',
   [TokenID.wLUNA]: 'terra-luna',
   [TokenID.SOCN]: 'temp-socn',
 };
