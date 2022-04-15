@@ -545,7 +545,7 @@ const isPublicOrAlpha = (ownerKey: PublicKey) => {
 };
 
 // prettier-ignore
-export const DUAL_REWARD_INFO: {[key in TokenID]?: DualRewardInfo} = {
+export const DUAL_REWARD_CONFIGS: {[key in TokenID]?: DualRewardInfo} = {
   [TokenID.mSOL]:     { tokenId: TokenID.MNDE,    multiplier: new Decimal(0.195) },
   [TokenID.stSOL]:    { tokenId: TokenID.wLDO,    multiplier: new Decimal(10.0 / 250.0) },
   [TokenID.scnSOL]:   { tokenId: TokenID.SOCN,    multiplier: new Decimal(65.0 / 125.0) },
