@@ -1,9 +1,7 @@
 import { Decimal } from 'decimal.js';
-import { AccountMeta, Commitment, Connection, ConnectionConfig, PublicKey } from '@solana/web3.js';
+import { AccountMeta, PublicKey } from '@solana/web3.js';
 import invariant from 'tiny-invariant';
 import { InterestRate } from './constants';
-import { tokenAuthFetchMiddleware } from '@strata-foundation/web3-token-auth';
-import { getGenesysGoAccessToken } from './utils';
 
 export enum TokenID {
   APT = 'APT',
@@ -449,39 +447,4 @@ export enum RPC {
 export type GenesysGoAccessToken = {
   accessToken: string;
   expiresIn: number;
-};
-
-export class RpcNode {
-  public readonly rpc;
-  public readonly url;
-  private _connection: Connection | null;
-
-  constructor(rpc: RPC, url: string) {
-    this.rpc = rpc;
-    invariant(url && typeof url === 'string', `Invalid url ${url} for RPC ${rpc}`);
-    this.url = url;
-    this._connection = null;
-  }
-
-  getConnection(commitmentOrConfig?: Commitment | ConnectionConfig) {
-    if (!this._connection) {
-      const _config = { commitment: 'confirmed' } as ConnectionConfig;
-      if (this.url === 'https://apricot.genesysgo.net') {
-        _config.fetchMiddleware = tokenAuthFetchMiddleware({
-          getToken: async () => {
-            const { accessToken } = (await getGenesysGoAccessToken()) as GenesysGoAccessToken;
-            return accessToken;
-          }
-        });
-      }
-      if (commitmentOrConfig && typeof commitmentOrConfig !== 'object') {
-        _config.commitment = commitmentOrConfig;
-      } else if (commitmentOrConfig) {
-       Object.assign(_config, commitmentOrConfig);
-      }
-      
-      this._connection = new Connection(this.url, _config);
-    }
-    return this._connection;
-  }
 };

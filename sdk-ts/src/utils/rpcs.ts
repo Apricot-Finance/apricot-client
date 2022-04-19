@@ -1,9 +1,45 @@
-import { Commitment, ConnectionConfig } from "@solana/web3.js";
+import { Commitment, Connection, ConnectionConfig } from '@solana/web3.js';
+import { tokenAuthFetchMiddleware } from '@strata-foundation/web3-token-auth';
 import axios from 'axios';
 import { Base64 } from 'js-base64';
-import invariant from "tiny-invariant";
-import { GenesysGoAccessToken, RPC, RpcNode } from "../types";
-import { LogDebug } from "./Logger";
+import invariant from 'tiny-invariant';
+import { GenesysGoAccessToken, RPC } from '../types';
+import { LogDebug } from './Logger';
+
+export class RpcNode {
+  public readonly rpc;
+  public readonly url;
+  private _connection: Connection | null;
+
+  constructor(rpc: RPC, url: string) {
+    this.rpc = rpc;
+    invariant(url && typeof url === 'string', `Invalid url ${url} for RPC ${rpc}`);
+    this.url = url;
+    this._connection = null;
+  }
+
+  getConnection(commitmentOrConfig?: Commitment | ConnectionConfig) {
+    if (!this._connection) {
+      const _config = { commitment: 'confirmed' } as ConnectionConfig;
+      if (this.url === 'https://apricot.genesysgo.net') {
+        _config.fetchMiddleware = tokenAuthFetchMiddleware({
+          getToken: async () => {
+            const { accessToken } = (await getGenesysGoAccessToken()) as GenesysGoAccessToken;
+            return accessToken;
+          }
+        });
+      }
+      if (commitmentOrConfig && typeof commitmentOrConfig !== 'object') {
+        _config.commitment = commitmentOrConfig;
+      } else if (commitmentOrConfig) {
+       Object.assign(_config, commitmentOrConfig);
+      }
+      
+      this._connection = new Connection(this.url, _config);
+    }
+    return this._connection;
+  }
+};
 
 export const rpcNodes = [
   [RPC.Triton, process.env.RPC_TRITON_URL as string || 'https://apricot-main-67cd.mainnet.rpcpool.com/'],
