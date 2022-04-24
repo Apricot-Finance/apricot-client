@@ -1,7 +1,7 @@
 import { ALPHA_CONFIG, PUBLIC_CONFIG } from "../constants/configs";
 import { PriceInfo } from "../utils/PriceInfo";
-import { Connection } from "@solana/web3.js";
 import invariant from "tiny-invariant";
+import { getRPCConnection } from "../utils";
 
 const [,,production] = process.argv;
 
@@ -13,7 +13,7 @@ async function doPrice() {
 
   const priceInfo = new PriceInfo(config);
 
-  const conn = new Connection("https://apricot.genesysgo.net/", "confirmed");
+  const conn = getRPCConnection();
 
   for (const poolConfig of config.getPoolConfigList()) {
     const tokId = poolConfig.tokenId;

@@ -1,4 +1,4 @@
-import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { ALPHA_CONFIG, DECIMAL_MULT, LP_TO_LR, PUBLIC_CONFIG } from '../constants';
 import { TokenID } from '../types';
 import { MINTS } from '../constants';
@@ -6,6 +6,7 @@ import { ActionWrapper } from '../utils/ActionWrapper';
 import * as fs from 'fs';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import invariant from 'tiny-invariant';
+import { getRPCConnection } from '../utils';
 
 const [_nodeStr, _scriptStr, production, keyLocation, action] = process.argv.slice(0, 5);
 
@@ -17,7 +18,7 @@ async function doTransaction() {
   const privateKey = JSON.parse(keyStr);
   const keypair = Keypair.fromSecretKey(new Uint8Array(privateKey));
 
-  const conn = new Connection('https://apricot.genesysgo.net', 'confirmed');
+  const conn = getRPCConnection();
   const wrapper = new ActionWrapper(conn, config);
 
   const remainingArgs = process.argv.slice(5);
@@ -146,6 +147,7 @@ async function doTransaction() {
     const buyTokenId = TokenID[remainingArgs[1] as keyof typeof TokenID];
     const sellAmount = parseFloat(remainingArgs[2]);
     const minBuyAmount = parseFloat(remainingArgs[3]);
+    const isSwapAllDeposit = remainingArgs[4] === 'true';
     const result = await wrapper.simpleSwap(
       keypair,
       sellTokenId,
@@ -153,6 +155,7 @@ async function doTransaction() {
       sellAmount,
       minBuyAmount,
       true,
+      isSwapAllDeposit,
     );
     console.log(result);
   } else {

@@ -192,6 +192,7 @@ export class ActionWrapper {
     sellAmount: number,
     minBuyAmount: number,
     isSigned: boolean,
+    isSwapAllDeposit = false,
   ) {
     const tx = await this.builder.simpleSwap(
       userWalletAccount.publicKey,
@@ -200,6 +201,7 @@ export class ActionWrapper {
       sellAmount,
       minBuyAmount,
       isSigned,
+      isSwapAllDeposit,
     );
     return this.connection.sendTransaction(tx, [userWalletAccount]);
   }

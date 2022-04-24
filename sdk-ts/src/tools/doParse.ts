@@ -1,10 +1,11 @@
-import { Connection, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { ALPHA_CONFIG, PUBLIC_CONFIG } from "../constants";
 import { TokenID } from "../types";
 import { MINTS } from "../constants";
 import { ActionWrapper } from "../utils/ActionWrapper";
 import invariant from "tiny-invariant";
 import Decimal from "decimal.js";
+import { getRPCConnection } from "../utils";
 
 const [_nodeStr, _scriptStr, production, action, ] = process.argv.slice(0, 4);
 
@@ -12,7 +13,7 @@ invariant(['alpha', 'public'].includes(production))
 
 async function doParse() {
 
-  const conn = new Connection('https://apricot.genesysgo.net/', "confirmed");
+  const conn = getRPCConnection();
   const config = production === 'alpha' ? ALPHA_CONFIG : PUBLIC_CONFIG;
   const wrapper = new ActionWrapper(conn, config);
 
