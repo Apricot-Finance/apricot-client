@@ -1059,6 +1059,7 @@ export class TransactionBuilder {
     sell_amount: number,
     buy_mint_str: string,
     buy_amount: number,
+    is_swap_all_deposit: boolean,
   ) {
     const buffer = new ArrayBuffer(1 + 8 + 8);
 
@@ -1072,7 +1073,8 @@ export class TransactionBuilder {
       .concat(payload)
       .concat(sellPoolIdArray)
       .concat(buyPoolIdArray)
-      .concat([target_swap]);
+      .concat([target_swap])
+      .concat([is_swap_all_deposit ? 1 : 0]);
   }
 
   canSwap(sellTokenId: TokenID, buyTokenId: TokenID): boolean {
@@ -1091,6 +1093,7 @@ export class TransactionBuilder {
     buyAmount: number,
     swapKeys: AccountMeta[],
     isSigned: boolean,
+    isSwapAllDeposit = false,
   ) {
     const [base_pda] = await this.addresses.getBasePda();
     const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
@@ -1129,6 +1132,7 @@ export class TransactionBuilder {
       sellAmount,
       buyMintStr,
       buyAmount,
+      isSwapAllDeposit,
     );
 
     const inst = new TransactionInstruction({
@@ -1146,6 +1150,7 @@ export class TransactionBuilder {
     sellAmount: number,
     minBuyAmount: number,
     isSigned: boolean,
+    isSwapAllDeposit = false,
   ) {
     const sellMint = MINTS[sellTokenId];
     const buyMint = MINTS[buyTokenId];
@@ -1170,6 +1175,7 @@ export class TransactionBuilder {
       minBuyAmount,
       swapKeys,
       isSigned,
+      isSwapAllDeposit,
     );
   }
 }
