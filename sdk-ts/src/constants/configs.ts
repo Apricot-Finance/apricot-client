@@ -91,6 +91,8 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.RAY_ETH_RAYDIUM]: new PublicKey("mjQH33MqZv5aKAbKHi8dG3g3qXeRQqq1GFcXceZkNSr"),
   [TokenID.RAY_SOL_RAYDIUM]: new PublicKey("89ZKE4aoyfLBe2RuV6jM3JGNhaV18Nxh8eNtjRcndBip"),
   [TokenID.SRM_USDC_RAYDIUM]: new PublicKey("9XnZd82j34KxNLgQfz29jGbYdxsYznTWRpvZE3SRE7JG"),
+  [TokenID.stSOL_USTv2_ORCA]: new PublicKey('HTZd53fYwYQRyAjiaPsZy9Gf41gobFdqkF4oKe3XLi95'),
+  [TokenID.ORCA_whETH_ORCA]: new PublicKey('GsfyYHkSgC3Ta6aWR9MjB2sxoBrkGGeR2tAwXbpphf3'),
 };
 
 // prettier-ignore
@@ -142,6 +144,8 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.RAY_ETH_RAYDIUM]: 1e6,
   [TokenID.RAY_SOL_RAYDIUM]: 1e6,
   [TokenID.SRM_USDC_RAYDIUM]: 1e6,
+  [TokenID.stSOL_USTv2_ORCA]: 1e6,
+  [TokenID.ORCA_whETH_ORCA]: 1e6,
 };
 
 // prettier-ignore
@@ -184,6 +188,8 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.stSOL]: 35,
   [TokenID.whETH]: 36,
   [TokenID.scnSOL]: 37,
+  [TokenID.stSOL_USTv2_ORCA]: 38,
+  [TokenID.ORCA_whETH_ORCA]: 39,
 };
 
 // prettier-ignore
@@ -228,6 +234,8 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.RAY_ETH_RAYDIUM]: 0.8,
   [TokenID.RAY_SOL_RAYDIUM]: 0.8,
   [TokenID.SRM_USDC_RAYDIUM]: 0.8,
+  [TokenID.stSOL_USTv2_ORCA]: 0.8,
+  [TokenID.ORCA_whETH_ORCA]: 0.8,
 };
 
 export class InterestRate {
@@ -314,6 +322,8 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.RAY_ETH_RAYDIUM]: 0.2,
   [TokenID.RAY_SOL_RAYDIUM]: 0.2,
   [TokenID.SRM_USDC_RAYDIUM]: 0.2,
+  [TokenID.stSOL_USTv2_ORCA]: 0.2,
+  [TokenID.ORCA_whETH_ORCA]: 0.2,
 };
 
 // prettier-ignore
@@ -365,6 +375,8 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.RAY_ETH_RAYDIUM]: TokenCategory.Lp,
   [TokenID.RAY_SOL_RAYDIUM]: TokenCategory.Lp,
   [TokenID.SRM_USDC_RAYDIUM]: TokenCategory.Lp,
+  [TokenID.stSOL_USTv2_ORCA]: TokenCategory.Lp,
+  [TokenID.ORCA_whETH_ORCA]: TokenCategory.Lp,
 };
 
 // prettier-ignore
@@ -410,6 +422,8 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.RAY_ETH_RAYDIUM]: 0,
   [TokenID.RAY_SOL_RAYDIUM]: 0,
   [TokenID.SRM_USDC_RAYDIUM]: 0,
+  [TokenID.stSOL_USTv2_ORCA]: 0,
+  [TokenID.ORCA_whETH_ORCA]: 0,
 };
 
 // prettier-ignore
@@ -436,6 +450,8 @@ export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.RAY_ETH_RAYDIUM]: [TokenID.RAY, TokenID.ETH],
   [TokenID.RAY_SOL_RAYDIUM]: [TokenID.RAY, TokenID.SOL],
   [TokenID.SRM_USDC_RAYDIUM]: [TokenID.SRM, TokenID.USDC],
+  [TokenID.stSOL_USTv2_ORCA]: [TokenID.stSOL, TokenID.USTv2],
+  [TokenID.ORCA_whETH_ORCA]: [TokenID.ORCA, TokenID.whETH],
 };
 
 // prettier-ignore
@@ -462,6 +478,8 @@ export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.RAY_ETH_RAYDIUM]: SWAP_RAYDIUM,
   [TokenID.RAY_SOL_RAYDIUM]: SWAP_RAYDIUM,
   [TokenID.SRM_USDC_RAYDIUM]: SWAP_RAYDIUM,
+  [TokenID.stSOL_USTv2_ORCA]: SWAP_ORCA,
+  [TokenID.ORCA_whETH_ORCA]: SWAP_ORCA,
 };
 
 // prettier-ignore
@@ -488,6 +506,8 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.RAY_ETH_RAYDIUM]: Dex.Raydium,
   [TokenID.RAY_SOL_RAYDIUM]: Dex.Raydium,
   [TokenID.SRM_USDC_RAYDIUM]: Dex.Raydium,
+  [TokenID.stSOL_USTv2_ORCA]: Dex.Orca,
+  [TokenID.ORCA_whETH_ORCA]: Dex.Orca,
 };
 
 // prettier-ignore
@@ -514,6 +534,8 @@ export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
   [TokenID.RAY_ETH_RAYDIUM]: true,
   [TokenID.RAY_SOL_RAYDIUM]: true,
   [TokenID.SRM_USDC_RAYDIUM]: true,
+  [TokenID.stSOL_USTv2_ORCA]: false,
+  [TokenID.ORCA_whETH_ORCA]: false,
 };
 
 // meta-info used by Addresses to compute keys needed when interacting with various Solana swaps
@@ -744,16 +766,16 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
   feeAccount:             PublicKey;
   publicRewardTokAcc:     PublicKey;
   alphaRewardTokAcc:      PublicKey;
-  
+
   isDoubleDipSupported = false;
-  globalLp3Vault?:        PublicKey;
-  farmTokenLp3Mint?:      PublicKey;
-  globalDoubleDipFarmState?: PublicKey;
+  globalLp3Vault?:                  PublicKey;
+  farmTokenLp3Mint?:                PublicKey;
+  globalDoubleDipFarmState?:        PublicKey;
   globalDoubleDipRewardTokenVault?: PublicKey;
-  doubleDipRewardTokenAuthority?: PublicKey;
-  publicDoubleDipRewardAcc?: PublicKey;
-  alphaDoubleDipRewardAcc?: PublicKey;
-  doubleDipRewardMint?:   PublicKey;
+  doubleDipRewardTokenAuthority?:   PublicKey;
+  publicDoubleDipRewardAcc?:        PublicKey;
+  alphaDoubleDipRewardAcc?:         PublicKey;
+  doubleDipRewardMint?:             PublicKey;
   constructor(args: OrcaLpArgs) {
     this.lpMintPubkey = args.lpMintPubkey;
     this.swapPubkey = args.swapPubkey;
@@ -781,41 +803,43 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
     if (this.isDoubleDipSupported) {
       invariant(
         this.globalLp3Vault &&
-        this.farmTokenLp3Mint &&
-        this.globalDoubleDipFarmState &&
-        this.globalDoubleDipRewardTokenVault &&
-        this.doubleDipRewardTokenAuthority &&
-        this.publicDoubleDipRewardAcc &&
-        this.alphaDoubleDipRewardAcc &&
-        this.doubleDipRewardMint)
+          this.farmTokenLp3Mint &&
+          this.globalDoubleDipFarmState &&
+          this.globalDoubleDipRewardTokenVault &&
+          this.doubleDipRewardTokenAuthority &&
+          this.publicDoubleDipRewardAcc &&
+          this.alphaDoubleDipRewardAcc &&
+          this.doubleDipRewardMint,
+      );
     }
   }
 
-  async getPdaKeys (ownerKey: PublicKey) {
+  async getPdaKeys(ownerKey: PublicKey) {
     const smeta = SWAP_METAS[SWAP_ORCA];
     let pdaRewardTokenAccount: PublicKey;
     const { isPublic } = isPublicOrAlpha(ownerKey);
     if (isPublic) {
       pdaRewardTokenAccount = this.publicRewardTokAcc;
-    }
-    else {
+    } else {
       pdaRewardTokenAccount = this.alphaRewardTokAcc;
     }
 
     const pdaFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, this.farmTokenMint, true);
-    const pdaFarmState = (await PublicKey.findProgramAddress(
-      [this.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
-      smeta.farmProgramPubkey
-    ))[0];
+    const pdaFarmState = (
+      await PublicKey.findProgramAddress(
+        [this.globalFarmState.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
+        smeta.farmProgramPubkey,
+      )
+    )[0];
 
     return {
       pdaFarmTokenAccount,
       pdaRewardTokenAccount,
-      pdaFarmState
+      pdaFarmState,
     };
   }
 
-  async getPdaDoubleDipKeys (ownerKey: PublicKey) {
+  async getPdaDoubleDipKeys(ownerKey: PublicKey) {
     if (!this.isDoubleDipSupported) {
       throw new Error('Double dip not supported for getting pda keys');
     }
@@ -824,16 +848,25 @@ export class OrcaLpSwapInfo implements LpSwapKeyInfo {
     const { isPublic } = isPublicOrAlpha(ownerKey);
     if (isPublic) {
       pdaDoubleDipRewardTokenAccount = this.publicDoubleDipRewardAcc!;
-    }
-    else {
+    } else {
       pdaDoubleDipRewardTokenAccount = this.alphaDoubleDipRewardAcc!;
     }
 
-    const pdaDoubleDipFarmTokenAccount = await getAssociatedTokenPubkey(ownerKey, this.farmTokenLp3Mint!, true);
-    const pdaDoubleDipFarmState = (await PublicKey.findProgramAddress(
-      [this.globalDoubleDipFarmState!.toBuffer(), ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer()],
-      smeta.farmProgramPubkey
-    ))[0];
+    const pdaDoubleDipFarmTokenAccount = await getAssociatedTokenPubkey(
+      ownerKey,
+      this.farmTokenLp3Mint!,
+      true,
+    );
+    const pdaDoubleDipFarmState = (
+      await PublicKey.findProgramAddress(
+        [
+          this.globalDoubleDipFarmState!.toBuffer(),
+          ownerKey.toBuffer(),
+          TOKEN_PROGRAM_ID.toBuffer(),
+        ],
+        smeta.farmProgramPubkey,
+      )
+    )[0];
 
     return {
       pdaDoubleDipFarmTokenAccount,
@@ -1395,6 +1428,46 @@ export const ORCA_LP_METAS: {[key in TokenID]? : OrcaLpSwapInfo } = {
     publicRewardTokAcc:     new PublicKey("EgFva9mEFCV31AkhoZb6rN6zvbNGE1xdaRYAkKTtdNjN"),
     alphaRewardTokAcc:      new PublicKey("Cd5ijQFj1V7V5VwuoSkG6pEaPyeX2D9ZmqS7pE1RVdFX"),
   }),
+  [TokenID.stSOL_USTv2_ORCA]: new OrcaLpSwapInfo({
+    lpMintPubkey:           new PublicKey(MINTS[TokenID.stSOL_USTv2_ORCA]),
+
+    swapPubkey:             new PublicKey('9F3J6RY7PTkDb3SUUpg725uXyCceBGCpZrtmYGJwgMwF'),
+    swapAuthority:          new PublicKey('wJydc21tAMxYDif8uvy5rWNGWDFNZnPPmqCvegyZRod'),
+
+    swapTokenAAccount:      new PublicKey('GFso9SAGakm8ZFa3rmuonuerbcQ8ZbACNZN7idkKR5nw'),
+    swapTokenBAccount:      new PublicKey('EZ7pJskN2a4pDknrdkLzGDHpzjbfgdBj3Tt594K9HZbL'),
+
+    globalLpVault:          new PublicKey('EQBy5YqWkLxr1xx1CZh2dDdX57XR9Ata4jNJebtuR61h'),
+    farmTokenMint:          new PublicKey('3Q44iV4URXdbS4Tk1PGs5VdWQoCxHB7zdcdMnemo8jfH'),
+    globalFarmState:        new PublicKey('GxhewC22S6wsXT156yC9SARvDnijoc3YEYyLVcQFDUCx'),
+    globalRewardTokenVault: new PublicKey('FFjuVr4FYdRGkPwaQREVQWHsBFGwQ1LH6VkmVSJL5Vva'),
+    rewardTokenAuthority:   new PublicKey('8za7LwVuYbP2PivS3KbeohpUkSmRqLdTDxhrVzsHyFZf'),
+    feeAccount:             new PublicKey('5rCbmppxMBHwBjCkLUP6fireQ12cL8LRa26QRUimoxN6'),
+
+    // public needs to be created later
+    publicRewardTokAcc:     new PublicKey('6P4frmXufUBsT2s39zbQ5k5UDrzSpFcNKmZAgWZLHgMv'),
+    alphaRewardTokAcc:      new PublicKey('DpBG9h4UWMfwRKXUzN1zo3jEkJLGE5RVz5Zt6Qr4Xt7c'),
+  }),
+  [TokenID.ORCA_whETH_ORCA]: new OrcaLpSwapInfo({
+    lpMintPubkey:           new PublicKey(MINTS[TokenID.ORCA_whETH_ORCA]),
+
+    swapPubkey:             new PublicKey('D67u6UEuFp9Q4Fu2gnu5thxBoVj2eRgDDDirdWsMVsgm'),
+    swapAuthority:          new PublicKey('4kwchkCnCaZPkBdnk85j9bJ9F1P883rwjbvsXGV7H5rM'),
+
+    swapTokenAAccount:      new PublicKey('EMxDw1NjdddQjPk9gCUN4iDMy8HJ5siKYMVjGbjuUCrh'),
+    swapTokenBAccount:      new PublicKey('DQyhcuEvE1K9DSd51agcNLg4CDrgthnKMVhU7q6R55LV'),
+
+    globalLpVault:          new PublicKey('CYSwKVGEaPazRXUcCo2Ve9wyovK44E9ftLNSsvVqRuf1'),
+    farmTokenMint:          new PublicKey('A7EAHvFEWzW8qSTFNLrEHN894GAZWZesNiebttEwtUGJ'),
+    globalFarmState:        new PublicKey('AgWH92f8cPAuURyqehF6A9wFgupEsnDX3VP5eHyytabA'),
+    globalRewardTokenVault: new PublicKey('DoaerVHonB3FYpzKtqADug9UtrPLzgY1gbzZm6cRuymi'),
+    rewardTokenAuthority:   new PublicKey('B1pahxFpN3GX4TKsw7fEDLw5MuuzmHNUbVcPZ6bp7KBM'),
+    feeAccount:             new PublicKey('GdHXLai5M8FKedXUsECSzrV72nb1RTCCooFyTWT8WYmT'),
+
+    // public needs to be created later
+    publicRewardTokAcc:     new PublicKey('9jJVuB2UhzcGED6h476kieHwTVPmhY7EJsQyud38Q4r1'),
+    alphaRewardTokAcc:      new PublicKey('HqTUasro97QUByk1LEbXGJCh672Bu1b5gnj31tLbbJfi'),
+  }),
 }
 
 // prettier-ignore
@@ -1834,7 +1907,7 @@ export const PYTH_PRICE: { [key in TokenID]?: PublicKey } = {
 
 export const COINGECKO_PRICE_ID: { [key in TokenID]?: string } = {
   [TokenID.MNDE]: 'marinade',
-  [TokenID.wLDO]: 'lido-dao-wormhole',
+  [TokenID.wLDO]: 'lido-dao',
 };
 
 const FIREBASE_READER_CONFIG = {
@@ -2260,5 +2333,5 @@ export const DIRECT_SWAP_META: { [key in TokenID]?: { [key in TokenID]?: AdhocSw
         ];
       },
     },
-  }
+  },
 };

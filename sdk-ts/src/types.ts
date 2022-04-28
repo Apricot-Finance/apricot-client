@@ -48,6 +48,8 @@ export enum TokenID {
   BTC_mSOL_ORCA = 'BTC_mSOL_ORCA',
   mSOL_USDC_ORCA = 'mSOL_USDC_ORCA',
   APT_USDC_ORCA = 'APT_USDC_ORCA',
+  stSOL_USTv2_ORCA = 'stSOL_USTv2_ORCA',
+  ORCA_whETH_ORCA = 'ORCA_whETH_ORCA',
 }
 
 export type PoolId = number;
@@ -442,7 +444,7 @@ export enum RPC {
   GenesysGo = 'GenesysGo',
   Triton = 'Triton',
   Serum = 'Serum',
-};
+}
 
 export type GenesysGoAccessToken = {
   accessToken: string;
