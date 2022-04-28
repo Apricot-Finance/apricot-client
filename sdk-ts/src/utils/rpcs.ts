@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Base64 } from 'js-base64';
 import invariant from 'tiny-invariant';
 import { GenesysGoAccessToken, RPC } from '../types';
-import { LogDebug } from './Logger';
+import { LogInfo } from './Logger';
 
 export class RpcNode {
   public readonly rpc;
@@ -93,9 +93,9 @@ export const getRPCConnection = (rpcish?: RPC | string, commitmentOrConfig?: Com
     }
     invariant(node, `Can't get RPC connection per name: ${rpcish}`);
   } else {
-    node = rpcNodes.Triton;
+    node = rpcNodes.Serum;
   }
-  LogDebug(`RPC Node: ${node.rpc}, ${node.url}`);
+  LogInfo(`RPC Node: ${node.rpc}, ${node.url}`);
 
   return node.getConnection(commitmentOrConfig);
 };
