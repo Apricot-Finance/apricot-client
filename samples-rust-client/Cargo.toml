@@ -7,6 +7,6 @@ edition = "2018"
 [dependencies]
 solana-sdk = "^1.7.1"
 solana-client = "^1.7.1"
-apricot-client = "0.14.0"
+apricot-client = { path = "../rust" }
 spl-token = { version = "3.1.0", features = [ "no-entrypoint" ] }
 spl-associated-token-account = "^1.0.2"

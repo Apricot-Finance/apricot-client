@@ -5,7 +5,6 @@ description = "Apricot client demo contract"
 authors = ["yhou@apricot.one"]
 edition = "2018"
 
-
 [dependencies]
 solana-program = "^1.7.1"
 apricot-client = "0.14.0"
