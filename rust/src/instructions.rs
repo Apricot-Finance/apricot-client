@@ -57,14 +57,14 @@ pub struct ExternLiquidateParam {
 }
 
 #[inline(always)]
-pub fn mut_cast<T>(data: &mut [u8] ) -> &mut T {
+pub fn mut_cast<T>(data: &mut [u8]) -> &mut T {
     assert!(data.len() >= std::mem::size_of::<T>());
-    return unsafe{std::mem::transmute(data.as_ptr())};
+    return unsafe { std::mem::transmute(data.as_ptr()) };
 }
 
 pub fn deposit(
-    user_wallet: &Pubkey,       // user wallet account, needs to be signer
-    user_spl: &Pubkey,          // user's SPL token account
+    user_wallet: &Pubkey, // user wallet account, needs to be signer
+    user_spl: &Pubkey,    // user's SPL token account
     amount: u64,
     pool_id: u8,
 ) -> Instruction {
@@ -75,6 +75,7 @@ pub fn deposit(
         &consts::get_asset_pool_k(pool_id),
         &consts::get_asset_pool_spl_k(&spl_token::ID, pool_id),
         &consts::get_pool_summaries_k(),
+        &consts::get_price_summaries_k(),
         &spl_token::ID,
         &consts::program::ID,
         amount,
@@ -83,18 +84,18 @@ pub fn deposit(
 }
 
 pub fn deposit_full(
-    user_wallet: &Pubkey,       // user wallet account, needs to be signer
-    user_spl: &Pubkey,          // user's SPL token account
-    user_info: &Pubkey,         // consts::get_user_info_k(user_wallet_key)
-    asset_pool: &Pubkey,        // consts::get_asset_pool_k(pool_id)
-    asset_pool_spl: &Pubkey,    // consts::get_asset_pool_spl_k(token_program, pool_id)
-    pool_summaries: &Pubkey,    // consts::get_pool_summaries_k()
+    user_wallet: &Pubkey,     // user wallet account, needs to be signer
+    user_spl: &Pubkey,        // user's SPL token account
+    user_info: &Pubkey,       // consts::get_user_info_k(user_wallet_key)
+    asset_pool: &Pubkey,      // consts::get_asset_pool_k(pool_id)
+    asset_pool_spl: &Pubkey,  // consts::get_asset_pool_spl_k(token_program, pool_id)
+    pool_summaries: &Pubkey,  // consts::get_pool_summaries_k()
+    price_summaries: &Pubkey, // consts::get_pool_summaries_k()
     token_program: &Pubkey,
-    program_id: &Pubkey,        // consts::program::ID
+    program_id: &Pubkey, // consts::program::ID
 
     amount: u64,
     pool_id: u8,
-
 ) -> Instruction {
     let data_size = 1 + std::mem::size_of::<DepositParam>();
     let mut buffer = vec![0; data_size];
@@ -104,7 +105,7 @@ pub fn deposit_full(
     param.amount = amount;
     param.pool_id = pool_id;
 
-    Instruction{
+    Instruction {
         program_id: *program_id,
         accounts: vec![
             AccountMeta::new_readonly(*user_wallet, true),
@@ -113,6 +114,7 @@ pub fn deposit_full(
             AccountMeta::new(*asset_pool, false),
             AccountMeta::new(*asset_pool_spl, false),
             AccountMeta::new(*pool_summaries, false),
+            AccountMeta::new(*price_summaries, false),
             AccountMeta::new_readonly(*token_program, false),
         ],
         data: buffer,
@@ -120,8 +122,8 @@ pub fn deposit_full(
 }
 
 pub fn add_user_and_deposit(
-    user_wallet: &Pubkey,       // user wallet account, needs to be signer
-    user_spl: &Pubkey,          // user's SPL token account
+    user_wallet: &Pubkey, // user wallet account, needs to be signer
+    user_spl: &Pubkey,    // user's SPL token account
     amount: u64,
     pool_id: u8,
     page_id: u16,
@@ -130,7 +132,7 @@ pub fn add_user_and_deposit(
         user_wallet,
         user_spl,
         &consts::get_user_pages_stats_k(),
-        &consts::get_users_page_k(page_id as usize),
+        &consts::get_users_page_k(page_id),
         &consts::get_user_info_k(user_wallet),
         &consts::get_asset_pool_k(pool_id),
         &consts::get_asset_pool_spl_k(&spl_token::ID, pool_id),
@@ -139,7 +141,6 @@ pub fn add_user_and_deposit(
         &system_program::ID,
         &spl_token::ID,
         &consts::program::ID,
-
         amount,
         pool_id,
         page_id,
@@ -147,23 +148,22 @@ pub fn add_user_and_deposit(
 }
 
 pub fn add_user_and_deposit_full(
-    user_wallet: &Pubkey,       // user wallet account, needs to be signer
-    user_spl: &Pubkey,          // user's SPL token account
-    user_pages_stats: &Pubkey,  // consts::get_user_pages_stats_k()
-    users_page: &Pubkey,        // consts::get_users_page_k(page_id)
-    user_info: &Pubkey,         // consts::get_user_info_k(user_wallet_key)
-    asset_pool: &Pubkey,        // consts::get_asset_pool_k(pool_id)
-    asset_pool_spl: &Pubkey,    // consts::get_asset_pool_spl_k(token_program, pool_id)
-    pool_summaries: &Pubkey,    // consts::get_pool_summaries_k()
-    price_summaries: &Pubkey,   // consts::get_pool_summaries_k()
+    user_wallet: &Pubkey,      // user wallet account, needs to be signer
+    user_spl: &Pubkey,         // user's SPL token account
+    user_pages_stats: &Pubkey, // consts::get_user_pages_stats_k()
+    users_page: &Pubkey,       // consts::get_users_page_k(page_id)
+    user_info: &Pubkey,        // consts::get_user_info_k(user_wallet_key)
+    asset_pool: &Pubkey,       // consts::get_asset_pool_k(pool_id)
+    asset_pool_spl: &Pubkey,   // consts::get_asset_pool_spl_k(token_program, pool_id)
+    pool_summaries: &Pubkey,   // consts::get_pool_summaries_k()
+    price_summaries: &Pubkey,  // consts::get_pool_summaries_k()
     system_program: &Pubkey,
     token_program: &Pubkey,
-    program_id: &Pubkey,        // consts::program::ID
+    program_id: &Pubkey, // consts::program::ID
 
     amount: u64,
     pool_id: u8,
     page_id: u16,
-
 ) -> Instruction {
     let data_size = 1 + std::mem::size_of::<AddUserAndDepositParam>();
     let mut buffer = vec![0; data_size];
@@ -174,7 +174,7 @@ pub fn add_user_and_deposit_full(
     param.pool_id = pool_id;
     param.page_id = page_id;
 
-    Instruction{
+    Instruction {
         program_id: *program_id,
         accounts: vec![
             AccountMeta::new_readonly(*user_wallet, true),
@@ -194,11 +194,12 @@ pub fn add_user_and_deposit_full(
 }
 
 pub fn withdraw(
-    user_wallet: &Pubkey,       // user wallet account, needs to be signer
-    user_spl: &Pubkey,          // user's SPL token account
+    user_wallet: &Pubkey, // user wallet account, needs to be signer
+    user_spl: &Pubkey,    // user's SPL token account
     withdraw_all: bool,
     amount: u64,
     pool_id: u8,
+    page_id: u16,
 ) -> Instruction {
     withdraw_full(
         user_wallet,
@@ -214,55 +215,65 @@ pub fn withdraw(
         withdraw_all,
         amount,
         pool_id,
+        page_id,
     )
 }
 
 pub fn withdraw_full(
-    user_wallet: &Pubkey,       // user wallet account, needs to be signer
-    user_spl: &Pubkey,          // user's SPL token account
-    user_info: &Pubkey,         // consts::get_user_info_k(user_wallet_key)
-    asset_pool: &Pubkey,        // consts::get_asset_pool_k(pool_id)
-    asset_pool_spl: &Pubkey,    // consts::get_asset_pool_spl_k(token_program, pool_id)
-    pool_summaries: &Pubkey,    // consts::get_pool_summaries_k()
-    price_summaries: &Pubkey,   // consts::get_price_summaries_k()
-    base_pda: &Pubkey,          // consts::get_base_pda()
+    user_wallet: &Pubkey,     // user wallet account, needs to be signer
+    user_spl: &Pubkey,        // user's SPL token account
+    user_info: &Pubkey,       // consts::get_user_info_k(user_wallet_key)
+    asset_pool: &Pubkey,      // consts::get_asset_pool_k(pool_id)
+    asset_pool_spl: &Pubkey,  // consts::get_asset_pool_spl_k(token_program, pool_id)
+    pool_summaries: &Pubkey,  // consts::get_pool_summaries_k()
+    price_summaries: &Pubkey, // consts::get_price_summaries_k()
+    base_pda: &Pubkey,        // consts::get_base_pda()
     token_program: &Pubkey,
-    program_id: &Pubkey,        // consts::program::ID
+    program_id: &Pubkey, // consts::program::ID
 
     withdraw_all: bool,
     amount: u64,
     pool_id: u8,
-
+    page_id: u16,
 ) -> Instruction {
     let data_size = 1 + std::mem::size_of::<WithdrawParam>();
     let mut buffer = vec![0; data_size];
 
-    buffer[0] = consts::CMD_WITHDRAW;
+    buffer[0] = if withdraw_all {
+        consts::CMD_WITHDRAW_AND_REMOVE_USER
+    } else {
+        consts::CMD_WITHDRAW
+    };
     let mut param = mut_cast::<WithdrawParam>(&mut buffer[1..]);
-    param.withdraw_all = if withdraw_all {1} else {0};
+    param.withdraw_all = if withdraw_all { 1 } else { 0 };
     param.amount = amount;
     param.pool_id = pool_id;
 
-    Instruction{
+    let mut accounts = vec![
+        AccountMeta::new_readonly(*user_wallet, true),
+        AccountMeta::new(*user_spl, false),
+    ];
+    if withdraw_all {
+        accounts.push(AccountMeta::new(consts::get_user_pages_stats_k(), false));
+        accounts.push(AccountMeta::new(consts::get_users_page_k(page_id), false));
+    }
+    accounts.push(AccountMeta::new(*user_info, false));
+    accounts.push(AccountMeta::new(*asset_pool, false));
+    accounts.push(AccountMeta::new(*asset_pool_spl, false));
+    accounts.push(AccountMeta::new(*pool_summaries, false));
+    accounts.push(AccountMeta::new_readonly(*price_summaries, false));
+    accounts.push(AccountMeta::new_readonly(*base_pda, false));
+    accounts.push(AccountMeta::new_readonly(*token_program, false));
+    Instruction {
         program_id: *program_id,
-        accounts: vec![
-            AccountMeta::new_readonly(*user_wallet, true),
-            AccountMeta::new(*user_spl, false),
-            AccountMeta::new(*user_info, false),
-            AccountMeta::new(*asset_pool, false),
-            AccountMeta::new(*asset_pool_spl, false),
-            AccountMeta::new(*pool_summaries, false),
-            AccountMeta::new_readonly(*price_summaries, false),
-            AccountMeta::new_readonly(*base_pda, false),
-            AccountMeta::new_readonly(*token_program, false),
-        ],
+        accounts: accounts,
         data: buffer,
     }
 }
 
 pub fn borrow(
-    user_wallet: &Pubkey,       // user wallet account, needs to be signer
-    user_spl: &Pubkey,          // user's SPL token account
+    user_wallet: &Pubkey, // user wallet account, needs to be signer
+    user_spl: &Pubkey,    // user's SPL token account
     amount: u64,
     pool_id: u8,
 ) -> Instruction {
@@ -283,20 +294,19 @@ pub fn borrow(
 }
 
 pub fn borrow_full(
-    user_wallet: &Pubkey,       // user wallet account, needs to be signer
-    user_spl: &Pubkey,          // user's SPL token account
-    user_info: &Pubkey,         // consts::get_user_info_k(user_wallet_key)
-    asset_pool: &Pubkey,        // consts::get_asset_pool_k(pool_id)
-    asset_pool_spl: &Pubkey,    // consts::get_asset_pool_spl_k(token_program, pool_id)
-    pool_summaries: &Pubkey,    // consts::get_pool_summaries_k()
-    price_summaries: &Pubkey,   // consts::get_price_summaries_k()
-    base_pda: &Pubkey,          // consts::get_base_pda()
+    user_wallet: &Pubkey,     // user wallet account, needs to be signer
+    user_spl: &Pubkey,        // user's SPL token account
+    user_info: &Pubkey,       // consts::get_user_info_k(user_wallet_key)
+    asset_pool: &Pubkey,      // consts::get_asset_pool_k(pool_id)
+    asset_pool_spl: &Pubkey,  // consts::get_asset_pool_spl_k(token_program, pool_id)
+    pool_summaries: &Pubkey,  // consts::get_pool_summaries_k()
+    price_summaries: &Pubkey, // consts::get_price_summaries_k()
+    base_pda: &Pubkey,        // consts::get_base_pda()
     token_program: &Pubkey,
-    program_id: &Pubkey,        // consts::program::ID
+    program_id: &Pubkey, // consts::program::ID
 
     amount: u64,
     pool_id: u8,
-
 ) -> Instruction {
     let data_size = 1 + std::mem::size_of::<BorrowParam>();
     let mut buffer = vec![0; data_size];
@@ -306,7 +316,7 @@ pub fn borrow_full(
     param.amount = amount;
     param.pool_id = pool_id;
 
-    Instruction{
+    Instruction {
         program_id: *program_id,
         accounts: vec![
             AccountMeta::new_readonly(*user_wallet, true),
@@ -324,8 +334,8 @@ pub fn borrow_full(
 }
 
 pub fn repay(
-    user_wallet: &Pubkey,       // user wallet account, needs to be signer
-    user_spl: &Pubkey,          // user's SPL token account
+    user_wallet: &Pubkey, // user wallet account, needs to be signer
+    user_spl: &Pubkey,    // user's SPL token account
     repay_all: bool,
     amount: u64,
     pool_id: u8,
@@ -346,30 +356,29 @@ pub fn repay(
 }
 
 pub fn repay_full(
-    user_wallet: &Pubkey,       // user wallet account, needs to be signer
-    user_spl: &Pubkey,          // user's SPL token account
-    user_info: &Pubkey,         // consts::get_user_info_k(user_wallet_key)
-    asset_pool: &Pubkey,        // consts::get_asset_pool_k(pool_id)
-    asset_pool_spl: &Pubkey,    // consts::get_asset_pool_spl_k(token_program, pool_id)
-    pool_summaries: &Pubkey,    // consts::get_pool_summaries_k()
+    user_wallet: &Pubkey,    // user wallet account, needs to be signer
+    user_spl: &Pubkey,       // user's SPL token account
+    user_info: &Pubkey,      // consts::get_user_info_k(user_wallet_key)
+    asset_pool: &Pubkey,     // consts::get_asset_pool_k(pool_id)
+    asset_pool_spl: &Pubkey, // consts::get_asset_pool_spl_k(token_program, pool_id)
+    pool_summaries: &Pubkey, // consts::get_pool_summaries_k()
     token_program: &Pubkey,
-    program_id: &Pubkey,        // consts::program::ID
+    program_id: &Pubkey, // consts::program::ID
 
     repay_all: bool,
     amount: u64,
     pool_id: u8,
-
 ) -> Instruction {
     let data_size = 1 + std::mem::size_of::<RepayParam>();
     let mut buffer = vec![0; data_size];
 
     buffer[0] = consts::CMD_REPAY;
     let mut param = mut_cast::<RepayParam>(&mut buffer[1..]);
-    param.repay_all = if repay_all {1} else {0};
+    param.repay_all = if repay_all { 1 } else { 0 };
     param.amount = amount;
     param.pool_id = pool_id;
 
-    Instruction{
+    Instruction {
         program_id: *program_id,
         accounts: vec![
             AccountMeta::new_readonly(*user_wallet, true),
@@ -384,10 +393,8 @@ pub fn repay_full(
     }
 }
 
-pub fn refresh_user(
-    user_wallet: &Pubkey,       // user wallet account
+pub fn refresh_user(user_wallet: &Pubkey, // user wallet account
 ) -> Instruction {
-
     let data_size = 1 + 0; // no param
     let mut buffer = vec![0; data_size];
 
@@ -397,7 +404,7 @@ pub fn refresh_user(
 
     buffer[0] = consts::CMD_REFRESH_USER;
 
-    Instruction{
+    Instruction {
         program_id: program_id,
         accounts: vec![
             AccountMeta::new_readonly(*user_wallet, false),
@@ -409,10 +416,10 @@ pub fn refresh_user(
 }
 
 pub fn extern_liquidate(
-    liquidated_wallet: &Pubkey,         // wallet key for account to be liquidated
-    liquidator_wallet: &Pubkey,         // wallet key for liquidator, signer
+    liquidated_wallet: &Pubkey, // wallet key for account to be liquidated
+    liquidator_wallet: &Pubkey, // wallet key for liquidator, signer
     liquidator_collateral_spl: &Pubkey, // liquidator's SPL token account for collateral asset
-    liquidator_borrowed_spl: &Pubkey,   // liquidator's SPL token account for repaid asset
+    liquidator_borrowed_spl: &Pubkey, // liquidator's SPL token account for repaid asset
     repaid_borrow_amount: u64,
     min_collateral_amount: u64,
     borrowed_pool_id: u8,
@@ -421,23 +428,17 @@ pub fn extern_liquidate(
     extern_liquidate_full(
         liquidated_wallet,
         liquidator_wallet,
-
         &consts::get_user_info_k(liquidated_wallet),
         &consts::get_base_pda(),
-
         liquidator_collateral_spl,
         liquidator_borrowed_spl,
-
         &consts::get_asset_pool_k(collateral_pool_id),
         &consts::get_asset_pool_spl_k(&spl_token::ID, collateral_pool_id),
-
         &consts::get_asset_pool_k(borrowed_pool_id),
         &consts::get_asset_pool_spl_k(&spl_token::ID, borrowed_pool_id),
-
         &consts::get_pool_summaries_k(),
         &spl_token::ID,
         &consts::program::ID,
-
         repaid_borrow_amount,
         min_collateral_amount,
         borrowed_pool_id,
@@ -447,24 +448,24 @@ pub fn extern_liquidate(
 
 // liquidator will help repay "borrowed" and in exchange receive "collateral" asset at 1% discount
 pub fn extern_liquidate_full(
-    liquidated_wallet: &Pubkey,         // wallet key for account to be liquidated
-    liquidator_wallet: &Pubkey,         // wallet key for liquidator, signer
+    liquidated_wallet: &Pubkey, // wallet key for account to be liquidated
+    liquidator_wallet: &Pubkey, // wallet key for liquidator, signer
 
-    user_info: &Pubkey,                 // consts::get_user_info_k(liquidated_wallet)
-    base_pda: &Pubkey,                  // consts::get_base_pda()
+    user_info: &Pubkey, // consts::get_user_info_k(liquidated_wallet)
+    base_pda: &Pubkey,  // consts::get_base_pda()
 
     liquidator_collateral_spl: &Pubkey, // liquidator's SPL token account for collateral asset
     liquidator_borrowed_spl: &Pubkey,   // liquidator's SPL token account for repaid asset
 
-    collateral_asset_pool: &Pubkey,     // consts::get_asset_pool_k(collateral_pool_id)
+    collateral_asset_pool: &Pubkey, // consts::get_asset_pool_k(collateral_pool_id)
     collateral_asset_pool_spl: &Pubkey, // consts::get_asset_pool_spl_k(token_program, collateral_pool_id)
 
-    borrowed_asset_pool: &Pubkey,       // consts::get_asset_pool_k(borrowed_pool_id)
-    borrowed_asset_pool_spl: &Pubkey,   // consts::get_asset_pool_spl_k(token_program, borrowed_pool_id)
+    borrowed_asset_pool: &Pubkey, // consts::get_asset_pool_k(borrowed_pool_id)
+    borrowed_asset_pool_spl: &Pubkey, // consts::get_asset_pool_spl_k(token_program, borrowed_pool_id)
 
-    pool_summaries: &Pubkey,            // consts::get_pool_summaries_k()
+    pool_summaries: &Pubkey, // consts::get_pool_summaries_k()
     token_program: &Pubkey,
-    program_id: &Pubkey,                // consts::program::ID
+    program_id: &Pubkey, // consts::program::ID
 
     repaid_borrow_amount: u64,
     min_collateral_amount: u64,
@@ -481,7 +482,7 @@ pub fn extern_liquidate_full(
     param.borrowed_pool_id = borrowed_pool_id;
     param.collateral_pool_id = collateral_pool_id;
 
-    Instruction{
+    Instruction {
         program_id: *program_id,
         accounts: vec![
             AccountMeta::new_readonly(*liquidated_wallet, false),
