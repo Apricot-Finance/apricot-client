@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { exit } from "process";
 import {
-  getConnection,
+  getRPCConnection,
   ActionWrapper,
   createPortfolioLoader,
 } from "@apricot-lend/sdk-ts"
@@ -9,7 +9,7 @@ import { Argument, Command } from 'commander';
 
 async function sampleRaw(walletAddress: string): Promise<void> {
   console.log("Sample getting raw data.");
-  let connection = getConnection();
+  let connection = getRPCConnection();
   let actionWrapper = new ActionWrapper(connection);
   let walletKey = new PublicKey(walletAddress);
   let userInfoRaw = await actionWrapper.getParsedUserInfo(walletKey);
@@ -23,7 +23,7 @@ async function sampleRaw(walletAddress: string): Promise<void> {
 async function sampleDefault(walletAddress: string): Promise<void> {
   console.log("Sample: PortfolioLoader using apricot pricing");
   let walletKey = new PublicKey(walletAddress);
-  let portfolioLoader = createPortfolioLoader(walletKey, getConnection());
+  let portfolioLoader = createPortfolioLoader(walletKey, getRPCConnection());
   await portfolioLoader.refreshPortfolio();
   console.log(await portfolioLoader.getUserInfoAddress());
   console.log(await portfolioLoader.getUserAssetInfoList());
