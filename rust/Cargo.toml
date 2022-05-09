@@ -1,6 +1,6 @@
 [package]
 name = "apricot-client"
-version = "0.14.0"
+version = "0.15.0"
 description = "Apricot client"
 authors = ["yhou@apricot.one"]
 edition = "2018"
