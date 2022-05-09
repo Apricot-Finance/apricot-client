@@ -51,7 +51,7 @@ impl Display for UserAssetInfo {
         )?;
         writeln!(
             f,
-            "deposit_native_amount: {}, despoit_native_interest: {}, deposit_apt_reward_native_amount: {}",
+            "deposit_native_amount: {}, deposit_native_interest: {}, deposit_apt_reward_native_amount: {}",
             self.deposit_amount.to_native_amount(), self.deposit_interests, self.reward_deposit_amount
         )?;
         writeln!(
