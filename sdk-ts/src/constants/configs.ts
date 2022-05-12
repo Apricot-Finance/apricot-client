@@ -70,6 +70,8 @@ export const MINTS: { [key in TokenID]: PublicKey } = {
   [TokenID.USTv2]: new PublicKey("9vMJfxuKxXBoEa7rM12mYLMwTacLMLDJqHozw96WQL8i"),
 
   [TokenID.USDT_USDC_SABER]: new PublicKey("2poo1w1DL6yd2WNTCnNTzDqkC6MBXq7axo77P16yrBuf"),
+  [TokenID.mSOL_SOL_SABER]: new PublicKey('SoLEao8wTzSfqhuou8rcYsVoLjthVmiXuEjzdNPMnCz'),
+  [TokenID.stSOL_SOL_SABER]: new PublicKey('stSjCmjQ96BiGhTk8gkU22j1739R8YBQVMq7KXWTqUV'),
   [TokenID.USDC_USDT_ORCA]: new PublicKey("H2uzgruPvonVpCRhwwdukcpXK8TG17swFNzYFr2rtPxy"),
   [TokenID.UST_USDC_SABER]: new PublicKey("UST32f2JtPGocLzsL41B3VBBoJzTm1mK1j3rwyM3Wgc"),
   [TokenID.SOL_USDC_RAYDIUM]: new PublicKey("8HoQnePLqPj4M7PUDzfw8e3Ymdwgc7NLGnaTUapubyvu"),
@@ -123,6 +125,8 @@ export const DECIMAL_MULT: { [key in TokenID]: number } = {
   [TokenID.USTv2] : 1e6,
 
   [TokenID.USDT_USDC_SABER]: 1e6,
+  [TokenID.mSOL_SOL_SABER]: 1e9,
+  [TokenID.stSOL_SOL_SABER]: 1e9,
   [TokenID.USDC_USDT_ORCA]: 1e6,
   [TokenID.UST_USDC_SABER]: 1e9,
   [TokenID.SOL_USDC_RAYDIUM]: 1e9,
@@ -190,6 +194,8 @@ const POOL_IDS: { [key in TokenID]?: PoolId } = {
   [TokenID.scnSOL]: 37,
   [TokenID.stSOL_USTv2_ORCA]: 38,
   [TokenID.ORCA_whETH_ORCA]: 39,
+  [TokenID.mSOL_SOL_SABER]: 40,
+  [TokenID.stSOL_SOL_SABER]: 41,
 };
 
 // prettier-ignore
@@ -214,6 +220,8 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.USTv2]: 0.8,
 
   [TokenID.USDT_USDC_SABER]: 0.8,
+  [TokenID.mSOL_SOL_SABER]: 0.8,
+  [TokenID.stSOL_SOL_SABER]: 0.8,
   [TokenID.USDC_USDT_ORCA]: 0.8,
   [TokenID.SOL_USDC_RAYDIUM]: 0.8,
   [TokenID.RAY_USDC_RAYDIUM]: 0.8,
@@ -301,7 +309,9 @@ const FEES: { [key in TokenID]?: number } = {
   [TokenID.UST]: 0.2,
   [TokenID.USTv2]: 0.2,
 
-  [TokenID.USDT_USDC_SABER]: 0.0,   // no farming
+  [TokenID.USDT_USDC_SABER]: 0.0,   // no farming nor borrowing
+  [TokenID.mSOL_SOL_SABER]: 0.0,   // no farming nor borrowing
+  [TokenID.stSOL_SOL_SABER]: 0.0,   // no farming nor borrowing
   [TokenID.USDC_USDT_ORCA]: 0.2,
   [TokenID.SOL_USDC_RAYDIUM]: 0.2,
   [TokenID.RAY_USDC_RAYDIUM]: 0.2,
@@ -354,6 +364,8 @@ export const CATEGORY: { [key in TokenID]: TokenCategory } = {
   [TokenID.USTv2] : TokenCategory.Stable,
 
   [TokenID.USDT_USDC_SABER]: TokenCategory.Lp,
+  [TokenID.mSOL_SOL_SABER]: TokenCategory.Lp,
+  [TokenID.stSOL_SOL_SABER]: TokenCategory.Lp,
   [TokenID.USDC_USDT_ORCA]: TokenCategory.Lp,
   [TokenID.UST_USDC_SABER]: TokenCategory.Lp,
   [TokenID.SOL_USDC_RAYDIUM]: TokenCategory.Lp,
@@ -401,6 +413,8 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
   [TokenID.USTv2] : 0.04,
 
   [TokenID.USDT_USDC_SABER]: 0,
+  [TokenID.mSOL_SOL_SABER]: 0,
+  [TokenID.stSOL_SOL_SABER]: 0,
   [TokenID.USDC_USDT_ORCA]: 0,
   [TokenID.UST_USDC_SABER]: 0,
   [TokenID.SOL_USDC_RAYDIUM]: 0,
@@ -429,6 +443,8 @@ export const LIQUIDATION_DISCOUNT: { [key in TokenID]?: number } = {
 // prettier-ignore
 export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
   [TokenID.USDT_USDC_SABER] : [TokenID.USDT, TokenID.USDC],
+  [TokenID.mSOL_SOL_SABER] : [TokenID.mSOL, TokenID.SOL],
+  [TokenID.stSOL_SOL_SABER] : [TokenID.stSOL, TokenID.SOL],
   [TokenID.USDC_USDT_ORCA] : [TokenID.USDC, TokenID.USDT],
   [TokenID.UST_USDC_SABER] : [TokenID.UST, TokenID.USDC],
   [TokenID.SOL_USDC_RAYDIUM]: [TokenID.SOL, TokenID.USDC],
@@ -457,6 +473,8 @@ export const LP_TO_LR: { [key in TokenID]?: [TokenID, TokenID] } = {
 // prettier-ignore
 export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
   [TokenID.USDT_USDC_SABER] : SWAP_SABER,
+  [TokenID.mSOL_SOL_SABER] : SWAP_SABER,
+  [TokenID.stSOL_SOL_SABER] : SWAP_SABER,
   [TokenID.USDC_USDT_ORCA] : SWAP_ORCA,
   [TokenID.UST_USDC_SABER] : SWAP_SABER,
   [TokenID.SOL_USDC_RAYDIUM]: SWAP_RAYDIUM,
@@ -485,6 +503,8 @@ export const LP_TO_TARGET_SWAP: { [key in TokenID]?: number } = {
 // prettier-ignore
 export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
   [TokenID.USDT_USDC_SABER] : Dex.Saber,
+  [TokenID.mSOL_SOL_SABER] : Dex.Saber,
+  [TokenID.stSOL_SOL_SABER] : Dex.Saber,
   [TokenID.USDC_USDT_ORCA] : Dex.Orca,
   [TokenID.UST_USDC_SABER] : Dex.Saber,
   [TokenID.SOL_USDC_RAYDIUM]: Dex.Raydium,
@@ -513,6 +533,8 @@ export const LP_TO_DEX: { [key in TokenID]?: Dex } = {
 // prettier-ignore
 export const LP_TO_NEED_2ND_STAKE: { [key in TokenID]?: boolean } = {
   [TokenID.USDT_USDC_SABER] : false,
+  [TokenID.mSOL_SOL_SABER] : false,
+  [TokenID.stSOL_SOL_SABER] : false,
   [TokenID.USDC_USDT_ORCA] : false,
   [TokenID.UST_USDC_SABER] : false,
   [TokenID.SOL_USDC_RAYDIUM]: true,
@@ -1184,6 +1206,32 @@ export const SABER_LP_METAS: {[key in TokenID]? : SaberLpSwapInfo } = {
     quarry:       new PublicKey("Hs1X5YtXwZACueUtS9azZyXFDWVxAMLvm3tttubpK7ph"),
     rewarder:     new PublicKey("rXhAofQCT7NN9TUqigyEAUzV1uLL4boeD8CRkNBSkYk"),
     mint:         new PublicKey(MINTS[TokenID.USDT_USDC_SABER]),
+  }),
+  [TokenID.mSOL_SOL_SABER]: new SaberLpSwapInfo({
+    swap:           new PublicKey("Lee1XZJfJ9Hm2K1qTyeCz1LXNc1YBZaKZszvNY4KCDw"),
+    swapAuthority:  new PublicKey("2Sj4MZvmLhud4uRmGHJvDxq612nmF4JJsU1R4ZjNNGMS"),
+    tokenAVault:    new PublicKey("9DgFSWkPDGijNKcLGbr3p5xoJbHsPgXUTr6QvGBJ5vGN"),
+    tokenBVault:    new PublicKey("2hNHZg7XBhuhHVZ3JDEi4buq2fPQwuWBdQ9xkH7t1GQX"),
+    tokenAfees:     new PublicKey("HzZRDMiJSqS5oxzfu17c35DChnkx58LZtas16Pgmuunn"),
+    tokenBfees:     new PublicKey("3oebZVvPqba2egfdcbNXa1uS13SfSebxMaNVE82FMk7R"),
+
+    // for stake/unstake
+    quarry:       new PublicKey("7193EeecxsPPv9TMoQATTN8i1eTqEUSNU8aDLuFCQy68"),
+    rewarder:     new PublicKey("rXhAofQCT7NN9TUqigyEAUzV1uLL4boeD8CRkNBSkYk"),
+    mint:         new PublicKey(MINTS[TokenID.mSOL_SOL_SABER]),
+  }),
+  [TokenID.stSOL_SOL_SABER]: new SaberLpSwapInfo({
+    swap:           new PublicKey("Lid8SLUxQ9RmF7XMqUA8c24RitTwzja8VSKngJxRcUa"),
+    swapAuthority:  new PublicKey("8eyi347MTDeH5F6eVv2qjPxVnU685FFZLDGcj5QWHZ6y"),
+    tokenAVault:    new PublicKey("4PgzyzLtds9bKZ2to9PMnKqJzKEUpjvNUaeN23phegax"),
+    tokenBVault:    new PublicKey("AtymwxoVN9peZo7EXTcDz9jKVc4vRmisJKKrNfe3ewBa"),
+    tokenAfees:     new PublicKey("2AbLYRQa7PV6gG6XgMjaey18RtPh85sXFmMmP4HsDdQK"),
+    tokenBfees:     new PublicKey("Cv3YNq8iY1ttMS3iDgwBxd7QxnMC2pwcXUomtR7CTD8W"),
+
+    // for stake/unstake
+    quarry:       new PublicKey("2isVhcqVVpsAeZ94d1DGVErCQ7uZQNSJ85xikN8awHeC"),
+    rewarder:     new PublicKey("rXhAofQCT7NN9TUqigyEAUzV1uLL4boeD8CRkNBSkYk"),
+    mint:         new PublicKey(MINTS[TokenID.stSOL_SOL_SABER]),
   }),
   [TokenID.USTv2_USDC_SABER]: new SaberLpSwapInfo({
     swap:           new PublicKey("KwnjUuZhTMTSGAaavkLEmSyfobY16JNH4poL9oeeEvE"),
