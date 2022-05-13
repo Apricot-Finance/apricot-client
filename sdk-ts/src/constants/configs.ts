@@ -210,8 +210,8 @@ const LTVS: { [key in TokenID]?: number } = {
 
   [TokenID.USDT]: 0.90,
   [TokenID.USDC]: 0.90,
-  [TokenID.UST]: 0.8,
-  [TokenID.USTv2]: 0.8,
+  [TokenID.UST]: 0.01,
+  [TokenID.USTv2]: 0.01,
 
   [TokenID.USDT_USDC_SABER]: 0.8,
   [TokenID.USDC_USDT_ORCA]: 0.8,
@@ -276,8 +276,8 @@ const INTEREST_RATES: {[key in TokenID]?: InterestRate} = {
 
   [TokenID.USDT]:new InterestRate(0.01, 0.85, 0.08, 1.0),
   [TokenID.USDC]:new InterestRate(0.01, 0.85, 0.08, 1.0),
-  [TokenID.UST]: new InterestRate(0.01, 0.85, 0.08, 1.0),
-  [TokenID.USTv2]: new InterestRate(0.01, 0.85, 0.08, 1.0),
+  [TokenID.UST]: new InterestRate(0.01, 0.85, 0.20, 30.0),
+  [TokenID.USTv2]: new InterestRate(0.01, 0.90, 0.20, 30.0),
 }
 
 // prettier-ignore
