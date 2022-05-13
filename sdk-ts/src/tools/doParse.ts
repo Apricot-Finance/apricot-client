@@ -7,18 +7,18 @@ import invariant from "tiny-invariant";
 import Decimal from "decimal.js";
 import { getRPCConnection } from "../utils";
 
-const [_nodeStr, _scriptStr, production, action, ] = process.argv.slice(0, 4);
+const [_nodeStr, _scriptStr, production, endpoint, action, ] = process.argv.slice(0, 5);
 
 invariant(['alpha', 'public'].includes(production))
 
 async function doParse() {
 
-  const conn = getRPCConnection();
+  const conn = getRPCConnection(endpoint);
   const config = production === 'alpha' ? ALPHA_CONFIG : PUBLIC_CONFIG;
   const wrapper = new ActionWrapper(conn, config);
 
   if(action === "pool") {
-    const poolId = TokenID[process.argv[4] as keyof typeof TokenID];
+    const poolId = TokenID[process.argv[5] as keyof typeof TokenID];
     const poolMint = MINTS[poolId]!;
     const result = await wrapper.getParsedAssetPool(poolMint)!;
     const time = (result?.last_update_time ?? new Decimal(0)).toNumber();
@@ -28,20 +28,20 @@ async function doParse() {
 
   }
   else if(action === "price") {
-    const poolId = TokenID[process.argv[4] as keyof typeof TokenID];
+    const poolId = TokenID[process.argv[5] as keyof typeof TokenID];
     const poolMint = MINTS[poolId]!;
     const result = await wrapper.getParsedAssetPrice(poolMint)!;
     console.log(result);
 
   }
   else if(action === "user") {
-    const userKeyStr = process.argv[4];
+    const userKeyStr = process.argv[5];
     const userKey = new PublicKey(userKeyStr);
     const result = await wrapper.getParsedUserInfo(userKey);
     console.log(result);
   }
   else if(action === "user-page") {
-    const pageId = parseInt(process.argv[4]);
+    const pageId = parseInt(process.argv[5]);
     const page = await wrapper.getParsedUsersPage(pageId)!;
     invariant(page, `Failed to fetch usersPage`);
     const filteredPage = page?.filter(u => u.toBase58() !== '11111111111111111111111111111111');

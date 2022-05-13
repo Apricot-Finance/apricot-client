@@ -3,7 +3,7 @@ import { PriceInfo } from "../utils/PriceInfo";
 import invariant from "tiny-invariant";
 import { getRPCConnection } from "../utils";
 
-const [,,production] = process.argv;
+const [,,production, endpoint] = process.argv;
 
 invariant(['alpha', 'public'].includes(production));
 
@@ -13,7 +13,7 @@ async function doPrice() {
 
   const priceInfo = new PriceInfo(config);
 
-  const conn = getRPCConnection();
+  const conn = getRPCConnection(endpoint);
 
   for (const poolConfig of config.getPoolConfigList()) {
     const tokId = poolConfig.tokenId;
