@@ -70,7 +70,7 @@ fn main() {
             let token_name = args.nth(0).unwrap();
             let pool_id = config::get_pool_id_by_name(token_name.as_str());
 
-            let balance = get_user_despoit_amount(&conn, &user_keypair.pubkey(), pool_id);
+            let balance = get_user_deposit_amount(&conn, &user_keypair.pubkey(), pool_id);
             let amount = (balance as f64 * 0.5) as u64;
             println!(
                 "User pubkey: {}, token: {}, amount: {}",
@@ -103,7 +103,7 @@ fn main() {
             println!("User pubkey: {}", user_keypair.pubkey());
             refresh_user(&conn, &user_keypair)
         }
-        _ => println!("Inavlid command: {}", command),
+        _ => println!("Invalid command: {}", command),
     }
 
     fn read_key_from_file(key_path: &str) -> Keypair {
@@ -230,7 +230,7 @@ fn get_pool(conn: &RpcClient, pool_id: u8) {
     println!("{}", asset_pool);
 }
 
-fn get_user_despoit_amount(conn: &RpcClient, user_wallet_key: &Pubkey, pool_id: u8) -> u64 {
+fn get_user_deposit_amount(conn: &RpcClient, user_wallet_key: &Pubkey, pool_id: u8) -> u64 {
     let user_info_key = consts::get_user_info_k(user_wallet_key);
     println!("UserInfo Key: {}", user_info_key);
     let data = conn.get_account_data(&user_info_key).unwrap();
