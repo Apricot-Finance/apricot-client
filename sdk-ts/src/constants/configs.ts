@@ -236,7 +236,7 @@ const LTVS: { [key in TokenID]?: number } = {
   [TokenID.ETH_SOL_ORCA]: 0.8,
   [TokenID.BTC_mSOL_ORCA]: 0.8,
   [TokenID.mSOL_USDC_ORCA]: 0.8,
-  [TokenID.USTv2_USDC_SABER]: 0.8,
+  [TokenID.USTv2_USDC_SABER]: 0.01,
   [TokenID.APT_USDC_ORCA]: 0.4,
   [TokenID.RAY_USDT_RAYDIUM]: 0.8,
   [TokenID.RAY_ETH_RAYDIUM]: 0.8,
@@ -285,7 +285,7 @@ const INTEREST_RATES: {[key in TokenID]?: InterestRate} = {
   [TokenID.USDT]:new InterestRate(0.01, 0.85, 0.08, 1.0),
   [TokenID.USDC]:new InterestRate(0.01, 0.85, 0.08, 1.0),
   [TokenID.UST]: new InterestRate(0.01, 0.85, 0.20, 30.0),
-  [TokenID.USTv2]: new InterestRate(0.01, 0.90, 0.20, 30.0),
+  [TokenID.USTv2]: new InterestRate(0.00, 0.99, 0.01, 0.02),
 }
 
 // prettier-ignore
