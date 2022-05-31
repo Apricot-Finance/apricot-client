@@ -98,6 +98,26 @@ pub mod usdt_usdc_saber {
         declare_id!("GP1U66jGiiscj4HotJP7JTj76jpygdUaTUJT6HPbkoKn");
     }
 }
+pub mod msol_sol_saber {
+    use solana_program::declare_id;
+    declare_id!("SoLEao8wTzSfqhuou8rcYsVoLjthVmiXuEjzdNPMnCz");
+    pub const POOL_ID: u8 = 40;
+    pub const NAME: &str = "mSOL_SOL_SABER";
+    pub mod miner {
+        use solana_program::declare_id;
+        declare_id!("73asEXQWZZqUUG58gY8vovh9wNQxUsKT7tKq8eZzPJhT");
+    }
+}
+pub mod stsol_sol_saber {
+    use solana_program::declare_id;
+    declare_id!("stSjCmjQ96BiGhTk8gkU22j1739R8YBQVMq7KXWTqUV");
+    pub const POOL_ID: u8 = 41;
+    pub const NAME: &str = "stSOL_SOL_SABER";
+    pub mod miner {
+        use solana_program::declare_id;
+        declare_id!("AE3BisWAMqs695qU7Y2L6s52v7N79MMTNQRbvqytXNJU");
+    }
+}
 pub mod ust_usdc_saber {
     use solana_program::declare_id;
     declare_id!("USTCmQpbUGj5iTsXdnTYHZupY1QpftDZhLokSVk6UWi");
@@ -478,6 +498,8 @@ pub fn get_pool_id_by_name(token_name: &str) -> u8 {
         usdc::NAME => usdc::POOL_ID,
         ust::NAME => ust::POOL_ID,
         usdt_usdc_saber::NAME => usdt_usdc_saber::POOL_ID,
+        msol_sol_saber::NAME => msol_sol_saber::POOL_ID,
+        stsol_sol_saber::NAME => stsol_sol_saber::POOL_ID,
         ust_usdc_saber::NAME => ust_usdc_saber::POOL_ID,
         usdc_usdt_orca::NAME => usdc_usdt_orca::POOL_ID,
         sol_usdc_orca::NAME => sol_usdc_orca::POOL_ID,
@@ -507,7 +529,7 @@ pub fn get_pool_id_by_name(token_name: &str) -> u8 {
 pub fn get_mint_by_pool_id(pool_id: u8) -> Pubkey {
     match pool_id {
         apt::POOL_ID => apt::ID,
-        btc::POOL_ID =>btc::ID,
+        btc::POOL_ID => btc::ID,
         eth::POOL_ID => eth::ID,
         wheth::POOL_ID => wheth::ID,
         sol::POOL_ID => sol::ID,
@@ -521,6 +543,8 @@ pub fn get_mint_by_pool_id(pool_id: u8) -> Pubkey {
         usdc::POOL_ID => usdc::ID,
         ust::POOL_ID => ust::ID,
         usdt_usdc_saber::POOL_ID => usdt_usdc_saber::ID,
+        msol_sol_saber::POOL_ID => msol_sol_saber::ID,
+        stsol_sol_saber::POOL_ID => stsol_sol_saber::ID,
         ust_usdc_saber::POOL_ID => ust_usdc_saber::ID,
         usdc_usdt_orca::POOL_ID => usdc_usdt_orca::ID,
         sol_usdc_orca::POOL_ID => sol_usdc_orca::ID,
