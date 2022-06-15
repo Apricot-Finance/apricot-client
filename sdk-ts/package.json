@@ -1,6 +1,6 @@
 {
   "name": "@apricot-lend/sdk-ts",
-  "version": "0.17.3",
+  "version": "0.17.4",
   "description": "TS SDK for Apricot on Solana",
   "repository": {
     "type": "git",
@@ -37,7 +37,6 @@
     "@pythnetwork/client": "^2.5.1",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.37.0",
-    "@strata-foundation/web3-token-auth": "^3.5.4",
     "@switchboard-xyz/switchboard-api": "^0.2.152",
     "@types/coingecko-api": "^1.0.10",
     "axios": "^0.24.0",

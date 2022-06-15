@@ -459,8 +459,3 @@ export enum RPC {
   Triton = 'Triton',
   Serum = 'Serum',
 }
-
-export type GenesysGoAccessToken = {
-  accessToken: string;
-  expiresIn: number;
-};
