@@ -15,7 +15,7 @@ import { Argument, Command } from "commander";
 
 async function sampleDefaultPricing(tokenId: TokenID): Promise<void> {
   console.log("Sample: get AssetPool with apricot pricing.");
-  let connection = getRPCConnection();
+  let connection = getRPCConnection("GenesysGo");
   let assetPoolLoader = await createAssetPoolLoader(connection);
 
   let assetPool = await assetPoolLoader.getAssetPool(tokenId);
