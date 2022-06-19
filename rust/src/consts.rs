@@ -33,6 +33,11 @@ pub mod price_summaries {
     declare_id!("AvBhFJACkkWoo4qJ89kgMoGfk3xKxr2i1oG9DJDKF7uf");
 }
 
+pub mod lm_apt_vault {
+    use solana_program::declare_id;
+    declare_id!("C1k4CehboSgUkmL3BJfw32Xj9HPs9NKTzhT5WXsYwWh4");
+}
+
 // commands
 
 pub const CMD_REFRESH_USER: u8 = 0x0a;
@@ -47,6 +52,8 @@ pub const CMD_UPDATE_USER_CONFIG: u8 = 0x17;
 pub const CMD_MARGIN_SWAP: u8 = 0x18;
 pub const CMD_UPDATE_USER_ASSET_CONFIG: u8 = 0x19;
 pub const CMD_WITHDRAW_AND_REMOVE_USER: u8 = 0x1a;
+pub const CMD_CLAIM_APT_LM_REWARD: u8 = 0x29;
+pub const CMD_MAKE_LM_REWARD_AVAILABLE: u8 = 0x2a;
 
 // errors
 pub const ERR_INCORRECT_BASE_PDA: u32 = 0x1000;

@@ -205,4 +205,14 @@ export class ActionWrapper {
     );
     return this.connection.sendTransaction(tx, [userWalletAccount]);
   }
+
+  async makeLmAptAvailable(walletAccount: Keypair): Promise<string> {
+    const txn = await this.builder.makeLmRewardClaimable(walletAccount.publicKey);
+    return await this.connection.sendTransaction(txn, [walletAccount]);
+  }
+
+  async claimAptLmReward(walletAccount: Keypair, userAptSpl: PublicKey): Promise<string> {
+    const txn = await this.builder.claimAPTLMReward(walletAccount.publicKey, userAptSpl);
+    return await this.connection.sendTransaction(txn, [walletAccount]);
+  }
 }
