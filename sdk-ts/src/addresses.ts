@@ -48,6 +48,10 @@ export class Addresses {
       return PublicKey.createWithSeed(basePda, "UsersPage_"+page_id, this.config.programPubkey);
     }
 
+    getLmAptVault(): PublicKey {
+      return this.config.lmAptVault;
+    }
+
     getAssetPoolKey(basePda: PublicKey, mintKeyStr: string) {
       const poolSeedStr = this.mintKeyStrToPoolSeedStr(mintKeyStr);
       return PublicKey.createWithSeed(basePda, poolSeedStr, this.config.programPubkey);

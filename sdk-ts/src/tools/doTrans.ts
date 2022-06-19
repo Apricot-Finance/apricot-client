@@ -158,6 +158,13 @@ async function doTransaction() {
       isSwapAllDeposit,
     );
     console.log(result);
+  } else if (action === 'make-lm-available') {
+    const result = await wrapper.makeLmAptAvailable(keypair);
+    console.log(result)
+  } else if (action === 'claim-lm') {
+    const userAptSpl = await getAssociatedTokAcc(TokenID.APT);
+    const result = await wrapper.claimAptLmReward(keypair, userAptSpl);
+    console.log(result)
   } else {
     throw new Error(`Unknown command=${action}`);
   }

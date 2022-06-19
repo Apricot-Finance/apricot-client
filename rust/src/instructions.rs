@@ -502,5 +502,49 @@ pub fn extern_liquidate_full(
     }
 }
 
-// TODO: add self_liquidate
-// TODO: add margin_swap
+// APT Reward has one week accumalating period and one week vestin period,
+// Use this method to make any APT reward post-vesting available, contract will find how much APT
+// reward has finished vesting and make it available.
+pub fn make_lm_reward_claimable(user_wallet: &Pubkey) -> Instruction {
+    let user_info = consts::get_user_info_k(user_wallet);
+    let pool_summaries = consts::get_pool_summaries_k();
+
+    let mut buffer = vec![0; 1];
+    buffer[0] = consts::CMD_MAKE_LM_REWARD_AVAILABLE;
+
+    Instruction {
+        program_id: consts::program::ID,
+        accounts: vec![
+            AccountMeta::new_readonly(*user_wallet, true),
+            AccountMeta::new_readonly(*user_wallet, false),
+            AccountMeta::new(user_info, false),
+            AccountMeta::new(pool_summaries, false),
+        ],
+        data: buffer,
+    }
+  }
+
+  pub fn claim_apt_lm_reward(user_wallet: &Pubkey, user_apt_spl: &Pubkey) -> Instruction {
+    let base_pda = consts::get_base_pda();
+    let user_info = consts::get_user_info_k(user_wallet);
+    let lm_apt_vault = consts::lm_apt_vault::ID;
+    let pool_summaries = consts::get_pool_summaries_k();
+    let price_summaries = consts::get_price_summaries_k();
+
+    let mut buffer = vec![0; 1];
+    buffer[0] = consts::CMD_CLAIM_APT_LM_REWARD;
+    Instruction {
+        program_id: consts::program::ID,
+        accounts: vec![
+            AccountMeta::new_readonly(base_pda, false),
+            AccountMeta::new_readonly(*user_wallet, true),
+            AccountMeta::new(user_info, false),
+            AccountMeta::new(*user_apt_spl, false),
+            AccountMeta::new(lm_apt_vault, false),
+            AccountMeta::new(pool_summaries, false),
+            AccountMeta::new_readonly(price_summaries, false),
+            AccountMeta::new_readonly(spl_token::ID, false),
+        ],
+        data: buffer,
+    }
+  }

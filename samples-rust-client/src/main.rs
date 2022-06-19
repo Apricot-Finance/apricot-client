@@ -11,7 +11,7 @@ use solana_sdk::{
 };
 use spl_associated_token_account;
 use std::io::Read;
-use std::{env, fs::File, str::FromStr};
+use std::{env, fs::File, str::FromStr, time::Duration};
 
 fn main() {
     println!("Arguments:");
@@ -21,8 +21,9 @@ fn main() {
     let mut args = std::env::args();
     assert!(args.len() > 1, "Not enough args!");
 
-    let conn = RpcClient::new_with_commitment(
+    let conn = RpcClient::new_with_timeout_and_commitment(
         "https://solana-api.projectserum.com".to_string(),
+        Duration::from_secs(30),
         CommitmentConfig::confirmed(),
     );
     println!("Connected to mainnet, slot={}", conn.get_slot().unwrap());
@@ -102,6 +103,20 @@ fn main() {
             let user_keypair = read_key_from_file(user_wallet_keypair_str.as_str());
             println!("User pubkey: {}", user_keypair.pubkey());
             refresh_user(&conn, &user_keypair)
+        }
+        "make-lm-available" => {
+            assert_eq!(1, args.len(), "Invalid args. Expect: key_path");
+            let user_wallet_keypair_str = args.nth(0).unwrap();
+            let user_keypair = read_key_from_file(user_wallet_keypair_str.as_str());
+            println!("User pubkey: {}", user_keypair.pubkey());
+            make_lm_reward_claimable(&conn, &user_keypair);
+        }
+        "claim-lm" => {
+            assert_eq!(1, args.len(), "Invalid args. Expect: key_path");
+            let user_wallet_keypair_str = args.nth(0).unwrap();
+            let user_keypair = read_key_from_file(user_wallet_keypair_str.as_str());
+            println!("User pubkey: {}", user_keypair.pubkey());
+            claim_lm_apt_reward(&conn, &user_keypair);
         }
         _ => println!("Invalid command: {}", command),
     }
@@ -209,6 +224,42 @@ fn main() {
             .unwrap();
         println!("Refresh done. Signature: {}", signature);
     }
+
+    // make liquidity mining reward available after vesting
+    fn make_lm_reward_claimable(conn: &RpcClient, user_keypair: &Keypair) {
+        let make_available_ix = instructions::make_lm_reward_claimable(&user_keypair.pubkey());
+        let blockhash = conn.get_recent_blockhash().unwrap();
+        let make_available_tx = Transaction::new_signed_with_payer(
+            &[make_available_ix],
+            Some(&user_keypair.pubkey()),
+            &[user_keypair],
+            blockhash.0,
+        );
+        let signature = conn
+            .send_and_confirm_transaction_with_spinner(&make_available_tx)
+            .unwrap();
+        println!("Make lm reward available done. Signature: {}", signature);
+    }
+
+    // claim APT liquidity mining reward
+    fn claim_lm_apt_reward(conn: &RpcClient, user_keypair: &Keypair) {
+        let user_apt_spl = spl_associated_token_account::get_associated_token_address(
+            &user_keypair.pubkey(),
+            &config::apt::ID);
+        let claim_ix = instructions::claim_apt_lm_reward(&user_keypair.pubkey(), &user_apt_spl);
+        let blockhash = conn.get_recent_blockhash().unwrap();
+        let claim_tx = Transaction::new_signed_with_payer(
+            &[claim_ix],
+            Some(&user_keypair.pubkey()),
+            &[user_keypair],
+            blockhash.0,
+        );
+        let signature = conn
+            .send_and_confirm_transaction_with_spinner(&claim_tx)
+            .unwrap();
+        println!("claim lm apt reward done. Signature: {}", signature);
+    }
+
 }
 
 #[allow(unaligned_references)]
