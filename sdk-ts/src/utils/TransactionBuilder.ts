@@ -29,6 +29,8 @@ import {
   CMD_WITHDRAW,
   CMD_WITHDRAW_AND_REMOVE_USER,
   CMD_MARGIN_SWAP,
+  CMD_MAKE_LM_REWARD_AVAILABLE,
+  CMD_CLAIM_APT_LM_REWARD,
   SWAP_ORCA,
   SWAP_RAYDIUM,
 } from '../constants/commands';
@@ -1177,5 +1179,59 @@ export class TransactionBuilder {
       isSigned,
       isSwapAllDeposit,
     );
+  }
+
+  async makeLmRewardClaimable(userWallet: PublicKey): Promise<Transaction> {
+    const userInfoKey = await this.addresses.getUserInfoKey(userWallet);
+    const poolSummariesKey = await this.addresses.getPoolSummariesKey();
+
+    const tx = new Transaction();
+
+    // prettier-ignore
+    const keys = [
+      { pubkey: userWallet,                  isSigner: true,  isWritable: false },
+      { pubkey: userWallet,              isSigner: false, isWritable: false },
+      { pubkey: userInfoKey,                isSigner: false, isWritable: true },
+      { pubkey: poolSummariesKey,           isSigner: false, isWritable: true },
+    ];
+
+    const inst = new TransactionInstruction({
+      programId: this.addresses.getProgramKey(),
+      keys: keys,
+      data: Buffer.from([CMD_MAKE_LM_REWARD_AVAILABLE]),
+    });
+
+    tx.add(inst);
+    return tx;
+  }
+
+  async claimAPTLMReward(userWalletKey: PublicKey, userAptSpl: PublicKey): Promise<Transaction> {
+    const [basePda] = await this.addresses.getBasePda();
+    const programId = this.addresses.getProgramKey();
+    const userInfoKey = await this.addresses.getUserInfoKey(userWalletKey);
+    const APTRewardVaultKey = await this.addresses.getLmAptVault();
+    const poolSummariesKey = await this.addresses.getPoolSummariesKey();
+    const priceSummariesKey = await this.addresses.getPriceSummariesKey(basePda);
+    const keys = [
+      { pubkey: basePda, isSigner: false, isWritable: false },
+      { pubkey: userWalletKey, isSigner: true, isWritable: true },
+      { pubkey: userInfoKey, isSigner: false, isWritable: true },
+      { pubkey: userAptSpl, isSigner: false, isWritable: true },
+      { pubkey: APTRewardVaultKey, isSigner: false, isWritable: true },
+      { pubkey: poolSummariesKey, isSigner: false, isWritable: true },
+      { pubkey: priceSummariesKey, isSigner: false, isWritable: false },
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+    ];
+
+    const txn = new Transaction();
+    const inst = new TransactionInstruction({
+      programId: programId,
+      keys: keys,
+      data: Buffer.from([CMD_CLAIM_APT_LM_REWARD]),
+    });
+
+    txn.add(inst);
+
+    return txn;
   }
 }
