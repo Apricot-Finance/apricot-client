@@ -177,7 +177,7 @@ pub fn add_user_and_deposit_full(
     Instruction {
         program_id: *program_id,
         accounts: vec![
-            AccountMeta::new_readonly(*user_wallet, true),
+            AccountMeta::new(*user_wallet, true),
             AccountMeta::new(*user_spl, false),
             AccountMeta::new(*user_pages_stats, false),
             AccountMeta::new(*users_page, false),
