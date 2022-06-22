@@ -522,9 +522,9 @@ pub fn make_lm_reward_claimable(user_wallet: &Pubkey) -> Instruction {
         ],
         data: buffer,
     }
-  }
+}
 
-  pub fn claim_apt_lm_reward(user_wallet: &Pubkey, user_apt_spl: &Pubkey) -> Instruction {
+pub fn claim_apt_lm_reward(user_wallet: &Pubkey, user_apt_spl: &Pubkey) -> Instruction {
     let base_pda = consts::get_base_pda();
     let user_info = consts::get_user_info_k(user_wallet);
     let lm_apt_vault = consts::lm_apt_vault::ID;
@@ -547,4 +547,4 @@ pub fn make_lm_reward_claimable(user_wallet: &Pubkey) -> Instruction {
         ],
         data: buffer,
     }
-  }
+}
