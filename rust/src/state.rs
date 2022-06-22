@@ -64,6 +64,7 @@ impl Display for UserAssetInfo {
 }
 
 #[repr(packed)]
+#[derive(Copy, Clone)]
 pub struct RewardInfo {
     pub vesting: [f64; 4], // retro vesting
     pub prev_week_apt: f64,
@@ -98,6 +99,7 @@ impl Display for RewardInfo {
 }
 
 #[repr(packed)]
+#[derive(Copy, Clone)]
 pub struct UserInfo {
     pub page_id: u16,
     pub num_assets: u8,
