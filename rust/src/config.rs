@@ -570,3 +570,49 @@ pub fn get_mint_by_pool_id(pool_id: u8) -> Pubkey {
         _ => panic!("Token doens't have a pool!"),
     }
 }
+
+pub fn get_pool_id_by_token_mint(token_mint: Pubkey) -> u8 {
+    if token_mint == apt::ID {
+        return apt::POOL_ID;
+    }
+    if token_mint == btc::ID {
+        return btc::POOL_ID;
+    }
+    if token_mint == eth::ID {
+        return eth::POOL_ID;
+    }
+    if token_mint == wheth::ID {
+        return wheth::POOL_ID;
+    }
+    if token_mint == sol::ID {
+        return sol::POOL_ID;
+    }
+    if token_mint == msol::ID {
+        return msol::POOL_ID;
+    }
+    if token_mint == stsol::ID {
+        return stsol::POOL_ID;
+    }
+    if token_mint == scnsol::ID {
+        return scnsol::POOL_ID;
+    }
+    if token_mint == ray::ID {
+        return ray::POOL_ID;
+    }
+    if token_mint == orca::ID {
+        return orca::POOL_ID;
+    }
+    if token_mint == srm::ID {
+        return srm::POOL_ID;
+    }
+    if token_mint == usdt::ID {
+        return usdt::POOL_ID;
+    }
+    if token_mint == usdc::ID {
+        return usdc::POOL_ID;
+    }
+    if token_mint == ust::ID {
+        return ust::POOL_ID;
+    }
+    panic!("Token doens't have a pool!")
+}
