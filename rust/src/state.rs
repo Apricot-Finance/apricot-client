@@ -228,10 +228,12 @@ impl AssetPool {
     pub fn calculate_new_interest_rate(
         self,
         deposit_native_amt: u64,
-        borrow_native_amt: u64
+        borrow_native_amt: u64,
     ) -> (f64, f64) {
-        let new_deposit_native_amt = deposit_native_amt.add(self.deposit_amount.to_native_amount()) as f64;
-        let new_borrow_native_amt = borrow_native_amt.add(self.borrow_amount.to_native_amount()) as f64;
+        let new_deposit_native_amt =
+            deposit_native_amt.add(self.deposit_amount.to_native_amount()) as f64;
+        let new_borrow_native_amt =
+            borrow_native_amt.add(self.borrow_amount.to_native_amount()) as f64;
 
         Self::calculate_interest_rate(
             new_deposit_native_amt,
@@ -240,7 +242,7 @@ impl AssetPool {
             self.multiplier,
             self.jump_multiplier,
             self.kink,
-            self.reserve_factor
+            self.reserve_factor,
         )
     }
 
@@ -336,7 +338,15 @@ pub mod asset_pool_test {
             0.2,
         );
 
-        assert!(0.032522 - deposit_rate < 1.0e-6, "deposit_rate:{} doesn't match", deposit_rate);
-        assert!(0.063076 - borrow_rate < 1.0e-6, "borrow_rate:{} doesn't match", borrow_rate);
+        assert!(
+            0.032522 - deposit_rate < 1.0e-6,
+            "deposit_rate:{} doesn't match",
+            deposit_rate
+        );
+        assert!(
+            0.063076 - borrow_rate < 1.0e-6,
+            "borrow_rate:{} doesn't match",
+            borrow_rate
+        );
     }
 }
