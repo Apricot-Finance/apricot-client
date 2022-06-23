@@ -6,7 +6,7 @@ use std::fmt::{Display, Formatter, Result as FormatResult};
 pub const NATIVE_RAW_SHIFT: usize = 24;
 
 #[repr(packed)]
-#[derive(Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Debug)]
 /**
  * RawAmt to accrue interest with boosted precision
 */
@@ -23,7 +23,7 @@ impl RawAmt {
 pub const MAX_ASSETS_PER_USER: usize = 16;
 
 #[repr(packed)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct UserAssetInfo {
     pub pool_id: u8,
     pub use_as_collateral: u8,
@@ -64,6 +64,7 @@ impl Display for UserAssetInfo {
 }
 
 #[repr(packed)]
+#[derive(Copy, Clone, Debug)]
 pub struct RewardInfo {
     pub vesting: [f64; 4], // retro vesting
     pub prev_week_apt: f64,
@@ -98,6 +99,7 @@ impl Display for RewardInfo {
 }
 
 #[repr(packed)]
+#[derive(Copy, Clone, Debug)]
 pub struct UserInfo {
     pub page_id: u16,
     pub num_assets: u8,
@@ -144,7 +146,7 @@ impl Display for UserInfo {
 
 pub const TOKEN_NAME_SIZE: usize = 32;
 #[repr(packed)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct AssetPool {
     pub token_name: [u8; TOKEN_NAME_SIZE],
 
