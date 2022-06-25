@@ -279,6 +279,11 @@ fn get_pool(conn: &RpcClient, pool_id: u8) {
     let asset_pool = state::AssetPool::from_bytes(&data[..]);
     println!("AssetPool:\n");
     println!("{}", asset_pool);
+
+    let deposit_amt = 10_000_000_000;
+    let borrow_amt = 100_000_000;
+    let (deposit_rate, borrow_rate) = asset_pool.calculate_new_interest_rate(deposit_amt, borrow_amt);
+    println!("New deposit rate: {}, borrow rate: {}", deposit_rate, borrow_rate);
 }
 
 fn get_user_deposit_amount(conn: &RpcClient, user_wallet_key: &Pubkey, pool_id: u8) -> u64 {
