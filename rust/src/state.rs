@@ -2,6 +2,7 @@ use crate::utils;
 use solana_program::{account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey};
 use std::cell::Ref;
 use std::fmt::{Display, Formatter, Result as FormatResult};
+use std::ops::{Add, Mul, Sub};
 
 pub const NATIVE_RAW_SHIFT: usize = 24;
 
@@ -223,6 +224,51 @@ impl AssetPool {
     pub fn from_bytes(data: &[u8]) -> &Self {
         utils::cast::<Self>(data)
     }
+
+    pub fn calculate_new_interest_rate(
+        self,
+        deposit_native_amt: u64,
+        borrow_native_amt: u64
+    ) -> (f64, f64) {
+        let new_deposit_native_amt = deposit_native_amt.add(self.deposit_amount.to_native_amount()) as f64;
+        let new_borrow_native_amt = borrow_native_amt.add(self.borrow_amount.to_native_amount()) as f64;
+
+        Self::calculate_interest_rate(
+            new_deposit_native_amt,
+            new_borrow_native_amt,
+            self.base_rate,
+            self.multiplier,
+            self.jump_multiplier,
+            self.kink,
+            self.reserve_factor
+        )
+    }
+
+    pub fn calculate_interest_rate(
+        deposit_amt: f64,
+        borrow_amt: f64,
+        base_rate: f64,
+        multiplier: f64,
+        jump_multiplier: f64,
+        kink: f64,
+        reserve_factor: f64,
+    ) -> (f64, f64) {
+        let utilization_rate = if deposit_amt == 0.0 {
+            0.0
+        } else {
+            borrow_amt / deposit_amt
+        };
+        let mut borrow_rate = base_rate;
+        if utilization_rate <= kink {
+            borrow_rate = borrow_rate.add(multiplier.mul(utilization_rate));
+        } else {
+            borrow_rate = borrow_rate.add(multiplier.mul(kink));
+            borrow_rate = borrow_rate.add(jump_multiplier.mul(utilization_rate.sub(kink)));
+        }
+
+        let deposit_rate = borrow_rate.mul(utilization_rate).mul(1.0 - reserve_factor);
+        (deposit_rate, borrow_rate)
+    }
 }
 
 impl Display for AssetPool {
@@ -258,5 +304,39 @@ impl Display for AssetPool {
         )?;
         writeln!(f, "farm_yield: {}", self.farm_yield)?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+pub mod asset_pool_test {
+    use super::*;
+
+    #[test]
+    fn test_calculate_interest_rate() {
+        let (mut deposit_rate, mut borrow_rate) = AssetPool::calculate_interest_rate(
+            6674310936768f64,
+            4307894688295f64,
+            0.01,
+            0.0823529411764706,
+            6.133333333333333,
+            0.85,
+            0.2,
+        );
+
+        assert!(0.032610 - deposit_rate < 1.0e-6);
+        assert!(0.063154 - borrow_rate < 1.0e-6);
+
+        (deposit_rate, borrow_rate) = AssetPool::calculate_interest_rate(
+            (6674310936768u64 + 10_000_000_000) as f64,
+            (4307894688295u64 + 100_000_000) as f64,
+            0.01,
+            0.0823529411764706,
+            6.133333333333333,
+            0.85,
+            0.2,
+        );
+
+        assert!(0.032522 - deposit_rate < 1.0e-6, "deposit_rate:{} doesn't match", deposit_rate);
+        assert!(0.063076 - borrow_rate < 1.0e-6, "borrow_rate:{} doesn't match", borrow_rate);
     }
 }
