@@ -3,8 +3,9 @@ name = "apricot-anchor"
 version = "0.1.0"
 description = "Anchor bindings for the Apricot Rust client."
 edition = "2021"
+license = "MIT"
 keywords = ["solana", "apricot", "anchor"]
 
 [dependencies]
 anchor-lang = "0.24.2"
-apricot-client = { path = "../rust" }
+apricot-client = { path = "../rust", version = "0.15.1"}
