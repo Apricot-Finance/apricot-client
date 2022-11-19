@@ -1,6 +1,6 @@
 {
   "name": "@apricot-lend/sdk-ts",
-  "version": "0.17.5",
+  "version": "0.17.12",
   "description": "TS SDK for Apricot on Solana",
   "repository": {
     "type": "git",
@@ -31,7 +31,7 @@
     "fix": "eslint --fix src"
   },
   "dependencies": {
-    "@apricot-lend/solana-swaps-js": "^0.1.18",
+    "@apricot-lend/solana-swaps-js": "^0.1.21",
     "@project-serum/borsh": "^0.2.3",
     "@project-serum/serum": "^0.13.60",
     "@pythnetwork/client": "^2.5.1",

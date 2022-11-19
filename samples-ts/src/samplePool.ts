@@ -15,7 +15,7 @@ import { Argument, Command } from "commander";
 
 async function sampleDefaultPricing(tokenId: TokenID): Promise<void> {
   console.log("Sample: get AssetPool with apricot pricing.");
-  let connection = getRPCConnection("GenesysGo");
+  let connection = getRPCConnection('triton');
   let assetPoolLoader = await createAssetPoolLoader(connection);
 
   let assetPool = await assetPoolLoader.getAssetPool(tokenId);
@@ -24,7 +24,7 @@ async function sampleDefaultPricing(tokenId: TokenID): Promise<void> {
 
 async function sampleClientPricing(tokenId: TokenID): Promise<void> {
   console.log("Sample: get AssetPool with client pricing.");
-  let connection = getRPCConnection();
+  let connection = getRPCConnection('triton');
   let priceInfo = getPriceInfo();
   const isDualRewardToken = Object.values(DUAL_REWARD_CONFIGS).some(
     (info) => info.tokenId == tokenId
