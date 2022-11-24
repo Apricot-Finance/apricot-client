@@ -51,7 +51,7 @@ async function sampleClientPricing(tokenId: TokenID): Promise<void> {
 
 async function sampleRaw(tokenId: TokenID): Promise<void> {
   console.log("Sample: getting raw AssetPool data and process.");
-  let connection = getRPCConnection();
+  let connection = getRPCConnection('triton');
   let actionWrapper = new ActionWrapper(connection);
   let addresses = new Addresses(PUBLIC_CONFIG);
   let mintKey = MINTS[tokenId];
