@@ -26,6 +26,26 @@ async function doParse() {
     console.log(result);
     console.log(`Last update time: ${lastUpdate.toISOString()}`)
 
+  } else if (action === 'check-ltvs') {
+    console.log(`Check ltvs on-chain and in SDK:`)
+    let isAllMatched = true;
+    const tokenIds = Object.keys(config.ltvs) as TokenID[];
+    for (const tokenId of tokenIds) {
+      const poolId = config.tokenIdToPoolId[tokenId];
+      invariant(poolId !== undefined, `Token ${tokenId} has no pool id`);
+      const sdkLtv = config.ltvs[tokenId];
+      invariant(sdkLtv !== undefined, `The LTV of ${tokenId} is not defined in SDK`);
+      const result = await wrapper.getParsedAssetPool(config.getMintByPoolId(poolId));
+      invariant(result, `Failed to get the asset pool of token ${tokenId}`);
+      const ltvOnChain = result.ltv.toNumber();
+      if (sdkLtv !== ltvOnChain) {
+        isAllMatched = false;
+        console.log(`${tokenId}: ${ltvOnChain} on-chain mismatched with the SDK value ${sdkLtv} !`);
+      } else {
+        console.log(`${tokenId}: ${ltvOnChain}`);
+      }
+    }
+    console.log(isAllMatched ? `-- All LTVs match --` : ``);
   }
   else if(action === "price") {
     const poolId = TokenID[process.argv[5] as keyof typeof TokenID];
