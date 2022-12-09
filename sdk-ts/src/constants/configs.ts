@@ -1533,7 +1533,7 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
 
     ammIdPubkey: new PublicKey('58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2'),
     ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
-    ammOpenOrdersPubkey: new PublicKey('HRk9CMrpq7Jn9sh7mzxE8CChHG8dneX9p475QKz4Fsfc'),
+    ammOpenOrdersPubkey: new PublicKey('HmiHHzq4Fym9e1D4qzLS6LDDM3tNsCTBPDWHTLZ763jY'),
     ammTargetOrderPubkey: new PublicKey(
       'CZza3Ej4Mc58MnxWA385itCC9jCo3L1D7zc3LKy1bZMR'
     ),
@@ -1545,17 +1545,17 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
       'Awpt6N7ZYPBa4vG4BQNFhFxDj4sxExAA9rpBAoBw2uok'
     ),
 
-    serumProgramId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
-    serumMarketPubkey: new PublicKey('9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT'),
+    serumProgramId: new PublicKey('srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX'), // openbook
+    serumMarketPubkey: new PublicKey('8BnEgHoWFysVcuFFX7QztDmzuH8r5ZFvyP3sYwn1XTh6'),
     serumCoinVaultAccount: new PublicKey(
-      '36c6YqAwyGKQG66XEp2dJc5JqjaBNv7sVghEtJv4c7u6'
+      'CKxTHwM9fPMRRvZmFnFoqKNd9pQR21c5Aq9bh5h9oghX'
     ),
-    serumPcVaultAccount: new PublicKey('8CFo8bL8mZQK8abbFyypFMwEDd8tVJjHTTojMLgQTUSZ'),
-    serumVaultSigner: new PublicKey('F8Vyqk3unwxkXukZFQeYyGmFfTG3CAX4v24iyrjEYBJV'),
+    serumPcVaultAccount: new PublicKey('6A5NHCj1yF6urc9wZNe6Bcjj4LVszQNj5DwAWG97yzMu'),
+    serumVaultSigner: new PublicKey('CTz5UMLQm2SRWHzQnU62Pi4yJqbNGjgRBHqqp6oDHfF7'),
 
-    serumEventQueueAccount: new PublicKey('5KKsLVU6TcbVDK4BS6K1DGDxnh4Q9xjYJ8XaDCG5t8ht'),
-    serumBidsAccount: new PublicKey('14ivtgssEBoBjuZJtSAPKYgpUK7DmnSwuPMqJoVTSgKJ'),
-    serumAsksAccount: new PublicKey('CEQdAFKdycHugujQg9k2wbmxjcpdYZyVLfV9WerTnafJ'),
+    serumEventQueueAccount: new PublicKey('8CvwxZ9Db6XbLD46NZwwmVDZZRDy7eydFcAGkXKh9axa'),
+    serumBidsAccount: new PublicKey('5jWUncPNBMZJ3sTHKmMLszypVkoRK6bfEQMQUHweeQnh'),
+    serumAsksAccount: new PublicKey('EaXdHx7x3mdGA38j5RSmKYSXMzAFzzUXCLNBEDXDn1d5'),
 
     rewardAccounts: [
       {
@@ -1583,7 +1583,7 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
 
     ammIdPubkey: new PublicKey('6UmmUiYoBjSrhakAobJw8BvkmJtDVxaeBtbt7rxWo1mg'),
     ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
-    ammOpenOrdersPubkey: new PublicKey('J8u8nTHYtvudyqwLrXZboziN95LpaHFHpd97Jm5vtbkW'),
+    ammOpenOrdersPubkey: new PublicKey('CSCS9J8eVQ4vnWfWCx59Dz8oLGtcdQ5R53ea4V9o2eUp'),
     ammTargetOrderPubkey: new PublicKey(
       '3cji8XW5uhtsA757vELVFAeJpskyHwbnTSceMFY5GjVT'
     ),
@@ -1595,17 +1595,17 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
       'D1V5GMf3N26owUFcbz2qR5N4G81qPKQvS2Vc4SM73XGB'
     ),
 
-    serumProgramId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
-    serumMarketPubkey: new PublicKey('2xiv8A5xrJ7RnGdxXB42uFEkYHJjszEhaJyKKt4WaLep'),
+    serumProgramId: new PublicKey('srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX'), // openbook
+    serumMarketPubkey: new PublicKey('DZjbn4XC8qoHKikZqzmhemykVzmossoayV9ffbsUqxVj'),
     serumCoinVaultAccount: new PublicKey(
-      'GGcdamvNDYFhAXr93DWyJ8QmwawUHLCyRqWL3KngtLRa'
+      '7ssdQJxVAEBSigoJovgHcchwcEQFPPtYbyzLHDHEewKM'
     ),
-    serumPcVaultAccount: new PublicKey('22jHt5WmosAykp3LPGSAKgY45p7VGh4DFWSwp21SWBVe'),
-    serumVaultSigner: new PublicKey('FmhXe9uG6zun49p222xt3nG1rBAkWvzVz7dxERQ6ouGw'),
+    serumPcVaultAccount: new PublicKey('EBGFfeQ5dVwW4HxtShVbh8aCh2fKJ1r2qXBoa6teUve6'),
+    serumVaultSigner: new PublicKey('HYfri5vWyYiDziQeprFErUTbrWdUnkfAFnAAGApZjdGv'),
 
-    serumEventQueueAccount: new PublicKey('H9dZt8kvz1Fe5FyRisb77KcYTaN8LEbuVAfJSnAaEABz'),
-    serumBidsAccount: new PublicKey('Hf84mYadE1VqSvVWAvCWc9wqLXak4RwXiPb4A91EAUn5'),
-    serumAsksAccount: new PublicKey('DC1HsWWRCXVg3wk2NndS5LTbce3axwUwUZH1RgnV4oDN'),
+    serumEventQueueAccount: new PublicKey('EkKZwBeKWPvhraYERfUNr2fdh1eazrbTrQXYkRZs24XB'),
+    serumBidsAccount: new PublicKey('CXMRrGEseppLPmzYJsx5vYwTkaDEag4A9LJvgrAeNpF'),
+    serumAsksAccount: new PublicKey('27BrDDYtv9NDQCALCNnDqe3BqjYkgiaQwKBbyqCA8p8B'),
 
     rewardAccounts: [
       {
@@ -1629,7 +1629,7 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
 
     ammIdPubkey: new PublicKey('7XawhbbxtsRcQA8KTkHT9f9nc6d69UwqCDh6U5EEbEmX'),
     ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
-    ammOpenOrdersPubkey: new PublicKey('4NJVwEAoudfSvU5kdxKm5DsQe4AAqG6XxpZcNdQVinS4'),
+    ammOpenOrdersPubkey: new PublicKey('3oWQRLewGsUMA2pebcpGPPGrzyRNfbs7fQEMUxPAGgff'),
     ammTargetOrderPubkey: new PublicKey(
       '9x4knb3nuNAzxsV7YFuGLgnYqKArGemY54r2vFExM1dp'
     ),
@@ -1641,17 +1641,13 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
       '2JKZRQc92TaH3fgTcUZyxfD7k7V7BMqhF24eussPtkwh'
     ),
 
-    serumProgramId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
-    serumMarketPubkey: new PublicKey('HWHvQhFmJB3NUcu1aihKmrKegfVxBEHzwVX6yZCKEsi1'),
+    serumProgramId: new PublicKey('srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX'), // openbook
+    serumMarketPubkey: new PublicKey('2AdaV97p6SfkuMQJdu8DHhBhmJe7oWdvbm52MJfYQmfA'),
     serumCoinVaultAccount: new PublicKey(
-      '29cTsXahEoEBwbHwVc59jToybFpagbBMV6Lh45pWEmiK'
+      '4zVFCGJVQhSvsJ625qTH4WKgvfPQpNpAVUfjpgCxbKh8'
     ),
-    serumPcVaultAccount: new PublicKey('EJwyNJJPbHH4pboWQf1NxegoypuY48umbfkhyfPew4E'),
-    serumVaultSigner: new PublicKey('CzZAjoEqA6sjqtaiZiPqDkmxG6UuZWxwRWCenbBMc8Xz'),
-
-    serumEventQueueAccount: new PublicKey('GR363LDmwe25NZQMGtD2uvsiX66FzYByeQLcNFr596FK'),
-    serumBidsAccount: new PublicKey('2juozaawVqhQHfYZ9HNcs66sPatFHSHeKG5LsTbrS2Dn'),
-    serumAsksAccount: new PublicKey('ANXcuziKhxusxtthGxPxywY7FLRtmmCwFWDmU5eBDLdH'),
+    serumPcVaultAccount: new PublicKey('9aoqhYjXBqWsTVCEjwtxrotx6sVPGVLmbpVSpSRzTv54'),
+    serumVaultSigner: new PublicKey('n8meSpYX5n3oRoToN21PFQ5SSYBDf675eub3WMoJJoA'),
 
     rewardAccounts: [
       {
@@ -1706,7 +1702,7 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
 
     ammIdPubkey: new PublicKey('DVa7Qmb5ct9RCpaU7UTpSaf3GVMYz17vNVU67XpdCRut'),
     ammAuthPubkey: new PublicKey('5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1'),
-    ammOpenOrdersPubkey: new PublicKey('7UF3m8hDGZ6bNnHzaT2YHrhp7A7n9qFfBj6QEpHPv5S8'),
+    ammOpenOrdersPubkey: new PublicKey('8MSPLj4c2hi1fZGDARvxLXQp1ooDQ8iGnWXbGdwvZxUQ'),
     ammTargetOrderPubkey: new PublicKey(
       '3K2uLkKwVVPvZuMhcQAPLF8hw95somMeNwJS7vgWYrsJ'
     ),
@@ -1718,17 +1714,13 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
       'FBzqDD1cBgkZ1h6tiZNFpkh4sZyg6AG8K5P9DSuJoS5F'
     ),
 
-    serumProgramId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
-    serumMarketPubkey: new PublicKey('teE55QrL4a4QSfydR9dnHF97jgCfptpuigbb53Lo95g'),
+    serumProgramId: new PublicKey('srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX'), // openbook
+    serumMarketPubkey: new PublicKey('GpHbiJJ9VHiuHVXeoet121Utrbm1CSNNzYrBKB8Xz2oz'),
     serumCoinVaultAccount: new PublicKey(
-      '2kVNVEgHicvfwiyhT2T51YiQGMPFWLMSp8qXc1hHzkpU'
+      'kh2FSFa3JQn858KwM4NFjJVokQgtEpnqUyrz62QTMN6'
     ),
-    serumPcVaultAccount: new PublicKey('5AXZV7XfR7Ctr6yjQ9m9dbgycKeUXWnWqHwBTZT6mqC7'),
-    serumVaultSigner: new PublicKey('HzWpBN6ucpsA9wcfmhLAFYqEUmHjE9n2cGHwunG5avpL'),
-
-    serumEventQueueAccount: new PublicKey('58KcficuUqPDcMittSddhT8LzsPJoH46YP4uURoMo5EB'),
-    serumBidsAccount: new PublicKey('AvKStCiY8LTp3oDFrMkiHHxxhxk4sQUWnGVcetm4kRpy'),
-    serumAsksAccount: new PublicKey('Hj9kckvMX96mQokfMBzNCYEYMLEBYKQ9WwSc1GxasW11'),
+    serumPcVaultAccount: new PublicKey('JBnZwmn4V8wVHLWzHGeiKZ41icPf6d64cdfHBBaba1w3'),
+    serumVaultSigner: new PublicKey('6tooYdTzzBm6dPqwDz29addE2YHzvDVDcAt7CbgXkxCN'),
 
     rewardAccounts: [
       {
@@ -1917,26 +1909,23 @@ for (const key in RAYDIUM_LP_METAS) {
 }
 
 export const SWITCHBOARD_PRICE: { [key in TokenID]?: PublicKey } = {
-  [TokenID.BTC]: new PublicKey('74YzQPGUT9VnjrBz8MuyDLKgKpbDqGot5xZJvTtMi6Ng'),
-  [TokenID.ETH]: new PublicKey('QJc2HgGhdtW4e7zjvLB1TGRuwEpTre2agU5Lap2UqYz'),
-  [TokenID.SOL]: new PublicKey('AdtRGGhmqvom3Jemp5YNrxd9q9unX36BZk1pujkkXijL'),
-  [TokenID.mSOL]: new PublicKey('CEPVH2t11KS4CaL3w4YxT9tRiijoGA4VEbnQ97cEpDmQ'),
-  [TokenID.stSOL]: new PublicKey('9r2p6vyF8Wp5YB2DASK95yuXEakQth6wmUmV2DpH91WX'),
-  [TokenID.whETH]: new PublicKey('QJc2HgGhdtW4e7zjvLB1TGRuwEpTre2agU5Lap2UqYz'),
-  [TokenID.scnSOL]: new PublicKey('DpzEKDSszosuzRUdRYzEcEbt6iZ4xhVEANQSRAYDYw8h'),
+  [TokenID.BTC]: new PublicKey('8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee'),
+  [TokenID.ETH]: new PublicKey('HNStfhaLnqwF2ZtJUizaA9uHDAVB976r2AgTUx9LrdEo'),
+  [TokenID.SOL]: new PublicKey('GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR'),
+  [TokenID.mSOL]: new PublicKey('81muJBhUKQmiRbRrATu5GEaKpeXsFLcFAdaknVDZvE6p'), // TWAP?
+  [TokenID.stSOL]: new PublicKey('9LNYQZLJG5DAyeACCTzBFG6H3sDhehP5xtYLdhrZtQkA'),
+  [TokenID.whETH]: new PublicKey('HNStfhaLnqwF2ZtJUizaA9uHDAVB976r2AgTUx9LrdEo'),
+  [TokenID.scnSOL]: new PublicKey('44DWoG87D3Ewg3G3U3cxfAAqXcsDHUtJZ72ibPbdSRBG'),
 
-  [TokenID.APT]: new PublicKey('CvLZbNUPLkbMuVK9YPqhvLu4UkXmrJbF98odXtPL6VRu'),
-  [TokenID.RAY]: new PublicKey('CppyF6264uKZkGua1brTUa2fSVdMFSCszwzDs76HCuzU'),
-  [TokenID.ORCA]: new PublicKey('EHwSRkm2ErRjWxCxrTxrmC7sT2kGb5jJcsiindUHAX7W'),
-  [TokenID.SBR]: new PublicKey('Lp3VNoRQi699VZe6u59TV8J38ELEUzxkaisoWsDuJgB'),
-  // [TokenID.MERC]: new PublicKey(""), // MERC not on sb
-  [TokenID.FTT]: new PublicKey('6SqRewrr5f4ycWy7NvLmNgpXJbhwXrtTc1erL9aq2gP3'),
-  [TokenID.SRM]: new PublicKey('BAoygKcKN7wk8yKzLD6sxzUQUqLvhBV1rjMA4UJqfZuH'),
+  [TokenID.APT]: new PublicKey('C1zLTQb7pQ11LLKfkfaZjZ5UQrbLP6MWrLGngRJMiZJS'),
+  [TokenID.RAY]: new PublicKey('2oALNZVi5czyHvKbnjE4Jf2gR7dNp1FBpEGaq4PzVAf7'),
+  [TokenID.ORCA]: new PublicKey('3Jo3gPFkH1ov54LJVJaS9NMYuMvZAbtHk4aSUPHTzAMU'),
+  [TokenID.SBR]: new PublicKey('HFDJtPwJSn2kv96mn5wYUKVhA2QHbphfNtjGeKuyfXnm'),
+  [TokenID.FTT]: new PublicKey('57EF89YgEUUcxtm8upPFmi7rHVzfJDMVsm2BHgtVM3yR'),
+  [TokenID.SRM]: new PublicKey('CUgoqwiQ4wCt6Tthkrgx5saAEpLBjPCdHshVa4Pbfcx2'),
 
-  [TokenID.USDT]: new PublicKey('5mp8kbkTYwWWCsKSte8rURjTuyinsqBpJ9xAQsewPDD'),
-  [TokenID.USDC]: new PublicKey('CZx29wKMUxaJDq6aLVQTdViPL754tTR64NAgQBUGxxHb'),
-  [TokenID.UST]: new PublicKey('8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61'),
-  [TokenID.USTv2]: new PublicKey('8o8gN6VnW45R8pPfQzUJUwJi2adFmsWwfGcFNmicWt61'),
+  [TokenID.USDT]: new PublicKey('ETAaeeuQBwsh9mC2gCov9WdhJENZuffRMXY2HgjCcSL9'),
+  [TokenID.USDC]: new PublicKey('BjUgj6YCnFBZ49wF54ddBVA9qu8TeqkFtkbqmZcee8uW'),
 };
 
 export const PYTH_PRICE: { [key in TokenID]?: PublicKey } = {

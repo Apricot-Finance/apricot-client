@@ -1,6 +1,5 @@
 import { AccountInfo, Connection } from '@solana/web3.js';
 import { AccountLayout, MintLayout, u64 } from '@solana/spl-token';
-import * as switchboard from '@switchboard-xyz/switchboard-api';
 import invariant from 'tiny-invariant';
 import { DECIMAL_MULT, LP_SWAP_METAS, RAYDIUM_LP_METAS, COINGECKO_PRICE_ID } from '../constants';
 import { AppConfig, PoolConfig, TokenID } from '../types';
@@ -13,6 +12,7 @@ import { AMM_INFO_LAYOUT_V4 } from './Layouts';
 import { parsePriceData } from '@pythnetwork/client';
 import { Buffer } from 'buffer';
 import CoinGecko from 'coingecko-api';
+import SwitchboardProgram from "@switchboard-xyz/sbv2-lite";
 
 rax.attach();
 
@@ -45,13 +45,14 @@ export class PriceInfo {
   async fetchPrice(
     tokId: TokenID,
     connection: Connection,
-    isForcePriceByChain = false,
+    isForcePriceByChain = true,
   ): Promise<number> {
+    invariant(!tokId.includes('UST'), 'Unsupported tokens');
     if (tokId in this.config.switchboardPriceKeys) {
       return this.fetchViaSwitchboard(tokId, connection);
     } else {
-      invariant(tokId in this.config.poolConfigs);
-      const poolConfig = this.config.poolConfigs[tokId]!;
+      const poolConfig = this.config.poolConfigs[tokId];
+      invariant(poolConfig);
       invariant(poolConfig.isLp(), 'volatile/stable tokens should be priced through switchboard');
       // read directly from raydium endpoint if it's raydium LP
 
@@ -67,19 +68,19 @@ export class PriceInfo {
   }
 
   async fetchViaSwitchboard(tokId: TokenID, connection: Connection): Promise<number> {
-    const key = this.config.switchboardPriceKeys[tokId]!;
+    const key = this.config.switchboardPriceKeys[tokId];
     invariant(key, `${tokId} not available through switchboard`);
-    const data = await switchboard.parseAggregatorAccountData(connection, key);
-    let price = data.currentRoundResult?.result;
-    if (!price) {
-      price = data.lastRoundResult?.result;
-    }
-    invariant(price);
-    return price;
+    const sbv2 = await SwitchboardProgram.loadMainnet(connection);
+    const accountInfo = await sbv2.program.provider.connection.getAccountInfo(key);
+    invariant(accountInfo, `failed to fetch account info on Switchboard for ${tokId}`);
+    const latestResult = sbv2.decodeLatestAggregatorValue(accountInfo, 300);
+    invariant(latestResult, `failed to fetch latest result for aggregator`);
+    // latestResult is instance of Big
+    return parseFloat('' + latestResult);
   }
 
   async fetchViaPyth(tokId: TokenID, connection: Connection): Promise<number> {
-    const key = this.config.pythPriceKeys[tokId]!;
+    const key = this.config.pythPriceKeys[tokId];
     invariant(key, `${tokId} not available through pyth`);
     const accountInfo = await connection.getAccountInfo(key, 'confirmed');
     invariant(accountInfo, `${tokId} PriceData not available through pyth`);
@@ -153,8 +154,9 @@ export class PriceInfo {
     invariant(lpMint);
     invariant(leftTokId);
     invariant(rightTokId);
-    invariant(lpTokId in LP_SWAP_METAS);
-    const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]!.getLRVaults()!;
+    const lpMeta = LP_SWAP_METAS[lpTokId];
+    invariant(lpMeta);
+    const [leftVault, rightVault] = lpMeta.getLRVaults();
 
     const accountKeys = [leftVault, rightVault, lpMint];
     if (poolConfig.lpDex === Dex.Raydium) {
@@ -172,7 +174,7 @@ export class PriceInfo {
     const infosRaw = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
     const infos = infosRaw as AccountInfo<Buffer>[];
     infos.forEach((info, i) => {
-      invariant(info, `Fetch multiple account info failed at ${i}`);
+      invariant(info, `Fetch multiple account info failed at ${i} for ${lpTokId}`);
       if (i <= 1) {
         invariant(
           info.data.length === AccountLayout.span,
@@ -250,17 +252,7 @@ export class PriceInfo {
     const decimalMult = DECIMAL_MULT[lpTokId];
     const lpBalance = new Decimal(lpBalanceStr).div(decimalMult).toNumber();
 
-    // raydium has extra balance floating on serum
-    if (poolConfig.lpDex === Dex.Raydium) {
-      const [additionalLeftNative, additionalRightNative] = await this.getRaydiumAdditionalBalance(
-        lpTokId,
-        connection,
-      );
-      const additionalLeftBalance = additionalLeftNative / DECIMAL_MULT[leftTokId];
-      const additionalRightBalance = additionalRightNative / DECIMAL_MULT[rightTokId];
-      leftBalance += additionalLeftBalance;
-      rightBalance += additionalRightBalance;
-    }
+    invariant(poolConfig.lpDex !== Dex.Raydium, 'Not support Raydium LP');
 
     const leftPrice = await this.fetchPrice(leftTokId, connection);
     const rightPrice = await this.fetchPrice(rightTokId, connection);
@@ -328,7 +320,7 @@ export class PriceInfo {
     const infosRaw = await connection.getMultipleAccountsInfo(accountKeys, 'confirmed');
     const infos = infosRaw as AccountInfo<Buffer>[];
     infos.forEach((info, i) => {
-      invariant(info, `Fetch multiple account info failed at ${i}`);
+      invariant(info, `Fetch multiple account info failed at ${i} for ${lpTokId}`);
       if (i <= 1) {
         invariant(
           info.data.length === AccountLayout.span,

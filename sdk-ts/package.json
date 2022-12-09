@@ -37,7 +37,7 @@
     "@pythnetwork/client": "^2.5.1",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.37.0",
-    "@switchboard-xyz/switchboard-api": "^0.2.152",
+    "@switchboard-xyz/sbv2-lite": "^0.1.6",
     "@types/coingecko-api": "^1.0.10",
     "axios": "^0.24.0",
     "buffer-layout": "^1.2.2",
