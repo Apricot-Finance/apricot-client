@@ -12,17 +12,20 @@ const config = production === 'alpha' ? ALPHA_CONFIG : PUBLIC_CONFIG;
 async function doPrice() {
 
   const priceInfo = new PriceInfo(config);
-
   const conn = getRPCConnection(endpoint);
 
+  console.log('Start to fetch price:');
+
   for (const poolConfig of config.getPoolConfigList()) {
+    // if (!poolConfig.isLp()) continue;
     const tokId = poolConfig.tokenId;
-    console.log(`Fetching price for ${tokId}`);
-    const price = await priceInfo.fetchPrice(tokId, conn);
-    console.log(`Primary Price for ${tokId}: ${price}`);
+    if (tokId.includes('UST')) continue;
+    console.log(`${tokId}`);
+    const price = await priceInfo.fetchPrice(tokId, conn, true);
+    console.log(`${price}(primary)`);
     if (tokId in config.pythPriceKeys) {
       const pythPrice = await priceInfo.fetchViaPyth(tokId, conn);
-      console.log(`Pyth Price for ${tokId}: ${pythPrice}`);
+      console.log(`${pythPrice}(pyth)`);
     }
     if (poolConfig.isLp()) {
       const amounts = await priceInfo.fetchLRValuets(tokId, conn);
