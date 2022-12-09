@@ -85,7 +85,7 @@ export class PriceInfo {
     const accountInfo = await connection.getAccountInfo(key, 'confirmed');
     invariant(accountInfo, `${tokId} PriceData not available through pyth`);
     const parsedData = parsePriceData(accountInfo.data);
-    invariant(parsedData.price, `${tokId} returned invalid price from pyth`);
+    invariant(parsedData.price, `invalid price ${parsedData.price} returned from pyth for token ${tokId}`);
     return parsedData.price;
   }
 
@@ -245,8 +245,8 @@ export class PriceInfo {
     invariant(rightTokId);
     invariant(lpTokId in LP_SWAP_METAS);
     const [leftVault, rightVault] = LP_SWAP_METAS[lpTokId]!.getLRVaults()!;
-    let leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
-    let rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
+    const leftBalance = (await connection.getTokenAccountBalance(leftVault)).value.uiAmount!;
+    const rightBalance = (await connection.getTokenAccountBalance(rightVault)).value.uiAmount!;
     const lpMintData = (await connection.getParsedAccountInfo(lpMint)).value?.data as any;
     const lpBalanceStr = lpMintData.parsed?.info.supply;
     const decimalMult = DECIMAL_MULT[lpTokId];

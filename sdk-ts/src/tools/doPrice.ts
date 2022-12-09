@@ -13,10 +13,13 @@ async function doPrice() {
 
   const priceInfo = new PriceInfo(config);
   const conn = getRPCConnection(endpoint);
+  const poolConfigs = config.getPoolConfigList()
+    .sort((a, b) => a.tokenId > b.tokenId ? -1 : 1)
+    .sort((a, b) => a.isLp() && !b.isLp() ? 1 : -1);
 
   console.log('Start to fetch price:');
 
-  for (const poolConfig of config.getPoolConfigList()) {
+  for (const poolConfig of poolConfigs) {
     // if (!poolConfig.isLp()) continue;
     const tokId = poolConfig.tokenId;
     if (tokId.includes('UST')) continue;
@@ -26,6 +29,10 @@ async function doPrice() {
     if (tokId in config.pythPriceKeys) {
       const pythPrice = await priceInfo.fetchViaPyth(tokId, conn);
       console.log(`${pythPrice}(pyth)`);
+    }
+    if (poolConfig.isLp()) {
+      const price = await priceInfo.fetchPrice(tokId, conn, false);
+      console.log(`${price}(reference)`);
     }
     if (poolConfig.isLp()) {
       const amounts = await priceInfo.fetchLRValuets(tokId, conn);
