@@ -1912,7 +1912,7 @@ export const SWITCHBOARD_PRICE: { [key in TokenID]?: PublicKey } = {
   [TokenID.BTC]: new PublicKey('8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee'),
   [TokenID.ETH]: new PublicKey('HNStfhaLnqwF2ZtJUizaA9uHDAVB976r2AgTUx9LrdEo'),
   [TokenID.SOL]: new PublicKey('GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR'),
-  [TokenID.mSOL]: new PublicKey('81muJBhUKQmiRbRrATu5GEaKpeXsFLcFAdaknVDZvE6p'), // TWAP?
+  [TokenID.mSOL]: new PublicKey('81muJBhUKQmiRbRrATu5GEaKpeXsFLcFAdaknVDZvE6p'),
   [TokenID.stSOL]: new PublicKey('9LNYQZLJG5DAyeACCTzBFG6H3sDhehP5xtYLdhrZtQkA'),
   [TokenID.whETH]: new PublicKey('HNStfhaLnqwF2ZtJUizaA9uHDAVB976r2AgTUx9LrdEo'),
   [TokenID.scnSOL]: new PublicKey('44DWoG87D3Ewg3G3U3cxfAAqXcsDHUtJZ72ibPbdSRBG'),
@@ -1935,11 +1935,11 @@ export const PYTH_PRICE: { [key in TokenID]?: PublicKey } = {
   [TokenID.mSOL]: new PublicKey('E4v1BBgoso9s64TQvmyownAVJbhbEPGyzA3qn4n46qj9'),
   [TokenID.stSOL]: new PublicKey('Bt1hEbY62aMriY1SyQqbeZbm8VmSbQVGBFzSzMuVNWzN'),
   [TokenID.whETH]: new PublicKey('JBu1AL4obBcCMqKBBxhpWCNUt136ijcuMZLFvTP7iWdB'),
-  // [TokenID.scnSOL]: new PublicKey(""),
+  // [TokenID.scnSOL]: new PublicKey('25yGzWV5okF7aLivSCE4xnjVUPowQcThhhx5Q2fgFhkm'), doesn't return valid result
 
-  //[TokenID.APT]: new PublicKey(""),
+  // [TokenID.APT]: new PublicKey(""),
   [TokenID.RAY]: new PublicKey('AnLf8tVYCM816gmBjiy8n53eXKKEDydT5piYjjQDPgTB'),
-  // [TokenID.ORCA]: new PublicKey(""),
+  [TokenID.ORCA]: new PublicKey('4ivThkX8uRxBpHsdWSqyXYihzKF3zpRGAUCqyuagnLoV'),
   [TokenID.SBR]: new PublicKey('8Td9VML1nHxQK6M8VVyzsHo32D7VBk72jSpa9U861z2A'),
   [TokenID.FTT]: new PublicKey('8JPJJkmDScpcNmBRKGZuPuG2GYAveQgP3t5gFuMymwvF'),
   [TokenID.SRM]: new PublicKey('3NBReDRTLKMQEKiLD5tGcx4kXbTf88b7f2xLS9UuGjym'),
@@ -1951,6 +1951,24 @@ export const PYTH_PRICE: { [key in TokenID]?: PublicKey } = {
 };
 
 export const COINGECKO_PRICE_ID: { [key in TokenID]?: string } = {
+  [TokenID.BTC]: 'bitcoin',
+  [TokenID.ETH]: 'ethereum',
+  [TokenID.SOL]: 'solana',
+  [TokenID.mSOL]: 'msol',
+  [TokenID.stSOL]: 'lido-staked-sol',
+  [TokenID.whETH]: 'ethereum',
+  [TokenID.scnSOL]: 'socean-staked-sol',
+
+  [TokenID.APT]: 'apricot',
+  [TokenID.RAY]: 'raydium',
+  [TokenID.ORCA]: 'orca',
+  [TokenID.SBR]: 'saber',
+  [TokenID.FTT]: 'ftx-token',
+  [TokenID.SRM]: 'serum',
+
+  [TokenID.USDT]: 'tether',
+  [TokenID.USDC]: 'usd-coin',
+
   [TokenID.MNDE]: 'marinade',
   [TokenID.wLDO]: 'lido-dao',
   [TokenID.wLUNA]: 'terra-luna',
