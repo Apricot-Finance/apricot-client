@@ -1649,6 +1649,10 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     serumPcVaultAccount: new PublicKey('9aoqhYjXBqWsTVCEjwtxrotx6sVPGVLmbpVSpSRzTv54'),
     serumVaultSigner: new PublicKey('n8meSpYX5n3oRoToN21PFQ5SSYBDf675eub3WMoJJoA'),
 
+    serumEventQueueAccount: new PublicKey('9zw6ztEpHfcKccahzTKgPkQNYhJMPwL4iJJc8BAztNYY'),
+    serumBidsAccount: new PublicKey('F4LnU7SarP7nLmGPnDHxnCqZ8gRwiFRgbo5seifyicfo'),
+    serumAsksAccount: new PublicKey('BKgZNz8tqJFoZ9gEHKR6k33wBMeXKAaSWpW5zMhSRhr3'),
+
     rewardAccounts: [
       {
         rewardToken: TokenID.RAY,
@@ -1721,6 +1725,10 @@ export const RAYDIUM_LP_METAS: {[key in TokenID]? : RaydiumLpSwapInfo } = {
     ),
     serumPcVaultAccount: new PublicKey('JBnZwmn4V8wVHLWzHGeiKZ41icPf6d64cdfHBBaba1w3'),
     serumVaultSigner: new PublicKey('6tooYdTzzBm6dPqwDz29addE2YHzvDVDcAt7CbgXkxCN'),
+
+    serumEventQueueAccount: new PublicKey('9VWPNiJu7ui3xucUHtKmGCHENWhohVmZxujP4uCB8Fzm'),
+    serumBidsAccount: new PublicKey('EY9SKG9EyNFuy1JfQrmaUdHUiTqaVfX3zG9gGfWQywTV'),
+    serumAsksAccount: new PublicKey('GZ2DN58shX6igfaCquq8BLWE1ytkT5uKZfnAGSiu8mR4'),
 
     rewardAccounts: [
       {
