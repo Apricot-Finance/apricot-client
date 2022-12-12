@@ -1947,7 +1947,7 @@ export const PYTH_PRICE: { [key in TokenID]?: PublicKey } = {
 
   // [TokenID.APT]: new PublicKey(""),
   [TokenID.RAY]: new PublicKey('AnLf8tVYCM816gmBjiy8n53eXKKEDydT5piYjjQDPgTB'),
-  [TokenID.ORCA]: new PublicKey('4ivThkX8uRxBpHsdWSqyXYihzKF3zpRGAUCqyuagnLoV'),
+  // [TokenID.ORCA]: new PublicKey('4ivThkX8uRxBpHsdWSqyXYihzKF3zpRGAUCqyuagnLoV'),
   [TokenID.SBR]: new PublicKey('8Td9VML1nHxQK6M8VVyzsHo32D7VBk72jSpa9U861z2A'),
   [TokenID.FTT]: new PublicKey('8JPJJkmDScpcNmBRKGZuPuG2GYAveQgP3t5gFuMymwvF'),
   [TokenID.SRM]: new PublicKey('3NBReDRTLKMQEKiLD5tGcx4kXbTf88b7f2xLS9UuGjym'),
